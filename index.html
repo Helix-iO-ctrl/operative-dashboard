@@ -32,7 +32,7 @@
       currentPhase: 0,
 
       // ── SUMMARY (keep in sync with tasks below) ──
-      summary: { total: 33, done: 6, inProgress: 0, blocked: 0, todo: 27 },
+      summary: { total: 33, done: 8, inProgress: 0, blocked: 0, todo: 25 },
 
       // ── DISCIPLINES & TASKS ──
       // status: "todo" | "in-progress" | "blocked" | "done"
@@ -93,7 +93,7 @@
             { id: 27, text: "Design LinkedIn banner for Velo brand — 'AI-Powered Business Advisor' positioning",     status: "todo",    priority: "high" },
             { id: 28, text: "Design Velo logo / wordmark",                                                            status: "todo",    priority: "medium" },
             { id: 29, text: "Write brand voice guide: tone, language rules, what we say / what we don't",            status: "todo",    priority: "low" },
-            { id: 30, text: "Define color palette and type system (extend from landing page aesthetic)",              status: "todo",    priority: "low" },
+            { id: 30, text: "Velo brand color palette selected — asset at docs/creative/velo-color-palette.html",   status: "done",    priority: "low" },
           ],
         },
         {
@@ -110,6 +110,8 @@
 
       // ── DECISIONS ──
       decisions: [
+        { date: "Mar 6, 2026", title: "Velo brand color palette selected — Amber (#E07A2F) as primary",
+          detail: "Cowork selected the palette based on brief: approachable, not another AI brand, different. Primary: Velo Amber #E07A2F. Dark: Deep Night #1C1C2A. Background: Warm White #FBF7F2. Accent: Burnt Amber #C45C25. Neutral: Slate #6B6878. Asset: docs/creative/velo-color-palette.html" },
         { date: "Mar 6, 2026", title: "Brand name finalized: Velo — one brand for both tracks",
           detail: "Velo is the business name for all markets — Track A (small biz advisory) and Track B (consultants). The previous two-brand idea (Operative + Velo) is retired. Domain: velo.io. Brand design work begins now." },
         { date: "Mar 6, 2026", title: "Domain: velo.io selected — purchase is the next action",
@@ -141,8 +143,6 @@
       openQuestions: [
         { id: "q-5th-contact", q: "Who is the 5th founding client outreach contact?",
           urgency: "medium", note: "4 confirmed: Jordan B. (logistics), Zak & Ciara B. (gym/PT), Gregg D. (real estate), Greta R. (SLP). One more contact needed to complete the outreach list." },
-        { id: "q-brand-color", q: "What is Velo's brand color palette?",
-          urgency: "high", note: "Brand name is now Velo — design work is starting. A color decision unblocks the logo, LinkedIn banner, and landing page rebrand. The current dashboard accent is placeholder green." },
       ],
 
       // ── WEEKLY UPDATES ──
@@ -187,7 +187,7 @@
       medium:   { color: "#2563EB", bg: "#EFF6FF", label: "Medium" },
     };
 
-    const BRAND = "#1a6b3c"; // Operative green — update if brand name changes
+    const BRAND = "#E07A2F"; // Velo Amber — finalized Mar 6, 2026
 
     function formatDate(iso) {
       const d = new Date(iso);
