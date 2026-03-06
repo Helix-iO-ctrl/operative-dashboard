@@ -546,19 +546,6 @@
       const qComments = comments[`question-${index}`] || [];
       const canSubmit = name.trim() && answer.trim() && !loading;
 
-      // Determine question state based on comment history
-      const lastComment    = qComments[qComments.length - 1];
-      const hasFollowUp    = lastComment && lastComment.commenter_name === 'Cowork';
-      const hasAnyAnswer   = qComments.length > 0;
-      const showInputForm  = !hasAnyAnswer || hasFollowUp;
-
-      // Badge swaps based on state
-      const badge = hasFollowUp
-        ? { color:'#B45309', bg:'#FEF3C7', label:'↩ Needs reply' }
-        : hasAnyAnswer
-          ? { color:'#166534', bg:'#DCFCE7', label:'✓ Answered' }
-          : { color:u.color,   bg:u.bg,     label:u.label };
-
       async function submitAnswer() {
         setLoading(true); setError('');
         try {
@@ -593,73 +580,51 @@
 
       return (
         <div style={{ borderBottom:"1px solid #F1F5F9" }}>
-          <div style={{ display:"grid", gridTemplateColumns:"100px 1fr", padding:"16px 18px", gap:14, alignItems:"start" }}>
-            <Badge color={badge.color} bg={badge.bg}>{badge.label}</Badge>
+          <div style={{ display:"grid", gridTemplateColumns:"80px 1fr", padding:"16px 18px", gap:14, alignItems:"start" }}>
+            <Badge color={u.color} bg={u.bg}>{u.label}</Badge>
             <div>
               <div style={{ fontSize:13, color:"#0F172A", fontWeight:500, marginBottom:4 }}>{item.q}</div>
-              <div style={{ fontSize:12, color:"#64748B", lineHeight:1.5, marginBottom:hasAnyAnswer?10:12 }}>{item.note}</div>
+              <div style={{ fontSize:12, color:"#64748B", lineHeight:1.5, marginBottom:12 }}>{item.note}</div>
 
-              {/* Comment thread — user answers + Cowork follow-ups */}
-              {qComments.map((c, ci) => {
-                const isCowork = c.commenter_name === 'Cowork';
-                if (isCowork) {
-                  return (
-                    <div key={ci} style={{ marginBottom:12, padding:"12px 14px",
-                      background:"#FFFBEB", borderRadius:8,
-                      border:"1px solid #FDE68A", borderLeft:"3px solid #D97706" }}>
-                      <div style={{ fontSize:11, fontWeight:700, color:"#B45309",
-                        textTransform:"uppercase", letterSpacing:"0.05em", marginBottom:6 }}>
-                        ↩ Follow-up from Cowork
-                      </div>
-                      <div style={{ fontSize:13, color:"#1E293B", lineHeight:1.6 }}>{c.body}</div>
-                    </div>
-                  );
-                }
-                return (
-                  <div key={ci} style={{ fontSize:12, marginBottom:10, padding:"10px 12px",
-                    background:"#F8FAFC", borderRadius:6, borderLeft:`2px solid ${BRAND}` }}>
-                    <div style={{ color:"#94A3B8", marginBottom:3 }}>
-                      <strong style={{ color:"#374151" }}>{c.commenter_name}</strong>
-                      {c.created_at && <span>, {formatDate(c.created_at)}</span>}
-                    </div>
-                    <div style={{ color:"#1E293B", lineHeight:1.6, fontSize:13 }}>{c.body}</div>
-                  </div>
-                );
-              })}
+              {/* Existing answers */}
+              {qComments.map((c, ci) => (
+                <div key={ci} style={{ fontSize:12, marginBottom:10, padding:"10px 12px",
+                  background:"#F8FAFC", borderRadius:6, borderLeft:`2px solid ${BRAND}` }}>
+                  <span style={{ color:"#94A3B8" }}>
+                    <strong style={{ color:"#374151" }}>{c.commenter_name}</strong>, {formatDate(c.created_at)}
+                  </span>
+                  <div style={{ marginTop:4, color:"#1E293B", lineHeight:1.6, fontSize:13 }}>{c.body}</div>
+                </div>
+              ))}
 
-              {/* Answer / reply form — only shown when unanswered or follow-up is pending */}
-              {showInputForm && (
-                <>
-                  <textarea
-                    value={answer}
-                    onChange={e => setAnswer(e.target.value)}
-                    placeholder={hasFollowUp ? "Reply to follow-up..." : "Type your answer here..."}
-                    rows={2}
-                    style={{ width:"100%", fontSize:13, padding:"8px 10px", border:"1px solid #E2E8F0",
-                      borderRadius:6, outline:"none", fontFamily:"inherit", resize:"vertical",
-                      color:"#1E293B", marginBottom:8, display:"block",
-                      borderColor: hasFollowUp ? "#FDE68A" : "#E2E8F0" }}
-                  />
-                  <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
-                    <input
-                      value={name}
-                      onChange={e => setName(e.target.value)}
-                      placeholder="Your name"
-                      style={{ fontSize:13, padding:"6px 10px", border:"1px solid #E2E8F0",
-                        borderRadius:6, outline:"none", fontFamily:"inherit", color:"#1E293B", width:160 }}
-                    />
-                    <button onClick={submitAnswer} disabled={!canSubmit} style={{
-                      fontSize:12, padding:"6px 16px", border:"none", borderRadius:6,
-                      fontFamily:"inherit", fontWeight:600,
-                      cursor: canSubmit ? "pointer" : "not-allowed",
-                      background: canSubmit ? (hasFollowUp ? "#D97706" : BRAND) : "#E2E8F0",
-                      color: canSubmit ? "white" : "#94A3B8" }}>
-                      {loading ? 'Submitting...' : hasFollowUp ? 'Reply →' : 'Submit Answer →'}
-                    </button>
-                    {error && <span style={{ fontSize:12, color:"#DC2626" }}>⚠ {error}</span>}
-                  </div>
-                </>
-              )}
+              {/* Answer form */}
+              <textarea
+                value={answer}
+                onChange={e => setAnswer(e.target.value)}
+                placeholder="Type your answer here..."
+                rows={2}
+                style={{ width:"100%", fontSize:13, padding:"8px 10px", border:"1px solid #E2E8F0",
+                  borderRadius:6, outline:"none", fontFamily:"inherit", resize:"vertical",
+                  color:"#1E293B", marginBottom:8, display:"block" }}
+              />
+              <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
+                <input
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  placeholder="Your name"
+                  style={{ fontSize:13, padding:"6px 10px", border:"1px solid #E2E8F0",
+                    borderRadius:6, outline:"none", fontFamily:"inherit", color:"#1E293B", width:160 }}
+                />
+                <button onClick={submitAnswer} disabled={!canSubmit} style={{
+                  fontSize:12, padding:"6px 16px", border:"none", borderRadius:6,
+                  fontFamily:"inherit", fontWeight:600,
+                  cursor: canSubmit ? "pointer" : "not-allowed",
+                  background: canSubmit ? BRAND : "#E2E8F0",
+                  color: canSubmit ? "white" : "#94A3B8" }}>
+                  {loading ? 'Submitting...' : 'Submit Answer →'}
+                </button>
+                {error && <span style={{ fontSize:12, color:"#DC2626" }}>⚠ {error}</span>}
+              </div>
             </div>
           </div>
         </div>
