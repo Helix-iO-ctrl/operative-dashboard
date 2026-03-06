@@ -216,7 +216,7 @@
       );
     }
 
-    function TaskTable({ tasks, comments = {}, onCommentAdded }) {
+    function TaskTable({ tasks, comments = {}, onCommentAdded, viewedAssets = new Set(), onAssetViewed = () => {} }) {
       const [hoveredTask, setHoveredTask]   = useState(null);
       const [openPanel, setOpenPanel]       = useState(null);
       const [panelName, setPanelName]       = useState('');
@@ -225,19 +225,9 @@
       const [panelLoading, setPanelLoading] = useState(false);
       const [assetModal, setAssetModal]     = useState(null); // assetPath string or null
 
-      // localStorage-backed set of assetPaths the user has already opened
-      const [viewedAssets, setViewedAssets] = useState(() => {
-        try { return new Set(JSON.parse(localStorage.getItem('velo_viewed_assets_v1') || '[]')); }
-        catch { return new Set(); }
-      });
-
       function openAsset(assetPath) {
         setAssetModal(assetPath);
-        if (!viewedAssets.has(assetPath)) {
-          const updated = new Set([...viewedAssets, assetPath]);
-          setViewedAssets(updated);
-          localStorage.setItem('velo_viewed_assets_v1', JSON.stringify([...updated]));
-        }
+        onAssetViewed(assetPath);
       }
 
       function openComment(taskId) {
@@ -707,6 +697,23 @@
       const [tab, setTab]           = useState("overview");
       const [comments, setComments] = useState({});
 
+      // Lifted from TaskTable so section headers can also read it
+      const [viewedAssets, setViewedAssets] = useState(() => {
+        try { return new Set(JSON.parse(localStorage.getItem('velo_viewed_assets_v1') || '[]')); }
+        catch { return new Set(); }
+      });
+      function onAssetViewed(assetPath) {
+        if (!viewedAssets.has(assetPath)) {
+          const updated = new Set([...viewedAssets, assetPath]);
+          setViewedAssets(updated);
+          localStorage.setItem('velo_viewed_assets_v1', JSON.stringify([...updated]));
+        }
+      }
+      // Returns true if a discipline has at least one unviewed asset
+      function discHasNew(disc) {
+        return disc.tasks.some(t => t.assetPath && !viewedAssets.has(t.assetPath));
+      }
+
       useEffect(() => {
         async function fetchComments() {
           try {
@@ -872,6 +879,11 @@
                                 {disc.label[0]}
                               </div>
                               <span style={{ fontSize:13, fontWeight:600, color:"#1E293B" }}>{disc.label}</span>
+                              {discHasNew(disc) && (
+                                <span style={{ background:BRAND, color:"white", fontSize:9,
+                                  fontWeight:700, borderRadius:3, padding:"1px 6px",
+                                  letterSpacing:"0.06em", textTransform:"uppercase" }}>NEW</span>
+                              )}
                             </div>
                           </td>
                           <td style={{ padding:"12px 16px", borderBottom:"1px solid #F1F5F9", width:180 }}>
@@ -911,7 +923,7 @@
                     <span style={{ fontSize:13, fontWeight:600, color:"#0F172A" }}>{selected.label} Tasks</span>
                     <span style={{ fontSize:11, color:"#94A3B8" }}>{selected.tasks.length} total</span>
                   </div>
-                  <TaskTable tasks={selected.tasks} comments={comments} onCommentAdded={onCommentAdded} />
+                  <TaskTable tasks={selected.tasks} comments={comments} onCommentAdded={onCommentAdded} viewedAssets={viewedAssets} onAssetViewed={onAssetViewed} />
                 </div>
               )}
             </>}
@@ -930,8 +942,15 @@
                         background:sel===disc.id?disc.lightColor:"white",
                         borderLeft:`3px solid ${sel===disc.id?disc.color:"transparent"}`,
                         borderBottom:"1px solid #F1F5F9" }}>
-                        <span style={{ fontSize:13, fontWeight:sel===disc.id?600:400,
-                          color:sel===disc.id?disc.color:"#374151" }}>{disc.label}</span>
+                        <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                          <span style={{ fontSize:13, fontWeight:sel===disc.id?600:400,
+                            color:sel===disc.id?disc.color:"#374151" }}>{disc.label}</span>
+                          {discHasNew(disc) && (
+                            <span style={{ background:BRAND, color:"white", fontSize:9,
+                              fontWeight:700, borderRadius:3, padding:"1px 5px",
+                              letterSpacing:"0.06em", textTransform:"uppercase" }}>NEW</span>
+                          )}
+                        </div>
                         <span style={{ fontSize:11, color:"#94A3B8" }}>{dDone}/{disc.tasks.length}</span>
                       </div>
                     );
@@ -944,7 +963,7 @@
                       background:selected.lightColor }}>
                       <span style={{ fontSize:14, fontWeight:600, color:"#0F172A" }}>{selected.label}</span>
                     </div>
-                    <TaskTable tasks={selected.tasks} comments={comments} onCommentAdded={onCommentAdded} />
+                    <TaskTable tasks={selected.tasks} comments={comments} onCommentAdded={onCommentAdded} viewedAssets={viewedAssets} onAssetViewed={onAssetViewed} />
                   </div>
                 )}
               </div>
