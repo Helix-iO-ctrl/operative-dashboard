@@ -93,7 +93,8 @@
             { id: 27, text: "Design LinkedIn banner for Velo brand — 'AI-Powered Business Advisor' positioning",     status: "todo",    priority: "high" },
             { id: 28, text: "Design Velo logo / wordmark",                                                            status: "todo",    priority: "medium" },
             { id: 29, text: "Write brand voice guide: tone, language rules, what we say / what we don't",            status: "todo",    priority: "low" },
-            { id: 30, text: "Velo brand color palette selected — asset at docs/creative/velo-color-palette.html",   status: "done",    priority: "low" },
+            { id: 30, text: "Velo brand color palette selected",   status: "done",    priority: "low",
+              assetPath: "docs/creative/velo-color-palette.html" },
           ],
         },
         {
@@ -222,6 +223,22 @@
       const [panelBody, setPanelBody]       = useState('');
       const [panelError, setPanelError]     = useState('');
       const [panelLoading, setPanelLoading] = useState(false);
+      const [assetModal, setAssetModal]     = useState(null); // assetPath string or null
+
+      // localStorage-backed set of assetPaths the user has already opened
+      const [viewedAssets, setViewedAssets] = useState(() => {
+        try { return new Set(JSON.parse(localStorage.getItem('velo_viewed_assets_v1') || '[]')); }
+        catch { return new Set(); }
+      });
+
+      function openAsset(assetPath) {
+        setAssetModal(assetPath);
+        if (!viewedAssets.has(assetPath)) {
+          const updated = new Set([...viewedAssets, assetPath]);
+          setViewedAssets(updated);
+          localStorage.setItem('velo_viewed_assets_v1', JSON.stringify([...updated]));
+        }
+      }
 
       function openComment(taskId) {
         setOpenPanel(taskId);
@@ -266,6 +283,43 @@
       const canSend = panelName.trim() && panelBody.trim() && !panelLoading;
 
       return (
+        <>
+        {/* ── Asset preview modal ── */}
+        {assetModal && (
+          <div onClick={() => setAssetModal(null)} style={{
+            position:"fixed", inset:0, background:"rgba(15,23,42,0.65)",
+            zIndex:9999, display:"flex", alignItems:"center", justifyContent:"center",
+            padding:24 }}>
+            <div onClick={e => e.stopPropagation()} style={{
+              background:"white", borderRadius:14, width:"90vw", height:"86vh",
+              maxWidth:1100, display:"flex", flexDirection:"column", overflow:"hidden",
+              boxShadow:"0 32px 80px rgba(0,0,0,0.35)" }}>
+              {/* Modal header */}
+              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between",
+                padding:"12px 20px", borderBottom:"1px solid #E2E8F0", flexShrink:0 }}>
+                <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                  <div style={{ width:8, height:8, borderRadius:"50%", background:BRAND }} />
+                  <span style={{ fontSize:13, fontWeight:600, color:"#1E293B" }}>Asset Preview</span>
+                  <span style={{ fontSize:11, color:"#94A3B8", fontFamily:"'SF Mono',monospace" }}>
+                    {assetModal}
+                  </span>
+                </div>
+                <button onClick={() => setAssetModal(null)} style={{
+                  background:"#F1F5F9", border:"none", borderRadius:6,
+                  width:28, height:28, fontSize:14, cursor:"pointer",
+                  color:"#64748B", display:"flex", alignItems:"center", justifyContent:"center",
+                  fontFamily:"inherit", lineHeight:1 }}>✕</button>
+              </div>
+              {/* iframe — no download controls */}
+              <iframe
+                src={assetModal}
+                title="Asset Preview"
+                sandbox="allow-scripts allow-same-origin"
+                style={{ flex:1, border:"none", width:"100%", display:"block" }}
+              />
+            </div>
+          </div>
+        )}
         <table>
           <thead>
             <tr style={{ background:"#F8FAFC" }}>
@@ -300,6 +354,21 @@
                               textDecoration:t.status==="done"?"line-through":"none", lineHeight:1.5 }}>
                               {t.text}
                             </div>
+                            {t.assetPath && (
+                              <button onClick={() => openAsset(t.assetPath)} style={{
+                                marginTop:5, background:"none", border:`1px solid ${BRAND}`,
+                                borderRadius:5, padding:"2px 9px", fontSize:11, color:BRAND,
+                                cursor:"pointer", fontFamily:"inherit",
+                                display:"inline-flex", alignItems:"center", gap:5,
+                                textDecoration:"none" }}>
+                                {!viewedAssets.has(t.assetPath) && (
+                                  <span style={{ background:BRAND, color:"white", fontSize:9,
+                                    fontWeight:700, borderRadius:3, padding:"1px 5px",
+                                    letterSpacing:"0.06em", textTransform:"uppercase" }}>NEW</span>
+                                )}
+                                View asset →
+                              </button>
+                            )}
                             {t.blocker && <div style={{ fontSize:11, color:"#DC2626", marginTop:3 }}>⚠ {t.blocker}</div>}
                           </div>
                         </div>
@@ -392,6 +461,7 @@
             })}
           </tbody>
         </table>
+        </>
       );
     }
 
