@@ -782,8 +782,18 @@
                     background: tab===id?"#F1F5F9":"transparent", border:"none", cursor:"pointer",
                     padding:"6px 12px", borderRadius:6, fontSize:13,
                     fontWeight: tab===id?600:400,
-                    color: tab===id?"#0F172A":"#64748B", fontFamily:"inherit" }}>
+                    color: tab===id?"#0F172A":"#64748B", fontFamily:"inherit",
+                    display:"flex", alignItems:"center", gap:6 }}>
                     {label}
+                    {id==="questions" && d.openQuestions.length > 0 && (
+                      <span style={{
+                        background: BRAND, color:"white",
+                        fontSize:10, fontWeight:700, borderRadius:10,
+                        padding:"1px 6px", lineHeight:"16px", minWidth:16,
+                        textAlign:"center" }}>
+                        {d.openQuestions.length}
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>
@@ -924,6 +934,38 @@
                     <span style={{ fontSize:11, color:"#94A3B8" }}>{selected.tasks.length} total</span>
                   </div>
                   <TaskTable tasks={selected.tasks} comments={comments} onCommentAdded={onCommentAdded} viewedAssets={viewedAssets} onAssetViewed={onAssetViewed} />
+                </div>
+              )}
+
+              {/* ── Open Questions callout ── */}
+              {d.openQuestions.length > 0 && (
+                <div style={{ background:"#FFFBEB", border:`1px solid #FDE68A`,
+                  borderRadius:10, padding:"16px 20px", marginTop:16 }}>
+                  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12 }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                      <span style={{ fontSize:13, fontWeight:700, color:"#92400E" }}>
+                        ❓ {d.openQuestions.length} Open Question{d.openQuestions.length !== 1 ? "s" : ""} Need{d.openQuestions.length === 1 ? "s" : ""} Answering
+                      </span>
+                    </div>
+                    <button onClick={() => setTab("questions")} style={{
+                      background:BRAND, color:"white", border:"none", borderRadius:6,
+                      padding:"4px 12px", fontSize:12, fontWeight:600,
+                      cursor:"pointer", fontFamily:"inherit" }}>
+                      Answer →
+                    </button>
+                  </div>
+                  {d.openQuestions.map((q, i) => {
+                    const u = URGENCY[q.urgency];
+                    return (
+                      <div key={q.id || i} style={{
+                        display:"flex", alignItems:"flex-start", gap:10,
+                        padding:"8px 0",
+                        borderTop: i > 0 ? "1px solid #FDE68A" : "none" }}>
+                        <Badge color={u.color} bg={u.bg} style={{ flexShrink:0, marginTop:1 }}>{u.label}</Badge>
+                        <span style={{ fontSize:13, color:"#78350F" }}>{q.q}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </>}
