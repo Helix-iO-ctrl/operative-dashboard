@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Velo — Brand Color Palette</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #FBF7F2; color: #1C1C2A; min-height: 100vh; padding: 48px 32px; }
+  .header { max-width: 800px; margin: 0 auto 48px; }
+  .header-label { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #6B6878; margin-bottom: 12px; }
+  h1 { font-size: 32px; font-weight: 700; color: #1C1C2A; margin-bottom: 8px; }
+  .header-sub { font-size: 15px; color: #6B6878; line-height: 1.5; max-width: 520px; }
+  .section { max-width: 800px; margin: 0 auto 48px; }
+  .section-title { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #6B6878; margin-bottom: 20px; padding-bottom: 8px; border-bottom: 1px solid #EDE8E2; }
+
+  /* SWATCHES */
+  .swatches { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 48px; }
+  .swatch { border-radius: 12px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .swatch-color { height: 120px; position: relative; }
+  .swatch-color.primary { background: #E07A2F; }
+  .swatch-color.dark    { background: #1C1C2A; }
+  .swatch-color.light   { background: #FBF7F2; border: 1px solid #EDE8E2; }
+  .swatch-color.accent  { background: #C45C25; }
+  .swatch-color.neutral { background: #6B6878; }
+  .swatch-badge { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.2); backdrop-filter: blur(4px); border-radius: 6px; padding: 3px 8px; font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #fff; text-transform: uppercase; }
+  .swatch-badge.dark-badge { color: rgba(255,255,255,0.7); }
+  .swatch-badge.light-badge { color: #6B6878; background: rgba(0,0,0,0.06); }
+  .swatch-info { background: #fff; padding: 14px 16px; }
+  .swatch-name { font-size: 13px; font-weight: 700; color: #1C1C2A; margin-bottom: 2px; }
+  .swatch-hex  { font-size: 12px; color: #6B6878; font-family: 'SF Mono', 'Fira Code', monospace; margin-bottom: 4px; }
+  .swatch-use  { font-size: 11px; color: #94919E; line-height: 1.4; }
+
+  /* RATIONALE */
+  .rationale { background: #fff; border-radius: 12px; padding: 28px 32px; border: 1px solid #EDE8E2; }
+  .rationale p { font-size: 14px; color: #3D3A48; line-height: 1.7; margin-bottom: 16px; }
+  .rationale p:last-child { margin-bottom: 0; }
+  .rationale strong { color: #1C1C2A; }
+
+  /* USAGE EXAMPLES */
+  .usage-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .usage-card { border-radius: 12px; overflow: hidden; border: 1px solid #EDE8E2; }
+  .usage-card-preview { padding: 24px; }
+  .usage-card-preview.dark-bg { background: #1C1C2A; }
+  .usage-card-preview.light-bg { background: #FBF7F2; }
+  .usage-card-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; background: #fff; padding: 8px 14px; color: #6B6878; border-top: 1px solid #EDE8E2; }
+
+  /* Mini card on dark */
+  .mini-headline { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+  .mini-sub      { font-size: 12px; color: rgba(255,255,255,0.55); margin-bottom: 18px; line-height: 1.5; }
+  .mini-btn      { display: inline-block; background: #E07A2F; color: #fff; font-size: 12px; font-weight: 700; padding: 8px 18px; border-radius: 8px; text-decoration: none; }
+
+  /* Mini card on light */
+  .mini-headline-light { font-size: 18px; font-weight: 700; color: #1C1C2A; margin-bottom: 6px; }
+  .mini-sub-light      { font-size: 12px; color: #6B6878; margin-bottom: 18px; line-height: 1.5; }
+  .mini-btn-light      { display: inline-block; background: #E07A2F; color: #fff; font-size: 12px; font-weight: 700; padding: 8px 18px; border-radius: 8px; text-decoration: none; }
+
+  /* TYPOGRAPHY PAIRING */
+  .type-example { background: #fff; border-radius: 12px; padding: 28px 32px; border: 1px solid #EDE8E2; }
+  .type-h1 { font-size: 28px; font-weight: 800; color: #1C1C2A; margin-bottom: 4px; }
+  .type-sub { font-size: 14px; color: #6B6878; margin-bottom: 20px; }
+  .type-body { font-size: 14px; color: #3D3A48; line-height: 1.7; margin-bottom: 20px; }
+  .type-cta  { display: inline-block; background: #E07A2F; color: #fff; font-size: 13px; font-weight: 700; padding: 10px 22px; border-radius: 8px; text-decoration: none; }
+
+  .meta { max-width: 800px; margin: 48px auto 0; font-size: 11px; color: #94919E; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-label">Brand Identity — Color System</div>
+  <h1>Velo Color Palette</h1>
+  <p class="header-sub">Selected Mar 6, 2026. Designed to feel warm, fast, and human — not another AI brand. Built to stand out in a sea of blue/purple tech aesthetics.</p>
+</div>
+
+<div class="section">
+  <div class="section-title">Core Colors</div>
+  <div class="swatches">
+
+    <div class="swatch">
+      <div class="swatch-color primary">
+        <span class="swatch-badge">Primary</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">Velo Amber</div>
+        <div class="swatch-hex">#E07A2F</div>
+        <div class="swatch-use">CTAs, buttons, highlights, links, active states</div>
+      </div>
+    </div>
+
+    <div class="swatch">
+      <div class="swatch-color dark">
+        <span class="swatch-badge dark-badge">Dark</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">Deep Night</div>
+        <div class="swatch-hex">#1C1C2A</div>
+        <div class="swatch-use">Headlines, body text, dark backgrounds, navbars</div>
+      </div>
+    </div>
+
+    <div class="swatch">
+      <div class="swatch-color light">
+        <span class="swatch-badge light-badge">Light</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">Warm White</div>
+        <div class="swatch-hex">#FBF7F2</div>
+        <div class="swatch-use">Page backgrounds, cards, content areas</div>
+      </div>
+    </div>
+
+    <div class="swatch">
+      <div class="swatch-color accent">
+        <span class="swatch-badge">Accent</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">Burnt Amber</div>
+        <div class="swatch-hex">#C45C25</div>
+        <div class="swatch-use">Hover states, pressed buttons, emphasis text</div>
+      </div>
+    </div>
+
+    <div class="swatch">
+      <div class="swatch-color neutral">
+        <span class="swatch-badge">Neutral</span>
+      </div>
+      <div class="swatch-info">
+        <div class="swatch-name">Slate</div>
+        <div class="swatch-hex">#6B6878</div>
+        <div class="swatch-use">Secondary text, captions, borders, dividers</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Why These Colors</div>
+  <div class="rationale">
+    <p><strong>Amber as the primary color</strong> is a deliberate break from every other AI consulting brand using navy, electric blue, or purple. Amber signals energy, momentum, and warmth — qualities that matter when you're asking a small business owner to trust you with their company.</p>
+    <p><strong>The warm off-white background</strong> (#FBF7F2) makes every surface feel inviting rather than clinical. Combined with Deep Night for type, it reads as premium without feeling cold or corporate.</p>
+    <p><strong>No pure black, no pure white.</strong> Both are softened intentionally. This keeps the palette feeling human and approachable — which is the core brief.</p>
+    <p><strong>The palette as a whole</strong> sits closer to a high-end independent brand (think boutique agency, premium SaaS) than a generic tech startup. That distinction matters for Velo's positioning: you're not selling software, you're selling judgment.</p>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Usage Examples</div>
+  <div class="usage-row">
+
+    <div class="usage-card">
+      <div class="usage-card-preview dark-bg">
+        <div class="mini-headline">Move your business faster.</div>
+        <div class="mini-sub">AI-powered advisory for small businesses that want to run smarter without adding headcount.</div>
+        <a href="#" class="mini-btn">Book a discovery call →</a>
+      </div>
+      <div class="usage-card-label">Dark background (hero / landing page)</div>
+    </div>
+
+    <div class="usage-card">
+      <div class="usage-card-preview light-bg">
+        <div class="mini-headline-light">Move your business faster.</div>
+        <div class="mini-sub-light">AI-powered advisory for small businesses that want to run smarter without adding headcount.</div>
+        <a href="#" class="mini-btn-light">Book a discovery call →</a>
+      </div>
+      <div class="usage-card-label">Light background (cards / content sections)</div>
+    </div>
+
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Typography + Color Together</div>
+  <div class="type-example">
+    <div class="type-h1">Your business, running at full speed.</div>
+    <div class="type-sub">Velo — AI-Powered Business Advisory</div>
+    <div class="type-body">We act as your fractional AI advisor — handling strategy, operations, and reporting so you can focus on what you actually built this business for. Weekly snapshots. Monthly reviews. Real decisions, not decks.</div>
+    <a href="#" class="type-cta">Start with a discovery call</a>
+  </div>
+</div>
+
+<div class="meta">
+  Generated by Velo · Mar 6, 2026, 5:05 PM · Hayden Barnes — Velo
+</div>
+
+</body>
+</html>
