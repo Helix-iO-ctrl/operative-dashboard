@@ -32,7 +32,7 @@
       currentPhase: 0,
 
       // ── SUMMARY (keep in sync with tasks below) ──
-      summary: { total: 33, done: 4, inProgress: 0, blocked: 0, todo: 29 },
+      summary: { total: 33, done: 5, inProgress: 0, blocked: 0, todo: 28 },
 
       // ── DISCIPLINES & TASKS ──
       // status: "todo" | "in-progress" | "blocked" | "done"
@@ -47,8 +47,8 @@
             { id: 2,  text: "Write business brief: one-page positioning doc for internal reference",                 status: "todo",    priority: "high" },
             { id: 3,  text: "Finalize founding client offer terms — free vs. $500+$1k/mo, case study agreement",    status: "todo",    priority: "high" },
             { id: 4,  text: "Commit to pricing before first prospect conversation ($2k/mo or $6k engagement)",      status: "todo",    priority: "high" },
-            { id: 5,  text: "Identify top 5 warm contacts for founding client outreach (Helix/Jason network)",      status: "todo",    priority: "high" },
-            { id: 6,  text: "Validate Track B pricing — is $197/mo the right number for consultant license?",       status: "todo",    priority: "medium" },
+            { id: 5,  text: "Identify 5th warm contact — 4 confirmed: Jordan B. (logistics), Zak & Ciara B. (gym/PT), Gregg D. (real estate), Greta R. (SLP)", status: "todo", priority: "high" },
+            { id: 6,  text: "Track B (consultant license) — deprioritized. Revisit after Track A is validated and first case study is live.", status: "todo", priority: "low" },
             { id: 7,  text: "Define 'success' outcomes for each founding client engagement (outcomes doc)",          status: "todo",    priority: "medium" },
           ],
         },
@@ -62,7 +62,7 @@
             { id: 10, text: "Build full marketing campaign brief (marketing-campaign-brief.html)",                   status: "done",    priority: "high" },
             { id: 11, text: "Update LinkedIn profile — headline: Founder, Operative | AI-Powered Business Advisor", status: "todo",    priority: "high" },
             { id: 12, text: "Record Loom demo video (2–3 min): dashboard + session workflow + weekly snapshot",      status: "todo",    priority: "high" },
-            { id: 13, text: "Send founding client outreach to 5 warm contacts using DM template from campaign brief",status: "todo",    priority: "high" },
+            { id: 13, text: "Send outreach to 4 confirmed contacts: Jordan B., Zak & Ciara B., Gregg D., Greta R. + identify 5th", status: "todo", priority: "high" },
             { id: 14, text: "Publish first LinkedIn post: 'Why I built Operative' (founder story, 900–1,200 chars)", status: "todo",    priority: "high" },
             { id: 15, text: "Set up Calendly / Cal.com booking link and embed in both landing pages",                status: "todo",    priority: "high" },
             { id: 16, text: "Create demo dashboard screenshot with dummy client data (core social/DM asset)",        status: "todo",    priority: "high" },
@@ -76,12 +76,12 @@
           color: "#059669", lightColor: "#ECFDF5", borderColor: "#A7F3D0",
           owner: "Hayden",
           tasks: [
-            { id: 20, text: "Publish landing pages to a real domain (choose domain, deploy HTML files)",             status: "todo",    priority: "high" },
+            { id: 20, text: "Purchase domain and deploy landing pages — top options: operative.co, operative.io, velo.co, velo.io", status: "todo", priority: "high" },
             { id: 21, text: "Write founding client onboarding protocol: session 1 → dashboard live → first snapshot",status: "todo",    priority: "high" },
             { id: 22, text: "Create case study agreement template (written exchange: free engagement ↔ case study)", status: "todo",    priority: "high" },
             { id: 23, text: "Create client proposal one-pager PDF (leave-behind after discovery call)",              status: "todo",    priority: "medium" },
             { id: 24, text: "Define engagement kickoff checklist (actions in hours 0–48 after a client signs)",      status: "todo",    priority: "medium" },
-            { id: 25, text: "Set up GitHub Pages for client dashboard delivery (or decide on alternative hosting)",  status: "todo",    priority: "medium" },
+            { id: 25, text: "GitHub Pages set up for Operative internal dashboard (helix-io-ctrl/operative-dashboard)", status: "done", priority: "medium" },
           ],
         },
         {
@@ -89,9 +89,9 @@
           color: "#D97706", lightColor: "#FFFBEB", borderColor: "#FDE68A",
           owner: "Hayden",
           tasks: [
-            { id: 26, text: "Final brand name decision — Operative vs. Leverage vs. Fieldwork vs. Stratum vs. Velo", status: "todo",    priority: "high" },
+            { id: 26, text: "Confirm brand split: Operative (Track A — small biz advisory) + Velo (Track B — consultants, when ready)", status: "todo", priority: "high" },
             { id: 27, text: "Design LinkedIn banner image: 'AI-Powered Business Advisor' positioning",               status: "todo",    priority: "high" },
-            { id: 28, text: "Design basic logo / wordmark for chosen brand name",                                     status: "todo",    priority: "medium" },
+            { id: 28, text: "Design basic logo / wordmark for Operative brand",                                       status: "todo",    priority: "medium" },
             { id: 29, text: "Write brand voice guide: tone, language rules, what we say / what we don't",            status: "todo",    priority: "low" },
             { id: 30, text: "Define color palette and type system (extend from landing page aesthetic)",              status: "todo",    priority: "low" },
           ],
@@ -110,6 +110,14 @@
 
       // ── DECISIONS ──
       decisions: [
+        { date: "Mar 6, 2026", title: "Two-brand strategy: Operative (primary) + Velo (secondary) under one company",
+          detail: "Operative is the primary brand for now. Velo is held in reserve as a potential second brand — possibly for the consultant licensing track (Track B) when that launches. Both brands live under the same company." },
+        { date: "Mar 6, 2026", title: "Track B (consultant licensing) deprioritized — focus 100% on Track A first",
+          detail: "Hayden confirmed he wants to test, refine, and validate the advisory product before selling it to other consultants. Track B will be revisited once Track A is proven and the first case study is published." },
+        { date: "Mar 6, 2026", title: "GitHub hosting: using Helix-iO-ctrl for now, org account later",
+          detail: "Since Operative is a personal project at this stage, the existing Helix GitHub account is sufficient. When the first paying client signs, a separate GitHub org will be created for clean branding." },
+        { date: "Mar 6, 2026", title: "Founding client outreach targets identified",
+          detail: "4 of 5 warm contacts confirmed: Jordan B. (logistics company), Zak & Ciara B. (gym + personal training), Gregg D. (real estate), Greta R. (SLP). 5th contact TBD." },
         { date: "Mar 6, 2026", title: "Operative gets its own subfolder — clean separation from Helix client project",
           detail: "Operative lives at /Consulting OS Discovery/Operative/. Helix files in the parent folder are not touched. Clean project isolation." },
         { date: "Mar 6, 2026", title: "Operative is a live case study for the AI Business OS template",
@@ -118,12 +126,8 @@
           detail: "First 2–3 clients offered at free (full case study + testimonial + recording) or $500 discovery + $1,000/month. No hard sell or paid ads until proof exists." },
         { date: "Mar 6, 2026", title: "Marketing strategy: case-study-first, then paid",
           detail: "No paid ads until first case study is published. Phase 1: LinkedIn organic + warm direct outreach. Phase 2 (Month 3–4): light paid spend ($300–500). Phase 3 (Month 5+): scale." },
-        { date: "Mar 6, 2026", title: "Business model confirmed: Track A ($2k/mo advisory) + Track B ($197/mo license)",
-          detail: "Track A: $2,000/month retainer or $6,000/90-day engagement or $500 paid discovery. Track B: $197/month or $1,497/year consultant license. Early access: first 50 practitioners." },
-        { date: "Mar 6, 2026", title: "Two landing pages built: consultant track + small business track",
-          detail: "Separate pages for each audience. Consultant page: dark/aspirational, CTA = early access. Small biz page: light/trustworthy, CTA = free discovery call. Both use Operative as working brand." },
-        { date: "Mar 6, 2026", title: "Brand name: Operative (working name — final decision pending)",
-          detail: "Shortlist: Operative ⭐, Leverage, Fieldwork, Stratum, Velo. Operative works for both tracks. Domain availability not yet checked. Swapping is ~30 min once decided." },
+        { date: "Mar 6, 2026", title: "Business model confirmed: Track A ($2k/mo advisory) + Track B ($197/mo license — deprioritized)",
+          detail: "Track A: $2,000/month retainer or $6,000/90-day engagement or $500 paid discovery. Track B: $197/month or $1,497/year consultant license — on hold until Track A is validated." },
         { date: "Mar 6, 2026", title: "Full 12-week marketing campaign brief completed",
           detail: "Three budget tiers: Bootstrap ($30/mo), Scrappy ($450/mo, recommended), Growth ($2,000–2,800/mo). Content calendar, channel strategy, KPIs, and risk mitigations all documented." },
       ],
@@ -131,18 +135,14 @@
       // ── OPEN QUESTIONS ──
       // urgency: "critical" | "high" | "medium"
       openQuestions: [
-        { q: "What is the final brand name?",
-          urgency: "critical", note: "Everything is built under 'Operative' as a working name. Finalizing the name unblocks domain purchase, logo design, and LinkedIn profile update. Owner: Hayden — decide this week." },
-        { q: "What domain should be purchased for the landing pages?",
-          urgency: "high", note: "Both landing pages are currently local HTML files. Needs a domain to go live. Depends on final brand name decision." },
-        { q: "Who are the top 5 warm contacts for founding client outreach?",
-          urgency: "high", note: "Helix/Jason/Jake/Keagan's network is the starting point. Hayden to identify 5 specific names before sending outreach this week." },
-        { q: "Should the consultant license be $197/month or a different price point?",
-          urgency: "medium", note: "Current pricing is a hypothesis. Could be lower ($97/mo) for faster adoption or higher ($297/mo) to position as premium. Validate with 2–3 conversations before publishing." },
-        { q: "What GitHub account / hosting should be used for client-facing dashboards?",
-          urgency: "medium", note: "The AI Business OS template uses GitHub Pages. Operative needs its own setup for client dashboards — separate from the Helix project's GitHub account." },
-        { q: "Will Operative use the AI Business OS template for its own internal tracking going forward?",
-          urgency: "medium", note: "Confirmed yes for this session. But worth clarifying: does this project dashboard get shared publicly as a demo, or kept private?" },
+        { q: "Which domain to register — operative.co, operative.io, or both?",
+          urgency: "high", note: "Domain check complete. Available options: operative.co (~$12/yr), operative.io (~$35/yr), velo.co (~$12/yr), velo.io (~$35/yr). All .com versions are taken. Hayden to choose and purchase — this unblocks landing page deployment." },
+        { q: "Does Operative map to Track A (small biz advisory) and Velo to Track B (consultants)?",
+          urgency: "high", note: "Two-brand strategy confirmed. Need to decide which brand leads which market before designing logos, writing brand voice guides, or building the Track B landing page." },
+        { q: "Who is the 5th founding client outreach contact?",
+          urgency: "medium", note: "4 confirmed: Jordan B. (logistics), Zak & Ciara B. (gym/PT), Gregg D. (real estate), Greta R. (SLP). One more contact needed before the outreach task is fully ready to execute." },
+        { q: "Should this project folder be renamed, and if so, to what?",
+          urgency: "medium", note: "Hayden indicated the folder should be renamed. Clarify: rename the parent 'Consulting OS Discovery' folder? Or a different folder? Note: renaming the parent will affect Helix project paths — needs careful handling." },
       ],
 
       // ── WEEKLY UPDATES ──
