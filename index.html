@@ -139,9 +139,9 @@
       // ── OPEN QUESTIONS ──
       // urgency: "critical" | "high" | "medium"
       openQuestions: [
-        { q: "Who is the 5th founding client outreach contact?",
+        { id: "q-5th-contact", q: "Who is the 5th founding client outreach contact?",
           urgency: "medium", note: "4 confirmed: Jordan B. (logistics), Zak & Ciara B. (gym/PT), Gregg D. (real estate), Greta R. (SLP). One more contact needed to complete the outreach list." },
-        { q: "What is Velo's brand color palette?",
+        { id: "q-brand-color", q: "What is Velo's brand color palette?",
           urgency: "high", note: "Brand name is now Velo — design work is starting. A color decision unblocks the logo, LinkedIn banner, and landing page rebrand. The current dashboard accent is placeholder green." },
       ],
 
@@ -543,7 +543,8 @@
       const [loading, setLoading] = useState(false);
 
       const u = URGENCY[item.urgency];
-      const qComments = comments[`question-${index}`] || [];
+      const qKey = `question-${item.id || index}`;
+      const qComments = comments[qKey] || [];
       const canSubmit = name.trim() && answer.trim() && !loading;
 
       async function submitAnswer() {
@@ -560,7 +561,7 @@
             body: JSON.stringify({
               project_slug: window.PROJECT_SLUG,
               item_type: 'question',
-              item_id: String(index),
+              item_id: item.id || String(index),
               item_text: item.q,
               commenter_name: name.trim(),
               body: answer.trim(),
@@ -1001,7 +1002,7 @@
                   </span>
                 </div>
                 {d.openQuestions.map((item, i) => (
-                  <QuestionRow key={i} item={item} index={i} comments={comments} onCommentAdded={onCommentAdded} />
+                  <QuestionRow key={item.id || i} item={item} index={i} comments={comments} onCommentAdded={onCommentAdded} />
                 ))}
               </div>
             )}
