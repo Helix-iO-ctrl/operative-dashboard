@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Operative — Project Dashboard</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #F8FAFC; color: #1E293B; }
+    table { border-collapse: collapse; width: 100%; }
+    button { font-family: inherit; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- ============================================================
+    ✏️  EDIT YOUR PROJECT DATA HERE
+    This is the only section you need to update as work progresses.
+    ============================================================ -->
+  <script>
+    window.PROJECT_DATA = {
+      name: "Operative — AI Consulting OS",
+      client: "Hayden Barnes (Owner/CEO)",
+      lastUpdated: "Mar 6, 2026",
+      phases: ["Pre-Launch", "Case Study Build", "Paid Growth", "Scale & License"],
+      currentPhase: 0,
+
+      // ── SUMMARY (keep in sync with tasks below) ──
+      summary: { total: 33, done: 4, inProgress: 0, blocked: 0, todo: 29 },
+
+      // ── DISCIPLINES & TASKS ──
+      // status: "todo" | "in-progress" | "blocked" | "done"
+      // priority: "high" | "medium" | "low"
+      disciplines: [
+        {
+          id: "strategy", label: "Strategy",
+          color: "#2563EB", lightColor: "#EFF6FF", borderColor: "#BFDBFE",
+          owner: "Hayden",
+          tasks: [
+            { id: 1,  text: "Write Capabilities & Market Opportunity Report (Track A + B, competitive gap, funnel)", status: "done",    priority: "high" },
+            { id: 2,  text: "Write business brief: one-page positioning doc for internal reference",                 status: "todo",    priority: "high" },
+            { id: 3,  text: "Finalize founding client offer terms — free vs. $500+$1k/mo, case study agreement",    status: "todo",    priority: "high" },
+            { id: 4,  text: "Commit to pricing before first prospect conversation ($2k/mo or $6k engagement)",      status: "todo",    priority: "high" },
+            { id: 5,  text: "Identify top 5 warm contacts for founding client outreach (Helix/Jason network)",      status: "todo",    priority: "high" },
+            { id: 6,  text: "Validate Track B pricing — is $197/mo the right number for consultant license?",       status: "todo",    priority: "medium" },
+            { id: 7,  text: "Define 'success' outcomes for each founding client engagement (outcomes doc)",          status: "todo",    priority: "medium" },
+          ],
+        },
+        {
+          id: "marketing", label: "Marketing",
+          color: "#DC2626", lightColor: "#FEF2F2", borderColor: "#FECACA",
+          owner: "Hayden",
+          tasks: [
+            { id: 8,  text: "Build consultant landing page (landing-consultants.html)",                              status: "done",    priority: "high" },
+            { id: 9,  text: "Build small business landing page (landing-small-business.html)",                       status: "done",    priority: "high" },
+            { id: 10, text: "Build full marketing campaign brief (marketing-campaign-brief.html)",                   status: "done",    priority: "high" },
+            { id: 11, text: "Update LinkedIn profile — headline: Founder, Operative | AI-Powered Business Advisor", status: "todo",    priority: "high" },
+            { id: 12, text: "Record Loom demo video (2–3 min): dashboard + session workflow + weekly snapshot",      status: "todo",    priority: "high" },
+            { id: 13, text: "Send founding client outreach to 5 warm contacts using DM template from campaign brief",status: "todo",    priority: "high" },
+            { id: 14, text: "Publish first LinkedIn post: 'Why I built Operative' (founder story, 900–1,200 chars)", status: "todo",    priority: "high" },
+            { id: 15, text: "Set up Calendly / Cal.com booking link and embed in both landing pages",                status: "todo",    priority: "high" },
+            { id: 16, text: "Create demo dashboard screenshot with dummy client data (core social/DM asset)",        status: "todo",    priority: "high" },
+            { id: 17, text: "Set up email capture on landing pages — ConvertKit or Beehiiv free tier",               status: "todo",    priority: "medium" },
+            { id: 18, text: "Write 3-email welcome sequence (welcome → problem framing → solution intro)",           status: "todo",    priority: "medium" },
+            { id: 19, text: "Create public weekly snapshot example with dummy data (shareable in DMs)",              status: "todo",    priority: "medium" },
+          ],
+        },
+        {
+          id: "operations", label: "Operations",
+          color: "#059669", lightColor: "#ECFDF5", borderColor: "#A7F3D0",
+          owner: "Hayden",
+          tasks: [
+            { id: 20, text: "Publish landing pages to a real domain (choose domain, deploy HTML files)",             status: "todo",    priority: "high" },
+            { id: 21, text: "Write founding client onboarding protocol: session 1 → dashboard live → first snapshot",status: "todo",    priority: "high" },
+            { id: 22, text: "Create case study agreement template (written exchange: free engagement ↔ case study)", status: "todo",    priority: "high" },
+            { id: 23, text: "Create client proposal one-pager PDF (leave-behind after discovery call)",              status: "todo",    priority: "medium" },
+            { id: 24, text: "Define engagement kickoff checklist (actions in hours 0–48 after a client signs)",      status: "todo",    priority: "medium" },
+            { id: 25, text: "Set up GitHub Pages for client dashboard delivery (or decide on alternative hosting)",  status: "todo",    priority: "medium" },
+          ],
+        },
+        {
+          id: "creative", label: "Creative",
+          color: "#D97706", lightColor: "#FFFBEB", borderColor: "#FDE68A",
+          owner: "Hayden",
+          tasks: [
+            { id: 26, text: "Final brand name decision — Operative vs. Leverage vs. Fieldwork vs. Stratum vs. Velo", status: "todo",    priority: "high" },
+            { id: 27, text: "Design LinkedIn banner image: 'AI-Powered Business Advisor' positioning",               status: "todo",    priority: "high" },
+            { id: 28, text: "Design basic logo / wordmark for chosen brand name",                                     status: "todo",    priority: "medium" },
+            { id: 29, text: "Write brand voice guide: tone, language rules, what we say / what we don't",            status: "todo",    priority: "low" },
+            { id: 30, text: "Define color palette and type system (extend from landing page aesthetic)",              status: "todo",    priority: "low" },
+          ],
+        },
+        {
+          id: "data", label: "Data & Analytics",
+          color: "#0891B2", lightColor: "#ECFEFF", borderColor: "#A5F3FC",
+          owner: "Hayden",
+          tasks: [
+            { id: 31, text: "Set up outreach pipeline tracker (spreadsheet: contact, date, status, notes)",          status: "todo",    priority: "high" },
+            { id: 32, text: "Define weekly metrics to track: discovery calls, call→client conversion, MRR",          status: "todo",    priority: "medium" },
+            { id: 33, text: "Install Plausible or Google Analytics on both landing pages",                            status: "todo",    priority: "medium" },
+          ],
+        },
+      ],
+
+      // ── DECISIONS ──
+      decisions: [
+        { date: "Mar 6, 2026", title: "Operative gets its own subfolder — clean separation from Helix client project",
+          detail: "Operative lives at /Consulting OS Discovery/Operative/. Helix files in the parent folder are not touched. Clean project isolation." },
+        { date: "Mar 6, 2026", title: "Operative is a live case study for the AI Business OS template",
+          detail: "Running Hayden's own business through the system is the best proof of concept. Generates real dashboard screenshots, session outputs, and weekly snapshots to use as sales materials." },
+        { date: "Mar 6, 2026", title: "Founding client strategy: free or discounted in exchange for case study",
+          detail: "First 2–3 clients offered at free (full case study + testimonial + recording) or $500 discovery + $1,000/month. No hard sell or paid ads until proof exists." },
+        { date: "Mar 6, 2026", title: "Marketing strategy: case-study-first, then paid",
+          detail: "No paid ads until first case study is published. Phase 1: LinkedIn organic + warm direct outreach. Phase 2 (Month 3–4): light paid spend ($300–500). Phase 3 (Month 5+): scale." },
+        { date: "Mar 6, 2026", title: "Business model confirmed: Track A ($2k/mo advisory) + Track B ($197/mo license)",
+          detail: "Track A: $2,000/month retainer or $6,000/90-day engagement or $500 paid discovery. Track B: $197/month or $1,497/year consultant license. Early access: first 50 practitioners." },
+        { date: "Mar 6, 2026", title: "Two landing pages built: consultant track + small business track",
+          detail: "Separate pages for each audience. Consultant page: dark/aspirational, CTA = early access. Small biz page: light/trustworthy, CTA = free discovery call. Both use Operative as working brand." },
+        { date: "Mar 6, 2026", title: "Brand name: Operative (working name — final decision pending)",
+          detail: "Shortlist: Operative ⭐, Leverage, Fieldwork, Stratum, Velo. Operative works for both tracks. Domain availability not yet checked. Swapping is ~30 min once decided." },
+        { date: "Mar 6, 2026", title: "Full 12-week marketing campaign brief completed",
+          detail: "Three budget tiers: Bootstrap ($30/mo), Scrappy ($450/mo, recommended), Growth ($2,000–2,800/mo). Content calendar, channel strategy, KPIs, and risk mitigations all documented." },
+      ],
+
+      // ── OPEN QUESTIONS ──
+      // urgency: "critical" | "high" | "medium"
+      openQuestions: [
+        { q: "What is the final brand name?",
+          urgency: "critical", note: "Everything is built under 'Operative' as a working name. Finalizing the name unblocks domain purchase, logo design, and LinkedIn profile update. Owner: Hayden — decide this week." },
+        { q: "What domain should be purchased for the landing pages?",
+          urgency: "high", note: "Both landing pages are currently local HTML files. Needs a domain to go live. Depends on final brand name decision." },
+        { q: "Who are the top 5 warm contacts for founding client outreach?",
+          urgency: "high", note: "Helix/Jason/Jake/Keagan's network is the starting point. Hayden to identify 5 specific names before sending outreach this week." },
+        { q: "Should the consultant license be $197/month or a different price point?",
+          urgency: "medium", note: "Current pricing is a hypothesis. Could be lower ($97/mo) for faster adoption or higher ($297/mo) to position as premium. Validate with 2–3 conversations before publishing." },
+        { q: "What GitHub account / hosting should be used for client-facing dashboards?",
+          urgency: "medium", note: "The AI Business OS template uses GitHub Pages. Operative needs its own setup for client dashboards — separate from the Helix project's GitHub account." },
+        { q: "Will Operative use the AI Business OS template for its own internal tracking going forward?",
+          urgency: "medium", note: "Confirmed yes for this session. But worth clarifying: does this project dashboard get shared publicly as a demo, or kept private?" },
+      ],
+
+      // ── WEEKLY UPDATES ──
+      // Auto-populated every Friday by the weekly-snapshot scheduled task.
+      // Each entry: { week, dateRange, pct, done, blockers, wins: [], nextUp: [], snapshotUrl }
+      weeklyUpdates: [],
+    };
+  </script>
+
+  <!-- ============================================================
+    🔌 SUPABASE CONFIG
+    Update PROJECT_SLUG for each new client dashboard.
+    Do not change SUPABASE_URL or SUPABASE_ANON_KEY.
+    ============================================================ -->
+  <script>
+    window.SUPABASE_URL      = 'https://gzpuectetjatqbpcdgqt.supabase.co';
+    window.SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6cHVlY3RldGphdHFicGNkZ3F0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MTc3MTMsImV4cCI6MjA4ODI5MzcxM30.KkIr6SSqQtO3aGDtCCxUIBOgbEgjtVeqExlW_Yv-QZ0';
+    window.PROJECT_SLUG      = 'operative'; // ← change this per client dashboard
+  </script>
+
+  <!-- ============================================================
+    🔧 APP CODE — no need to edit below this line
+    ============================================================ -->
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+    const d = window.PROJECT_DATA;
+
+    const STATUS = {
+      done:          { label: "Done",        dot: "#059669", badge: "#DCFCE7", badgeText: "#166534" },
+      "in-progress": { label: "In Progress", dot: "#2563EB", badge: "#DBEAFE", badgeText: "#1E40AF" },
+      blocked:       { label: "Blocked",     dot: "#DC2626", badge: "#FEE2E2", badgeText: "#991B1B" },
+      todo:          { label: "To Do",       dot: "#9CA3AF", badge: "#F3F4F6", badgeText: "#6B7280" },
+    };
+    const PRIORITY = {
+      high:   { label: "High", color: "#DC2626", bg: "#FEE2E2" },
+      medium: { label: "Med",  color: "#D97706", bg: "#FEF3C7" },
+      low:    { label: "Low",  color: "#6B7280", bg: "#F3F4F6" },
+    };
+    const URGENCY = {
+      critical: { color: "#DC2626", bg: "#FEF2F2", label: "Critical" },
+      high:     { color: "#D97706", bg: "#FFFBEB", label: "High" },
+      medium:   { color: "#2563EB", bg: "#EFF6FF", label: "Medium" },
+    };
+
+    const BRAND = "#1a6b3c"; // Operative green — update if brand name changes
+
+    function formatDate(iso) {
+      const d = new Date(iso);
+      return d.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+    }
+
+    function Badge({ color, bg, children }) {
+      return (
+        <span style={{ display:"inline-flex", alignItems:"center", background:bg, color,
+          fontSize:11, fontWeight:600, padding:"2px 8px", borderRadius:4, whiteSpace:"nowrap" }}>
+          {children}
+        </span>
+      );
+    }
+
+    function ProgressBar({ done, total, color }) {
+      const pct = total > 0 ? Math.round((done/total)*100) : 0;
+      return (
+        <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+          <div style={{ flex:1, height:4, background:"#F1F5F9", borderRadius:2, overflow:"hidden" }}>
+            <div style={{ width:`${pct}%`, height:"100%", background:color, borderRadius:2, transition:"width .5s ease" }} />
+          </div>
+          <span style={{ fontSize:11, color:"#94A3B8", minWidth:28, textAlign:"right" }}>{pct}%</span>
+        </div>
+      );
+    }
+
+    function TaskTable({ tasks, comments = {}, onCommentAdded }) {
+      const [hoveredTask, setHoveredTask]   = useState(null);
+      const [openPanel, setOpenPanel]       = useState(null);
+      const [panelName, setPanelName]       = useState('');
+      const [panelBody, setPanelBody]       = useState('');
+      const [panelError, setPanelError]     = useState('');
+      const [panelLoading, setPanelLoading] = useState(false);
+
+      function openComment(taskId) {
+        setOpenPanel(taskId);
+        setPanelName(''); setPanelBody(''); setPanelError('');
+      }
+      function closePanel() {
+        setOpenPanel(null);
+        setPanelName(''); setPanelBody(''); setPanelError('');
+      }
+      async function submitComment(t) {
+        setPanelLoading(true); setPanelError('');
+        try {
+          const res = await fetch(`${window.SUPABASE_URL}/rest/v1/comments`, {
+            method: 'POST',
+            headers: {
+              'apikey': window.SUPABASE_ANON_KEY,
+              'Authorization': `Bearer ${window.SUPABASE_ANON_KEY}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=representation',
+            },
+            body: JSON.stringify({
+              project_slug: window.PROJECT_SLUG,
+              item_type: 'task',
+              item_id: String(t.id),
+              item_text: t.text,
+              commenter_name: panelName.trim(),
+              body: panelBody.trim(),
+            }),
+          });
+          if (!res.ok) throw new Error(`Error ${res.status}`);
+          const [newComment] = await res.json();
+          onCommentAdded(newComment);
+          closePanel();
+        } catch(e) {
+          setPanelError('Something went wrong — please try again.');
+          console.error('Comment submit failed:', e);
+        } finally {
+          setPanelLoading(false);
+        }
+      }
+
+      const canSend = panelName.trim() && panelBody.trim() && !panelLoading;
+
+      return (
+        <table>
+          <thead>
+            <tr style={{ background:"#F8FAFC" }}>
+              {["Task","Priority","Status"].map(h => (
+                <th key={h} style={{ padding:"9px 16px", textAlign:"left", fontSize:11,
+                  fontWeight:600, color:"#94A3B8", textTransform:"uppercase",
+                  letterSpacing:"0.06em", borderBottom:"1px solid #E2E8F0" }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {tasks.map(t => {
+              const s = STATUS[t.status]; const p = PRIORITY[t.priority];
+              const taskComments  = comments[`task-${t.id}`] || [];
+              const isPanelOpen   = openPanel === t.id;
+              const hasBelowContent = taskComments.length > 0 || isPanelOpen;
+              return (
+                <React.Fragment key={t.id}>
+                  {/* ── Task row ── */}
+                  <tr
+                    onMouseEnter={() => setHoveredTask(t.id)}
+                    onMouseLeave={() => setHoveredTask(null)}
+                    style={{ background: hoveredTask === t.id ? '#FAFBFF' : 'white' }}
+                  >
+                    <td style={{ padding:"11px 16px", borderBottom: hasBelowContent ? "none" : "1px solid #F1F5F9" }}>
+                      <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between" }}>
+                        <div style={{ display:"flex", alignItems:"flex-start", gap:9, flex:1 }}>
+                          <span style={{ display:"inline-block", width:7, height:7, borderRadius:"50%",
+                            background:s.dot, marginTop:4, flexShrink:0 }} />
+                          <div>
+                            <div style={{ fontSize:13, color:t.status==="done"?"#94A3B8":"#1E293B",
+                              textDecoration:t.status==="done"?"line-through":"none", lineHeight:1.5 }}>
+                              {t.text}
+                            </div>
+                            {t.blocker && <div style={{ fontSize:11, color:"#DC2626", marginTop:3 }}>⚠ {t.blocker}</div>}
+                          </div>
+                        </div>
+                        {hoveredTask === t.id && !isPanelOpen && (
+                          <button onClick={() => openComment(t.id)} style={{
+                            background:"none", border:"1px solid #E2E8F0", borderRadius:4,
+                            padding:"2px 8px", fontSize:11, color:"#64748B", cursor:"pointer",
+                            display:"flex", alignItems:"center", gap:4, whiteSpace:"nowrap", flexShrink:0,
+                            fontFamily:"inherit" }}>
+                            💬 Note
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                    <td style={{ padding:"11px 16px", borderBottom: hasBelowContent ? "none" : "1px solid #F1F5F9", whiteSpace:"nowrap" }}>
+                      <Badge color={p.color} bg={p.bg}>{p.label}</Badge>
+                    </td>
+                    <td style={{ padding:"11px 16px", borderBottom: hasBelowContent ? "none" : "1px solid #F1F5F9", whiteSpace:"nowrap" }}>
+                      <Badge color={s.badgeText} bg={s.badge}>{s.label}</Badge>
+                    </td>
+                  </tr>
+
+                  {/* ── Inline comment panel ── */}
+                  {isPanelOpen && (
+                    <tr>
+                      <td colSpan={3} style={{
+                        padding:"0 16px 12px 44px",
+                        borderBottom: taskComments.length > 0 ? "none" : "1px solid #F1F5F9",
+                        background:"#F8FAFC" }}>
+                        <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:8, padding:"14px 16px" }}>
+                          <div style={{ fontSize:12, color:"#64748B", marginBottom:12 }}>
+                            Leave a note on: <strong style={{ color:"#374151" }}>"{t.text}"</strong>
+                          </div>
+                          <div style={{ display:"grid", gridTemplateColumns:"80px 1fr", gap:"8px 12px", alignItems:"center" }}>
+                            <label style={{ fontSize:12, color:"#64748B", textAlign:"right" }}>Your name</label>
+                            <input
+                              value={panelName}
+                              onChange={e => setPanelName(e.target.value)}
+                              placeholder="e.g. Hayden"
+                              style={{ fontSize:13, padding:"6px 10px", border:"1px solid #E2E8F0",
+                                borderRadius:6, outline:"none", fontFamily:"inherit", color:"#1E293B" }}
+                            />
+                            <label style={{ fontSize:12, color:"#64748B", textAlign:"right" }}>Note</label>
+                            <textarea
+                              value={panelBody}
+                              onChange={e => setPanelBody(e.target.value)}
+                              placeholder="Type your note here..."
+                              rows={2}
+                              style={{ fontSize:13, padding:"6px 10px", border:"1px solid #E2E8F0",
+                                borderRadius:6, outline:"none", fontFamily:"inherit", resize:"vertical", color:"#1E293B" }}
+                            />
+                          </div>
+                          {panelError && <div style={{ fontSize:12, color:"#DC2626", marginTop:8 }}>⚠ {panelError}</div>}
+                          <div style={{ display:"flex", justifyContent:"flex-end", gap:8, marginTop:12 }}>
+                            <button onClick={closePanel} style={{
+                              fontSize:12, padding:"6px 14px", border:"1px solid #E2E8F0",
+                              borderRadius:6, background:"white", color:"#64748B", cursor:"pointer", fontFamily:"inherit" }}>
+                              Cancel
+                            </button>
+                            <button onClick={() => submitComment(t)} disabled={!canSend} style={{
+                              fontSize:12, padding:"6px 14px", border:"none", borderRadius:6,
+                              fontFamily:"inherit", fontWeight:600,
+                              cursor: canSend ? "pointer" : "not-allowed",
+                              background: canSend ? BRAND : "#E2E8F0",
+                              color: canSend ? "white" : "#94A3B8" }}>
+                              {panelLoading ? 'Sending...' : 'Send →'}
+                            </button>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+
+                  {/* ── Existing comments ── */}
+                  {taskComments.map((c, ci) => (
+                    <tr key={`c-${ci}`}>
+                      <td colSpan={3} style={{
+                        padding: ci === taskComments.length - 1 ? "4px 16px 10px 44px" : "4px 16px 4px 44px",
+                        borderBottom: ci === taskComments.length - 1 ? "1px solid #F1F5F9" : "none",
+                        background:"#F8FAFC" }}>
+                        <span style={{ fontSize:12, color:"#64748B" }}>
+                          💬 <strong style={{ color:"#374151", fontWeight:600 }}>{c.commenter_name}</strong>
+                          , {formatDate(c.created_at)} · "{c.body}"
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </React.Fragment>
+              );
+            })}
+          </tbody>
+        </table>
+      );
+    }
+
+    const REACTIONS = [
+      { key:'agree',    emoji:'👍', label:'Agreed',   defaultBody:'Agreed'   },
+      { key:'question', emoji:'❓', label:'Question',  defaultBody:'Question' },
+      { key:'concern',  emoji:'⚠️', label:'Concern',  defaultBody:'Concern'  },
+    ];
+
+    function DecisionRow({ dec, index, comments, onCommentAdded }) {
+      const [selected, setSelected] = useState(null);
+      const [name, setName]         = useState('');
+      const [note, setNote]         = useState('');
+      const [error, setError]       = useState('');
+      const [loading, setLoading]   = useState(false);
+
+      const decComments = comments[`decision-${index}`] || [];
+      const counts = { agree:0, question:0, concern:0 };
+      decComments.forEach(c => { if (c.reaction) counts[c.reaction]++; });
+      const notes = decComments.filter(c => !REACTIONS.map(r=>r.defaultBody).includes(c.body));
+
+      function pickReaction(key) {
+        setSelected(key === selected ? null : key);
+        setName(''); setNote(''); setError('');
+      }
+
+      async function submitReaction() {
+        setLoading(true); setError('');
+        const r = REACTIONS.find(r => r.key === selected);
+        try {
+          const res = await fetch(`${window.SUPABASE_URL}/rest/v1/comments`, {
+            method: 'POST',
+            headers: {
+              'apikey': window.SUPABASE_ANON_KEY,
+              'Authorization': `Bearer ${window.SUPABASE_ANON_KEY}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=representation',
+            },
+            body: JSON.stringify({
+              project_slug: window.PROJECT_SLUG,
+              item_type: 'decision',
+              item_id: String(index),
+              item_text: dec.title,
+              commenter_name: name.trim(),
+              body: note.trim() || r.defaultBody,
+              reaction: selected,
+            }),
+          });
+          if (!res.ok) throw new Error(`Error ${res.status}`);
+          const [newComment] = await res.json();
+          onCommentAdded(newComment);
+          setSelected(null); setName(''); setNote('');
+        } catch(e) {
+          setError('Something went wrong — please try again.');
+          console.error('Reaction submit failed:', e);
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      const canConfirm = name.trim() && !loading;
+
+      return (
+        <div style={{ borderBottom:"1px solid #F1F5F9" }}>
+          <div style={{ display:"grid", gridTemplateColumns:"130px 1fr", padding:"16px 18px", gap:16 }}>
+            <span style={{ fontSize:12, color:"#94A3B8", paddingTop:1 }}>{dec.date}</span>
+            <div>
+              <div style={{ fontSize:13, fontWeight:600, color:"#0F172A", marginBottom:4 }}>{dec.title}</div>
+              <div style={{ fontSize:12, color:"#64748B", lineHeight:1.6, marginBottom:12 }}>{dec.detail}</div>
+
+              {/* Notes from reactions that included custom text */}
+              {notes.map((c, ci) => (
+                <div key={ci} style={{ fontSize:12, color:"#64748B", marginBottom:6 }}>
+                  {REACTIONS.find(r=>r.key===c.reaction)?.emoji || '💬'}{' '}
+                  <strong style={{ color:"#374151" }}>{c.commenter_name}</strong>
+                  , {formatDate(c.created_at)} · "{c.body}"
+                </div>
+              ))}
+
+              {/* Reaction buttons */}
+              <div style={{ display:"flex", gap:8, marginTop: notes.length ? 10 : 0 }}>
+                {REACTIONS.map(r => {
+                  const isActive = selected === r.key;
+                  return (
+                    <button key={r.key} onClick={() => pickReaction(r.key)} style={{
+                      fontSize:12, padding:"5px 12px", borderRadius:6, fontFamily:"inherit",
+                      border: isActive ? `1px solid ${BRAND}` : '1px solid #E2E8F0',
+                      background: isActive ? '#ECFDF5' : 'white',
+                      color: isActive ? BRAND : '#374151',
+                      fontWeight: isActive ? 600 : 400,
+                      cursor:"pointer", transition:"all .1s" }}>
+                      {r.emoji} {r.label}{counts[r.key] > 0 ? ` (${counts[r.key]})` : ''}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Confirm form — appears when a reaction is selected */}
+              {selected && (
+                <div style={{ marginTop:10, padding:"12px 14px", background:"#F8FAFC",
+                  borderRadius:8, border:"1px solid #E2E8F0" }}>
+                  <div style={{ fontSize:12, color:"#64748B", marginBottom:8 }}>
+                    {REACTIONS.find(r=>r.key===selected).emoji} {REACTIONS.find(r=>r.key===selected).label} — confirm your name and add an optional note
+                  </div>
+                  <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+                    <input
+                      value={name}
+                      onChange={e => setName(e.target.value)}
+                      placeholder="Your name"
+                      style={{ fontSize:13, padding:"6px 10px", border:"1px solid #E2E8F0",
+                        borderRadius:6, outline:"none", fontFamily:"inherit", color:"#1E293B", width:160 }}
+                    />
+                    <input
+                      value={note}
+                      onChange={e => setNote(e.target.value)}
+                      placeholder="Add a note (optional)"
+                      style={{ fontSize:13, padding:"6px 10px", border:"1px solid #E2E8F0",
+                        borderRadius:6, outline:"none", fontFamily:"inherit", color:"#1E293B", flex:1, minWidth:160 }}
+                    />
+                  </div>
+                  {error && <div style={{ fontSize:12, color:"#DC2626", marginTop:6 }}>⚠ {error}</div>}
+                  <div style={{ display:"flex", gap:8, marginTop:8 }}>
+                    <button onClick={() => { setSelected(null); setName(''); setNote(''); }} style={{
+                      fontSize:12, padding:"5px 12px", border:"1px solid #E2E8F0",
+                      borderRadius:6, background:"white", color:"#64748B", cursor:"pointer", fontFamily:"inherit" }}>
+                      Cancel
+                    </button>
+                    <button onClick={submitReaction} disabled={!canConfirm} style={{
+                      fontSize:12, padding:"5px 12px", border:"none", borderRadius:6,
+                      fontFamily:"inherit", fontWeight:600,
+                      cursor: canConfirm ? "pointer" : "not-allowed",
+                      background: canConfirm ? BRAND : "#E2E8F0",
+                      color: canConfirm ? "white" : "#94A3B8" }}>
+                      {loading ? 'Submitting...' : 'Confirm →'}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function QuestionRow({ item, index, comments, onCommentAdded }) {
+      const [name, setName]       = useState('');
+      const [answer, setAnswer]   = useState('');
+      const [error, setError]     = useState('');
+      const [loading, setLoading] = useState(false);
+
+      const u = URGENCY[item.urgency];
+      const qComments = comments[`question-${index}`] || [];
+      const canSubmit = name.trim() && answer.trim() && !loading;
+
+      async function submitAnswer() {
+        setLoading(true); setError('');
+        try {
+          const res = await fetch(`${window.SUPABASE_URL}/rest/v1/comments`, {
+            method: 'POST',
+            headers: {
+              'apikey': window.SUPABASE_ANON_KEY,
+              'Authorization': `Bearer ${window.SUPABASE_ANON_KEY}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=representation',
+            },
+            body: JSON.stringify({
+              project_slug: window.PROJECT_SLUG,
+              item_type: 'question',
+              item_id: String(index),
+              item_text: item.q,
+              commenter_name: name.trim(),
+              body: answer.trim(),
+            }),
+          });
+          if (!res.ok) throw new Error(`Error ${res.status}`);
+          const [newComment] = await res.json();
+          onCommentAdded(newComment);
+          setName(''); setAnswer('');
+        } catch(e) {
+          setError('Something went wrong — please try again.');
+          console.error('Answer submit failed:', e);
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      return (
+        <div style={{ borderBottom:"1px solid #F1F5F9" }}>
+          <div style={{ display:"grid", gridTemplateColumns:"80px 1fr", padding:"16px 18px", gap:14, alignItems:"start" }}>
+            <Badge color={u.color} bg={u.bg}>{u.label}</Badge>
+            <div>
+              <div style={{ fontSize:13, color:"#0F172A", fontWeight:500, marginBottom:4 }}>{item.q}</div>
+              <div style={{ fontSize:12, color:"#64748B", lineHeight:1.5, marginBottom:12 }}>{item.note}</div>
+
+              {/* Existing answers */}
+              {qComments.map((c, ci) => (
+                <div key={ci} style={{ fontSize:12, marginBottom:10, padding:"10px 12px",
+                  background:"#F8FAFC", borderRadius:6, borderLeft:`2px solid ${BRAND}` }}>
+                  <span style={{ color:"#94A3B8" }}>
+                    <strong style={{ color:"#374151" }}>{c.commenter_name}</strong>, {formatDate(c.created_at)}
+                  </span>
+                  <div style={{ marginTop:4, color:"#1E293B", lineHeight:1.6, fontSize:13 }}>{c.body}</div>
+                </div>
+              ))}
+
+              {/* Answer form */}
+              <textarea
+                value={answer}
+                onChange={e => setAnswer(e.target.value)}
+                placeholder="Type your answer here..."
+                rows={2}
+                style={{ width:"100%", fontSize:13, padding:"8px 10px", border:"1px solid #E2E8F0",
+                  borderRadius:6, outline:"none", fontFamily:"inherit", resize:"vertical",
+                  color:"#1E293B", marginBottom:8, display:"block" }}
+              />
+              <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
+                <input
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  placeholder="Your name"
+                  style={{ fontSize:13, padding:"6px 10px", border:"1px solid #E2E8F0",
+                    borderRadius:6, outline:"none", fontFamily:"inherit", color:"#1E293B", width:160 }}
+                />
+                <button onClick={submitAnswer} disabled={!canSubmit} style={{
+                  fontSize:12, padding:"6px 16px", border:"none", borderRadius:6,
+                  fontFamily:"inherit", fontWeight:600,
+                  cursor: canSubmit ? "pointer" : "not-allowed",
+                  background: canSubmit ? BRAND : "#E2E8F0",
+                  color: canSubmit ? "white" : "#94A3B8" }}>
+                  {loading ? 'Submitting...' : 'Submit Answer →'}
+                </button>
+                {error && <span style={{ fontSize:12, color:"#DC2626" }}>⚠ {error}</span>}
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function App() {
+      const [sel, setSel]           = useState("strategy");
+      const [tab, setTab]           = useState("overview");
+      const [comments, setComments] = useState({});
+
+      useEffect(() => {
+        async function fetchComments() {
+          try {
+            const res = await fetch(
+              `${window.SUPABASE_URL}/rest/v1/comments` +
+              `?project_slug=eq.${window.PROJECT_SLUG}&order=created_at.asc`,
+              { headers: {
+                  'apikey': window.SUPABASE_ANON_KEY,
+                  'Authorization': `Bearer ${window.SUPABASE_ANON_KEY}`,
+              }}
+            );
+            if (!res.ok) throw new Error(`Supabase error: ${res.status}`);
+            const data = await res.json();
+            const grouped = {};
+            data.forEach(c => {
+              const key = `${c.item_type}-${c.item_id}`;
+              if (!grouped[key]) grouped[key] = [];
+              grouped[key].push(c);
+            });
+            setComments(grouped);
+          } catch (e) {
+            console.error('Comments fetch failed:', e);
+          }
+        }
+        fetchComments();
+      }, []);
+
+      function onCommentAdded(newComment) {
+        setComments(prev => {
+          const key = `${newComment.item_type}-${newComment.item_id}`;
+          return { ...prev, [key]: [...(prev[key] || []), newComment] };
+        });
+      }
+
+      const selected  = d.disciplines.find(x => x.id === sel);
+      const total     = d.disciplines.reduce((a,disc) => a + disc.tasks.length, 0);
+      const done      = d.disciplines.reduce((a,disc) => a + disc.tasks.filter(t=>t.status==="done").length, 0);
+      const inProg    = d.disciplines.reduce((a,disc) => a + disc.tasks.filter(t=>t.status==="in-progress").length, 0);
+      const blocked   = d.disciplines.reduce((a,disc) => a + disc.tasks.filter(t=>t.status==="blocked").length, 0);
+      const pct       = total > 0 ? Math.round((done/total)*100) : 0;
+
+      return (
+        <div style={{ minHeight:"100vh", background:"#F8FAFC", fontFamily:"'Inter',system-ui,sans-serif" }}>
+
+          {/* ── TOP BAR ── */}
+          <div style={{ background:"white", borderBottom:"1px solid #E2E8F0", padding:"0 28px",
+            display:"flex", alignItems:"center", justifyContent:"space-between",
+            height:56, position:"sticky", top:0, zIndex:10 }}>
+            <div style={{ display:"flex", alignItems:"center", gap:20 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:9 }}>
+                <div style={{ width:28, height:28, borderRadius:6, background:BRAND,
+                  display:"flex", alignItems:"center", justifyContent:"center" }}>
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <rect x="1" y="1" width="5" height="5" rx="1" fill="white" opacity=".9"/>
+                    <rect x="8" y="1" width="5" height="5" rx="1" fill="white" opacity=".6"/>
+                    <rect x="1" y="8" width="5" height="5" rx="1" fill="white" opacity=".6"/>
+                    <rect x="8" y="8" width="5" height="5" rx="1" fill="white" opacity=".9"/>
+                  </svg>
+                </div>
+                <span style={{ fontSize:14, fontWeight:700, color:"#0F172A" }}>{d.name}</span>
+              </div>
+              <span style={{ color:"#E2E8F0" }}>|</span>
+              <div style={{ display:"flex", gap:2 }}>
+                {[["overview","Overview"],["tasks","Tasks"],["decisions","Decisions"],["updates","Weekly Updates"],["questions","Open Questions"]].map(([id,label])=>(
+                  <button key={id} onClick={()=>setTab(id)} style={{
+                    background: tab===id?"#F1F5F9":"transparent", border:"none", cursor:"pointer",
+                    padding:"6px 12px", borderRadius:6, fontSize:13,
+                    fontWeight: tab===id?600:400,
+                    color: tab===id?"#0F172A":"#64748B", fontFamily:"inherit" }}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+              <span style={{ fontSize:12, color:"#94A3B8" }}>Updated {d.lastUpdated}</span>
+              <div style={{ display:"flex", alignItems:"center", gap:6, background:"#F0FDF4",
+                border:"1px solid #BBF7D0", padding:"4px 10px", borderRadius:6 }}>
+                <div style={{ width:6, height:6, borderRadius:"50%", background:"#059669" }} />
+                <span style={{ fontSize:12, fontWeight:600, color:"#166534" }}>
+                  Phase {d.currentPhase+1}: {d.phases[d.currentPhase]}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ maxWidth:1100, margin:"0 auto", padding:"28px" }}>
+
+            {/* ── OVERVIEW ── */}
+            {tab==="overview" && <>
+
+              {/* Phase bar */}
+              <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:10,
+                padding:"16px 20px", marginBottom:20,
+                display:"flex", alignItems:"center", gap:20 }}>
+                <span style={{ fontSize:11, fontWeight:600, color:"#64748B", whiteSpace:"nowrap" }}>ENGAGEMENT PHASE</span>
+                <div style={{ display:"flex", flex:1, gap:8 }}>
+                  {d.phases.map((p,i)=>(
+                    <div key={p} style={{ flex:1 }}>
+                      <div style={{ height:5, borderRadius:3,
+                        background: i<=d.currentPhase ? BRAND : "#E2E8F0",
+                        opacity: i<d.currentPhase?0.4:1 }} />
+                      <div style={{ fontSize:11, marginTop:5,
+                        color:i===d.currentPhase ? BRAND : "#94A3B8",
+                        fontWeight:i===d.currentPhase?600:400 }}>{p}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Stat cards */}
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(5,1fr)", gap:12, marginBottom:20 }}>
+                {[
+                  { label:"Total Tasks",  value:total,     color:"#1E293B", bg:"white",   border:"#E2E8F0" },
+                  { label:"Done",         value:done,      color:"#059669", bg:"#F0FDF4", border:"#BBF7D0" },
+                  { label:"In Progress",  value:inProg,    color:"#2563EB", bg:"#EFF6FF", border:"#BFDBFE" },
+                  { label:"Blocked",      value:blocked,   color:"#DC2626", bg:"#FEF2F2", border:"#FECACA" },
+                  { label:"Overall",      value:`${pct}%`, color:"#7C3AED", bg:"#F5F3FF", border:"#DDD6FE" },
+                ].map(s=>(
+                  <div key={s.label} style={{ background:s.bg, border:`1px solid ${s.border}`,
+                    borderRadius:10, padding:"16px 18px" }}>
+                    <div style={{ fontSize:26, fontWeight:700, color:s.color, lineHeight:1 }}>{s.value}</div>
+                    <div style={{ fontSize:11, color:"#94A3B8", marginTop:5, fontWeight:500 }}>{s.label}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Disciplines table */}
+              <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:10,
+                overflow:"hidden", marginBottom:20 }}>
+                <div style={{ padding:"14px 18px", borderBottom:"1px solid #F1F5F9",
+                  display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                  <span style={{ fontSize:13, fontWeight:600, color:"#0F172A" }}>Work Areas</span>
+                  <span style={{ fontSize:11, color:"#94A3B8" }}>Click a row to see tasks ↓</span>
+                </div>
+                <table>
+                  <thead>
+                    <tr style={{ background:"#F8FAFC" }}>
+                      {["Area","Progress","Tasks","Active","Blockers","Owner"].map(h=>(
+                        <th key={h} style={{ padding:"9px 16px", textAlign:"left", fontSize:11,
+                          fontWeight:600, color:"#94A3B8", textTransform:"uppercase",
+                          letterSpacing:"0.06em", borderBottom:"1px solid #E2E8F0" }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {d.disciplines.map(disc=>{
+                      const dDone  = disc.tasks.filter(t=>t.status==="done").length;
+                      const dProg  = disc.tasks.filter(t=>t.status==="in-progress").length;
+                      const dBlock = disc.tasks.filter(t=>t.status==="blocked").length;
+                      const isSel  = sel===disc.id;
+                      return (
+                        <tr key={disc.id} onClick={()=>setSel(disc.id)} style={{
+                          cursor:"pointer", background:isSel?disc.lightColor:"white",
+                          borderLeft:`3px solid ${isSel?disc.color:"transparent"}`,
+                          transition:"background .15s" }}>
+                          <td style={{ padding:"12px 16px", borderBottom:"1px solid #F1F5F9" }}>
+                            <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                              <div style={{ width:28, height:28, borderRadius:6,
+                                background:disc.lightColor, border:`1px solid ${disc.borderColor}`,
+                                display:"flex", alignItems:"center", justifyContent:"center",
+                                fontSize:12, fontWeight:700, color:disc.color }}>
+                                {disc.label[0]}
+                              </div>
+                              <span style={{ fontSize:13, fontWeight:600, color:"#1E293B" }}>{disc.label}</span>
+                            </div>
+                          </td>
+                          <td style={{ padding:"12px 16px", borderBottom:"1px solid #F1F5F9", width:180 }}>
+                            <ProgressBar done={dDone} total={disc.tasks.length} color={disc.color} />
+                          </td>
+                          <td style={{ padding:"12px 16px", borderBottom:"1px solid #F1F5F9", textAlign:"center" }}>
+                            <span style={{ fontSize:13, fontWeight:600, color:"#1E293B" }}>{disc.tasks.length}</span>
+                          </td>
+                          <td style={{ padding:"12px 16px", borderBottom:"1px solid #F1F5F9" }}>
+                            {dProg>0 && <Badge color={STATUS["in-progress"].badgeText} bg={STATUS["in-progress"].badge}>{dProg} active</Badge>}
+                          </td>
+                          <td style={{ padding:"12px 16px", borderBottom:"1px solid #F1F5F9" }}>
+                            {dBlock>0
+                              ? <Badge color={STATUS.blocked.badgeText} bg={STATUS.blocked.badge}>{dBlock} blocked</Badge>
+                              : <span style={{ fontSize:11, color:"#CBD5E1" }}>—</span>}
+                          </td>
+                          <td style={{ padding:"12px 16px", borderBottom:"1px solid #F1F5F9" }}>
+                            <span style={{ fontSize:12, color:"#94A3B8" }}>{disc.owner}</span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Task detail */}
+              {selected && (
+                <div style={{ background:"white", border:`1px solid ${selected.borderColor}`,
+                  borderRadius:10, overflow:"hidden" }}>
+                  <div style={{ padding:"14px 18px", borderBottom:"1px solid #F1F5F9",
+                    background:selected.lightColor, display:"flex", alignItems:"center", gap:10 }}>
+                    <div style={{ width:28, height:28, borderRadius:6, background:"white",
+                      border:`1px solid ${selected.borderColor}`,
+                      display:"flex", alignItems:"center", justifyContent:"center",
+                      fontSize:12, fontWeight:700, color:selected.color }}>{selected.label[0]}</div>
+                    <span style={{ fontSize:13, fontWeight:600, color:"#0F172A" }}>{selected.label} Tasks</span>
+                    <span style={{ fontSize:11, color:"#94A3B8" }}>{selected.tasks.length} total</span>
+                  </div>
+                  <TaskTable tasks={selected.tasks} comments={comments} onCommentAdded={onCommentAdded} />
+                </div>
+              )}
+            </>}
+
+            {/* ── TASKS ── */}
+            {tab==="tasks" && (
+              <div style={{ display:"grid", gridTemplateColumns:"200px 1fr", gap:16 }}>
+                <div style={{ background:"white", border:"1px solid #E2E8F0",
+                  borderRadius:10, overflow:"hidden", alignSelf:"start" }}>
+                  {d.disciplines.map(disc=>{
+                    const dDone = disc.tasks.filter(t=>t.status==="done").length;
+                    return (
+                      <div key={disc.id} onClick={()=>setSel(disc.id)} style={{
+                        padding:"10px 14px", cursor:"pointer",
+                        display:"flex", justifyContent:"space-between", alignItems:"center",
+                        background:sel===disc.id?disc.lightColor:"white",
+                        borderLeft:`3px solid ${sel===disc.id?disc.color:"transparent"}`,
+                        borderBottom:"1px solid #F1F5F9" }}>
+                        <span style={{ fontSize:13, fontWeight:sel===disc.id?600:400,
+                          color:sel===disc.id?disc.color:"#374151" }}>{disc.label}</span>
+                        <span style={{ fontSize:11, color:"#94A3B8" }}>{dDone}/{disc.tasks.length}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+                {selected && (
+                  <div style={{ background:"white", border:"1px solid #E2E8F0",
+                    borderRadius:10, overflow:"hidden" }}>
+                    <div style={{ padding:"14px 18px", borderBottom:"1px solid #F1F5F9",
+                      background:selected.lightColor }}>
+                      <span style={{ fontSize:14, fontWeight:600, color:"#0F172A" }}>{selected.label}</span>
+                    </div>
+                    <TaskTable tasks={selected.tasks} comments={comments} onCommentAdded={onCommentAdded} />
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ── DECISIONS ── */}
+            {tab==="decisions" && (
+              <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:10, overflow:"hidden" }}>
+                <div style={{ padding:"14px 18px", borderBottom:"1px solid #F1F5F9" }}>
+                  <span style={{ fontSize:13, fontWeight:600, color:"#0F172A" }}>Decision Log</span>
+                  <span style={{ fontSize:12, color:"#94A3B8", marginLeft:8 }}>{d.decisions.length} recorded</span>
+                </div>
+                {d.decisions.map((dec, i) => (
+                  <DecisionRow key={i} dec={dec} index={i} comments={comments} onCommentAdded={onCommentAdded} />
+                ))}
+                <div style={{ padding:"12px 18px", background:"#F8FAFC",
+                  borderTop:"1px solid #E2E8F0", fontSize:12, color:"#94A3B8" }}>
+                  💡 After each Cowork session, new decisions will be automatically logged here.
+                </div>
+              </div>
+            )}
+
+            {/* ── WEEKLY UPDATES ── */}
+            {tab==="updates" && (
+              <div>
+                <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:10,
+                  overflow:"hidden", marginBottom:16 }}>
+                  <div style={{ padding:"14px 18px", borderBottom:"1px solid #F1F5F9",
+                    display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                    <div>
+                      <span style={{ fontSize:13, fontWeight:600, color:"#0F172A" }}>Weekly Snapshots</span>
+                      <span style={{ fontSize:12, color:"#94A3B8", marginLeft:8 }}>
+                        {d.weeklyUpdates.length} week{d.weeklyUpdates.length !== 1 ? "s" : ""} tracked
+                      </span>
+                    </div>
+                    <span style={{ fontSize:11, color:"#94A3B8" }}>Updated every Friday at 6:45am</span>
+                  </div>
+
+                  {d.weeklyUpdates.length === 0 ? (
+                    <div style={{ padding:"40px 24px", textAlign:"center", color:"#94A3B8" }}>
+                      <div style={{ fontSize:32, marginBottom:10 }}>📊</div>
+                      <div style={{ fontSize:13, fontWeight:500, color:"#64748B", marginBottom:6 }}>
+                        First snapshot posts this Friday
+                      </div>
+                      <div style={{ fontSize:12 }}>
+                        Weekly progress summaries will appear here automatically — week over week.
+                      </div>
+                    </div>
+                  ) : (
+                    d.weeklyUpdates.slice().reverse().map((w, i) => (
+                      <div key={i} style={{ display:"grid", gridTemplateColumns:"140px 1fr",
+                        padding:"18px 18px", borderBottom:"1px solid #F8FAFC", gap:16, alignItems:"start" }}>
+                        {/* Left — week label + date */}
+                        <div>
+                          <div style={{ fontSize:12, fontWeight:700, color:"#0F172A" }}>Week {w.week}</div>
+                          <div style={{ fontSize:11, color:"#94A3B8", marginTop:2 }}>{w.dateRange}</div>
+                          <div style={{ marginTop:10, display:"flex", alignItems:"center", gap:6 }}>
+                            <div style={{ width:48, height:4, background:"#E2E8F0", borderRadius:2, overflow:"hidden" }}>
+                              <div style={{ width:`${w.pct}%`, height:"100%", background:BRAND, borderRadius:2 }} />
+                            </div>
+                            <span style={{ fontSize:11, color:BRAND, fontWeight:600 }}>{w.pct}%</span>
+                          </div>
+                          <div style={{ marginTop:8, display:"flex", gap:8, flexWrap:"wrap" }}>
+                            <span style={{ fontSize:11, color:"#059669", fontWeight:600 }}>✓ {w.done} done</span>
+                            {w.blockers > 0 && (
+                              <span style={{ fontSize:11, color:"#DC2626", fontWeight:600 }}>⚠ {w.blockers} blocked</span>
+                            )}
+                          </div>
+                          {w.snapshotUrl && (
+                            <a href={w.snapshotUrl} target="_blank" rel="noreferrer" style={{
+                              display:"inline-block", marginTop:10, fontSize:11,
+                              color:BRAND, textDecoration:"none", fontWeight:500 }}>
+                              View full report →
+                            </a>
+                          )}
+                        </div>
+
+                        {/* Right — wins + next up */}
+                        <div>
+                          {w.wins && w.wins.length > 0 && (
+                            <div style={{ marginBottom:10 }}>
+                              <div style={{ fontSize:11, fontWeight:600, color:"#64748B",
+                                textTransform:"uppercase", letterSpacing:"0.05em", marginBottom:6 }}>
+                                This Week
+                              </div>
+                              {w.wins.map((win, wi) => (
+                                <div key={wi} style={{ fontSize:12, color:"#1E293B",
+                                  marginBottom:4, display:"flex", gap:6 }}>
+                                  <span style={{ color:"#059669", flexShrink:0 }}>✓</span>
+                                  <span>{win}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {w.nextUp && w.nextUp.length > 0 && (
+                            <div>
+                              <div style={{ fontSize:11, fontWeight:600, color:"#64748B",
+                                textTransform:"uppercase", letterSpacing:"0.05em", marginBottom:6 }}>
+                                Next Week
+                              </div>
+                              {w.nextUp.map((next, ni) => (
+                                <div key={ni} style={{ fontSize:12, color:"#64748B",
+                                  marginBottom:4, display:"flex", gap:6 }}>
+                                  <span style={{ color:"#94A3B8", flexShrink:0 }}>→</span>
+                                  <span>{next}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* ── OPEN QUESTIONS ── */}
+            {tab==="questions" && (
+              <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:10, overflow:"hidden" }}>
+                <div style={{ padding:"14px 18px", borderBottom:"1px solid #F1F5F9" }}>
+                  <span style={{ fontSize:13, fontWeight:600, color:"#0F172A" }}>Open Questions</span>
+                  <span style={{ fontSize:12, color:"#94A3B8", marginLeft:8 }}>
+                    {d.openQuestions.length} need answers
+                  </span>
+                </div>
+                {d.openQuestions.map((item, i) => (
+                  <QuestionRow key={i} item={item} index={i} comments={comments} onCommentAdded={onCommentAdded} />
+                ))}
+              </div>
+            )}
+
+          </div>
+
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
