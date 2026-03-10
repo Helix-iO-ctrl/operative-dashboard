@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Velo — AI-Powered Systems for Gyms, Restaurants & Local Businesses</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --amber: #E07A2F;
+      --amber-hover: #C45C25;
+      --amber-glow: rgba(224, 122, 47, 0.15);
+      --dark: #1C1C2A;
+      --dark-card: #252536;
+      --dark-input: #2E2E42;
+      --dark-border: #3A3A50;
+      --warm-white: #FBF7F2;
+      --text-primary: #F1F0FB;
+      --text-secondary: #9896A3;
+      --text-muted: #6B6878;
+      --success: #059669;
+    }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--dark);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* ── NAV ── */
+    .nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 32px;
+      border-bottom: 1px solid var(--dark-border);
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(28, 28, 42, 0.95);
+      backdrop-filter: blur(12px);
+    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text-primary); }
+    .nav-logo {
+      width: 36px; height: 36px; background: var(--amber); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 18px; color: #fff;
+    }
+    .nav-name { font-weight: 700; font-size: 18px; }
+    .nav-cta {
+      padding: 10px 24px; background: var(--amber); color: #fff;
+      border: none; border-radius: 8px; font-weight: 600; font-size: 14px;
+      cursor: pointer; text-decoration: none; transition: background 0.2s;
+    }
+    .nav-cta:hover { background: var(--amber-hover); }
+
+    /* ── HERO ── */
+    .hero {
+      max-width: 800px; margin: 0 auto;
+      padding: 80px 24px 64px; text-align: center;
+    }
+    .hero-badge {
+      display: inline-block; padding: 6px 16px;
+      background: var(--amber-glow); border: 1px solid rgba(224, 122, 47, 0.3);
+      border-radius: 20px; font-size: 13px; font-weight: 600;
+      color: var(--amber); margin-bottom: 24px;
+    }
+    .hero h1 { font-size: 44px; font-weight: 800; line-height: 1.15; margin-bottom: 20px; }
+    .hero h1 span { color: var(--amber); }
+    .hero p { color: var(--text-secondary); font-size: 18px; max-width: 600px; margin: 0 auto 36px; }
+    .hero-cta {
+      display: inline-block; padding: 16px 40px; background: var(--amber); color: #fff;
+      border-radius: 10px; font-weight: 700; font-size: 17px;
+      text-decoration: none; transition: all 0.2s;
+    }
+    .hero-cta:hover { background: var(--amber-hover); transform: translateY(-1px); }
+    .hero-sub { color: var(--text-muted); font-size: 13px; margin-top: 12px; }
+
+    /* ── PROBLEM ── */
+    .problem {
+      max-width: 900px; margin: 0 auto; padding: 0 24px 80px;
+    }
+    .problem h2 { font-size: 28px; font-weight: 700; text-align: center; margin-bottom: 40px; }
+    .problem h2 span { color: var(--amber); }
+    .pain-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+    .pain-card {
+      background: var(--dark-card); border: 1px solid var(--dark-border);
+      border-radius: 12px; padding: 28px;
+    }
+    .pain-icon { font-size: 28px; margin-bottom: 12px; }
+    .pain-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .pain-card p { color: var(--text-secondary); font-size: 14px; line-height: 1.6; }
+
+    /* ── SOLUTION ── */
+    .solution {
+      max-width: 900px; margin: 0 auto; padding: 0 24px 80px;
+    }
+    .solution h2 { font-size: 28px; font-weight: 700; text-align: center; margin-bottom: 12px; }
+    .solution h2 span { color: var(--amber); }
+    .solution-sub { color: var(--text-secondary); text-align: center; font-size: 16px; max-width: 600px; margin: 0 auto 40px; }
+    .sol-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+    .sol-card {
+      background: var(--dark-card); border: 1px solid var(--dark-border);
+      border-radius: 12px; padding: 28px; position: relative;
+      border-top: 3px solid var(--amber);
+    }
+    .sol-num {
+      position: absolute; top: -14px; left: 24px;
+      background: var(--amber); color: #fff; width: 28px; height: 28px;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700;
+    }
+    .sol-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; margin-top: 4px; }
+    .sol-card p { color: var(--text-secondary); font-size: 14px; line-height: 1.6; }
+
+    /* ── BEFORE/AFTER ── */
+    .compare {
+      max-width: 900px; margin: 0 auto; padding: 0 24px 80px;
+    }
+    .compare h2 { font-size: 28px; font-weight: 700; text-align: center; margin-bottom: 40px; }
+    .compare h2 span { color: var(--amber); }
+    .compare-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+    }
+    .compare-col { border-radius: 12px; padding: 32px; }
+    .compare-col.before {
+      background: var(--dark-card); border: 1px solid var(--dark-border);
+    }
+    .compare-col.after {
+      background: rgba(224, 122, 47, 0.06); border: 1px solid rgba(224, 122, 47, 0.25);
+    }
+    .compare-col h3 { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+    .compare-col.before h3 { color: var(--text-muted); }
+    .compare-col.after h3 { color: var(--amber); }
+    .compare-col ul { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .compare-col li {
+      font-size: 14px; color: var(--text-secondary); padding-left: 28px; position: relative;
+    }
+    .compare-col.before li::before {
+      content: '✗'; position: absolute; left: 0; color: #DC2626; font-weight: 700;
+    }
+    .compare-col.after li::before {
+      content: '✓'; position: absolute; left: 0; color: var(--success); font-weight: 700;
+    }
+
+    /* ── USE CASES ── */
+    .usecases {
+      max-width: 900px; margin: 0 auto; padding: 0 24px 80px;
+    }
+    .usecases h2 { font-size: 28px; font-weight: 700; text-align: center; margin-bottom: 12px; }
+    .usecases h2 span { color: var(--amber); }
+    .usecases-sub { color: var(--text-secondary); text-align: center; font-size: 16px; max-width: 600px; margin: 0 auto 40px; }
+    .uc-list { display: flex; flex-direction: column; gap: 16px; }
+    .uc-item {
+      background: var(--dark-card); border: 1px solid var(--dark-border);
+      border-radius: 12px; padding: 24px 28px;
+      display: flex; align-items: flex-start; gap: 16px;
+    }
+    .uc-check {
+      width: 24px; height: 24px; min-width: 24px;
+      background: var(--amber); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 2px;
+    }
+    .uc-check svg { width: 14px; height: 14px; stroke: #fff; fill: none; stroke-width: 3; }
+    .uc-item h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+    .uc-item p { color: var(--text-secondary); font-size: 14px; }
+
+    /* ── HOW IT WORKS ── */
+    .how {
+      max-width: 900px; margin: 0 auto; padding: 0 24px 80px;
+    }
+    .how h2 { font-size: 28px; font-weight: 700; text-align: center; margin-bottom: 40px; }
+    .how h2 span { color: var(--amber); }
+    .how-steps { display: flex; flex-direction: column; gap: 0; }
+    .how-step {
+      display: flex; gap: 20px; padding: 24px 0;
+      border-bottom: 1px solid var(--dark-border);
+    }
+    .how-step:last-child { border-bottom: none; }
+    .how-num {
+      width: 40px; height: 40px; min-width: 40px;
+      background: var(--amber-glow); border: 2px solid var(--amber);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 16px; color: var(--amber);
+    }
+    .how-step h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+    .how-step p { color: var(--text-secondary); font-size: 14px; }
+
+    /* ── BOTTOM CTA ── */
+    .bottom-cta {
+      max-width: 700px; margin: 0 auto; padding: 0 24px 100px; text-align: center;
+    }
+    .cta-box {
+      background: var(--dark-card); border: 2px solid var(--amber);
+      border-radius: 16px; padding: 48px 40px;
+    }
+    .cta-box h2 { font-size: 28px; font-weight: 800; margin-bottom: 12px; }
+    .cta-box h2 span { color: var(--amber); }
+    .cta-box p { color: var(--text-secondary); font-size: 16px; margin-bottom: 28px; max-width: 480px; margin-left: auto; margin-right: auto; }
+    .cta-box .hero-cta { font-size: 16px; padding: 14px 36px; }
+    .cta-box .hero-sub { margin-top: 12px; }
+
+    /* ── FOOTER ── */
+    .footer {
+      text-align: center; padding: 32px 24px;
+      border-top: 1px solid var(--dark-border);
+      color: var(--text-muted); font-size: 13px;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 30px; }
+      .hero { padding: 48px 20px 40px; }
+      .nav { padding: 12px 16px; }
+      .pain-grid, .sol-grid { grid-template-columns: 1fr; }
+      .compare-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <a class="nav-brand" href="#">
+      <div class="nav-logo">V</div>
+      <span class="nav-name">Velo</span>
+    </a>
+    <a class="nav-cta" href="book.html">Book a Free Call</a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge">Built for Gyms, Restaurants & Local Businesses</div>
+    <h1>Fill Your Space, <span>Keep Them Coming Back</span>, and Stop Doing Everything Yourself</h1>
+    <p>Velo builds AI-powered systems that bring in new members, automate the day-to-day, and give you back the time you started this business to have.</p>
+    <a class="hero-cta" href="book.html">Book Your Free Discovery Call</a>
+    <p class="hero-sub">30 minutes. No pitch. We'll show you exactly where AI can help.</p>
+  </section>
+
+  <!-- PROBLEM -->
+  <section class="problem">
+    <h2>Running a Location Is <span>Relentless</span></h2>
+    <div class="pain-grid">
+      <div class="pain-card">
+        <div class="pain-icon">🚪</div>
+        <h3>Members sign up, then disappear</h3>
+        <p>People join excited, show up for two weeks, then ghost. You don't have time to check in with every single person — so they quietly cancel and you're back to square one.</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon">📱</div>
+        <h3>Your marketing is "when I get to it"</h3>
+        <p>You know you should be posting, running promos, following up with leads. But between managing staff and keeping the lights on, social media is the first thing that gets dropped.</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon">📋</div>
+        <h3>Staff management eats your life</h3>
+        <p>Scheduling, no-shows, training, coverage — half your day is spent managing people instead of growing the business. And when someone calls out, you're the one covering.</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon">💸</div>
+        <h3>You don't know your real numbers</h3>
+        <p>What's your member churn rate? Average revenue per member? Cost per lead? You're making decisions based on feel instead of data — and it shows in the bank account.</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon">🔄</div>
+        <h3>No-shows and cancellations add up</h3>
+        <p>Booked appointments that don't show. Classes that are half-empty because nobody got a reminder. Reservations that ghost without a call. Each one costs you real money.</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon">🏃</div>
+        <h3>Scaling means hiring, and hiring is a gamble</h3>
+        <p>You want to grow — open another location, expand hours, add services. But every hire is a risk, training takes months, and you still can't step away from the day-to-day.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOLUTION -->
+  <section class="solution">
+    <h2>What Velo <span>Builds for You</span></h2>
+    <p class="solution-sub">We don't sell generic software. We come in, understand your operation, and build AI systems that solve your specific problems.</p>
+    <div class="sol-grid">
+      <div class="sol-card">
+        <div class="sol-num">1</div>
+        <h3>Automated Member Retention</h3>
+        <p>AI tracks engagement patterns and reaches out before people churn — check-in messages, milestone celebrations, re-engagement texts. Your members feel seen without you lifting a finger.</p>
+      </div>
+      <div class="sol-card">
+        <div class="sol-num">2</div>
+        <h3>Lead Capture & Follow-Up</h3>
+        <p>Every inquiry — website, Instagram DM, walk-in, referral — gets captured and followed up with automatically. No more leads slipping because you were in the middle of a class.</p>
+      </div>
+      <div class="sol-card">
+        <div class="sol-num">3</div>
+        <h3>Smart Scheduling & Reminders</h3>
+        <p>Automated booking confirmations, class reminders, and no-show follow-ups. Reduce empty spots by up to 40% without adding any admin work to your plate.</p>
+      </div>
+      <div class="sol-card">
+        <div class="sol-num">4</div>
+        <h3>Marketing on Autopilot</h3>
+        <p>AI-generated social content, seasonal promotions, and referral campaigns that run themselves. Show up consistently online without spending your evenings making posts.</p>
+      </div>
+      <div class="sol-card">
+        <div class="sol-num">5</div>
+        <h3>Live Business Dashboard</h3>
+        <p>See your membership numbers, revenue trends, churn rate, and lead pipeline in one view. Updated in real time. Know exactly where your business stands every morning.</p>
+      </div>
+      <div class="sol-card">
+        <div class="sol-num">6</div>
+        <h3>Weekly Strategy Call</h3>
+        <p>You're not just getting tools — you get a 30-minute weekly call with your advisor to review what's working, plan promotions, and solve problems before they become expensive.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- BEFORE / AFTER -->
+  <section class="compare">
+    <h2>The <span>Difference</span> AI Makes</h2>
+    <div class="compare-grid">
+      <div class="compare-col before">
+        <h3>Without Velo</h3>
+        <ul>
+          <li>New leads sit in your DMs for 2 days before you reply</li>
+          <li>Members churn silently — you notice when it hits your bank account</li>
+          <li>Social media is a graveyard of posts from 3 months ago</li>
+          <li>No-shows are just part of life — nothing you can do</li>
+          <li>You have no idea what your real cost per member is</li>
+          <li>Every decision is a gut call</li>
+        </ul>
+      </div>
+      <div class="compare-col after">
+        <h3>With Velo</h3>
+        <ul>
+          <li>Every lead gets a response within 5 minutes, 24/7</li>
+          <li>At-risk members get a personal check-in before they cancel</li>
+          <li>Consistent content posts and promos running on autopilot</li>
+          <li>Automated reminders cut no-shows by 30-40%</li>
+          <li>Dashboard shows revenue per member, churn rate, and lead cost</li>
+          <li>Every decision backed by real numbers</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- USE CASES -->
+  <section class="usecases">
+    <h2>Works for <span>Your Kind of Business</span></h2>
+    <p class="usecases-sub">If you have a physical location and customers who walk through the door, Velo can help.</p>
+    <div class="uc-list">
+      <div class="uc-item">
+        <div class="uc-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+        <div>
+          <h4>Gyms & Fitness Studios</h4>
+          <p>Automate member onboarding, track attendance patterns to predict churn, send personalized workout check-ins, and run referral campaigns that bring in new members without paid ads.</p>
+        </div>
+      </div>
+      <div class="uc-item">
+        <div class="uc-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+        <div>
+          <h4>Restaurants & Cafes</h4>
+          <p>Fill slow nights with targeted promotions, automate reservation reminders, collect and respond to reviews, and track which menu items drive the most revenue per table.</p>
+        </div>
+      </div>
+      <div class="uc-item">
+        <div class="uc-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+        <div>
+          <h4>Juice Bars, Coffee Shops & Quick-Serve</h4>
+          <p>Build a loyalty program that runs itself, automate social media content around seasonal offerings, and use sales data to optimize your menu and staffing schedule.</p>
+        </div>
+      </div>
+      <div class="uc-item">
+        <div class="uc-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+        <div>
+          <h4>Salons, Spas & Wellness Studios</h4>
+          <p>Reduce appointment no-shows with smart reminders, automate rebooking follow-ups, and send personalized product recommendations based on service history.</p>
+        </div>
+      </div>
+      <div class="uc-item">
+        <div class="uc-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+        <div>
+          <h4>Retail & Specialty Shops</h4>
+          <p>Capture walk-in and online leads in one place, automate post-purchase follow-ups, run seasonal campaigns, and track which products and promotions actually move the needle.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="how">
+    <h2>How It <span>Works</span></h2>
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="how-num">1</div>
+        <div>
+          <h3>Free Discovery Call (30 min)</h3>
+          <p>We'll walk through your business — what's working, what's not, and where you're bleeding time and money. Then we'll show you a live demo of what your AI-powered operation could look like, built around your actual business.</p>
+        </div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">2</div>
+        <div>
+          <h3>We Build Your System (2-4 weeks)</h3>
+          <p>No switching platforms, no complicated setup on your end. We build around the tools you already use — your booking system, your POS, your social accounts. You give feedback, we handle the rest.</p>
+        </div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">3</div>
+        <div>
+          <h3>Go Live + Ongoing Support</h3>
+          <p>Your system goes live. You get a dashboard to see everything at a glance, weekly strategy calls to keep optimizing, and direct access whenever something comes up. We're in it with you.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOTTOM CTA -->
+  <section class="bottom-cta">
+    <div class="cta-box">
+      <h2>Ready to <span>Grow Without Burning Out?</span></h2>
+      <p>Book a free 30-minute discovery call. We'll find the bottlenecks in your business, show you what AI can automate, and map out a plan to get your time back.</p>
+      <a class="hero-cta" href="book.html">Book Your Free Discovery Call</a>
+      <p class="hero-sub">No commitment. No pitch. Just a clear look at what's possible.</p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <p>&copy; 2026 Velo. AI-powered consulting for small businesses.</p>
+  </footer>
+
+</body>
+</html>
