@@ -169,15 +169,109 @@
 
       // ── OPEN QUESTIONS ──
       // urgency: "critical" | "high" | "medium"
-      openQuestions: [],
+      openQuestions: [
+        { id: "q1", q: "Should the founding client case study include real revenue numbers or anonymized ranges?",
+          urgency: "high", note: "Hayden needs to decide before the contractor engagement starts. Real numbers are more compelling but may make the client uncomfortable." },
+        { id: "q2", q: "What CRM / project management tool should Velo use for its own pipeline tracking?",
+          urgency: "high", note: "Currently no system in place. Options: simple spreadsheet, Notion, or build a lightweight tracker. Needed before outreach begins at scale." },
+        { id: "q3", q: "Is velo.io still the domain target, or should we consider alternatives?",
+          urgency: "high", note: "Domain purchase is a blocker for deploying landing pages and establishing the brand online. Need to confirm and buy." },
+        { id: "q4", q: "What does the contractor CRM MVP need to include for the case study to be compelling?",
+          urgency: "medium", note: "Scope the minimum build: text message ingestion, Google Calendar sync, alert system, dashboard. Define 'done' before starting." },
+        { id: "q5", q: "Should Hayden offer a referral incentive to founding clients beyond the free engagement?",
+          urgency: "medium", note: "Founding clients are already getting free work. Adding a referral bonus (e.g., discount on future work) could accelerate word-of-mouth." },
+      ],
 
       // ── WEEKLY UPDATES ──
       // Auto-populated every Friday by the weekly-snapshot scheduled task.
       // Each entry: { week, dateRange, pct, done, blockers, wins: [], nextUp: [], snapshotUrl }
       weeklyUpdates: [],
 
-      // ── NEW: Empty structures for future asset library & feedback tracking ──
-      assets: [],
+      // ── ASSET LIBRARY ──
+      // Central catalog of all deliverables. Each asset can have multiple versions.
+      // status options: "draft" | "in-review" | "revision-needed" | "approved"
+      assets: [
+        {
+          id: "color-palette",
+          title: "Velo Brand Color Palette",
+          discipline: "creative",
+          description: "Primary brand colors: Velo Amber, Deep Night, Warm White, Burnt Amber, Slate.",
+          status: "approved",
+          versions: [
+            {
+              version: 1,
+              date: "Mar 6, 2026",
+              url: "https://helix-io-ctrl.github.io/operative-dashboard/docs/creative/velo-color-palette.html",
+              note: "Palette selected. Primary: Velo Amber #E07A2F. Approved by Hayden.",
+              status: "approved",
+            },
+          ],
+        },
+        {
+          id: "landing-small-biz",
+          title: "Small Business Landing Page",
+          discipline: "marketing",
+          description: "Landing page targeting small business owners for Track A advisory services.",
+          status: "approved",
+          versions: [
+            {
+              version: 1,
+              date: "Mar 6, 2026",
+              url: "https://helix-io-ctrl.github.io/operative-dashboard/landing-small-business.html",
+              note: "Initial version with two-tier pricing, testimonial placeholders, and booking CTA.",
+              status: "approved",
+            },
+          ],
+        },
+        {
+          id: "landing-consultants",
+          title: "Consultant Landing Page",
+          discipline: "marketing",
+          description: "Landing page for Track B — consultant licensing program (deprioritized).",
+          status: "approved",
+          versions: [
+            {
+              version: 1,
+              date: "Mar 6, 2026",
+              url: "https://helix-io-ctrl.github.io/operative-dashboard/landing-consultants.html",
+              note: "Initial version. Track B is deprioritized — page built but not actively marketed.",
+              status: "approved",
+            },
+          ],
+        },
+        {
+          id: "campaign-brief",
+          title: "Marketing Campaign Brief",
+          discipline: "marketing",
+          description: "12-week campaign plan with 3 budget tiers, channel strategy, content calendar, and KPIs.",
+          status: "approved",
+          versions: [
+            {
+              version: 1,
+              date: "Mar 6, 2026",
+              url: "https://helix-io-ctrl.github.io/operative-dashboard/marketing-campaign-brief.html",
+              note: "Complete brief: Bootstrap ($30/mo), Scrappy ($450/mo), Growth ($2k+/mo) tiers.",
+              status: "approved",
+            },
+          ],
+        },
+        {
+          id: "capabilities-report",
+          title: "Capabilities & Market Report",
+          discipline: "strategy",
+          description: "Full competitive landscape analysis, market opportunity sizing, and positioning framework.",
+          status: "approved",
+          versions: [
+            {
+              version: 1,
+              date: "Mar 6, 2026",
+              url: "https://helix-io-ctrl.github.io/operative-dashboard/AI-Business-OS%20%E2%80%94%20Capabilities%20%26%20Market%20Report.html",
+              note: "Comprehensive report covering 7 competitor platforms, market gaps, and Velo's differentiation.",
+              status: "approved",
+            },
+          ],
+        },
+      ],
       feedbackResponses: {},
     };
   </script>
@@ -1420,7 +1514,7 @@
     }
 
     function App() {
-      const [sel, setSel]           = useState("product");
+      const [sel, setSel]           = useState("strategy");
       const [tab, setTab]           = useState("overview");
       const [comments, setComments] = useState({});
       const [previewUrl, setPreviewUrl]     = useState(null);
