@@ -525,6 +525,20 @@
     // ── Form data store ──
     let formData = {};
 
+    // ── Field error helper ──
+    function showFieldError(fieldId, message) {
+      const field = document.getElementById(fieldId);
+      let errSpan = field.querySelector('.error-msg');
+      if (!errSpan) {
+        errSpan = document.createElement('span');
+        errSpan.className = 'error-msg';
+        errSpan.style.cssText = 'display:block; color:#EF4444; font-size:12px; margin-top:4px; font-weight:500;';
+        field.appendChild(errSpan);
+      }
+      errSpan.textContent = message;
+      errSpan.classList.remove('hidden');
+    }
+
     // ── Validation ──
     function validateStep1() {
       const fields = {
@@ -549,9 +563,47 @@
           continue;
         }
 
-        if (key === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-          document.getElementById(cfg.el).classList.add('has-error');
-          valid = false;
+        if (key === 'email') {
+          // Basic format check
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+            document.getElementById(cfg.el).classList.add('has-error');
+            showFieldError(cfg.el, 'Please enter a valid email address');
+            valid = false;
+            continue;
+          }
+          // TLD typo check — catch common misspellings
+          const tldTypos = {
+            'con': 'com', 'cmo': 'com', 'ocm': 'com', 'vom': 'com', 'comm': 'com',
+            'nett': 'net', 'nte': 'net',
+            'orgg': 'org', 'ogr': 'org',
+            'edi': 'edu', 'eud': 'edu',
+            'gmai.com': null, 'gmial.com': null, 'gmal.com': null,
+            'yaho.com': null, 'yahooo.com': null,
+            'hotmal.com': null, 'hotmial.com': null,
+          };
+          const domain = value.split('@')[1].toLowerCase();
+          const tld = domain.split('.').pop();
+          // Check TLD typos
+          if (tldTypos[tld]) {
+            const suggestion = value.replace(new RegExp('\\.' + tld + '$'), '.' + tldTypos[tld]);
+            document.getElementById(cfg.el).classList.add('has-error');
+            showFieldError(cfg.el, `Did you mean ${suggestion}?`);
+            valid = false;
+            continue;
+          }
+          // Check full domain typos
+          if (tldTypos[domain] === null) {
+            document.getElementById(cfg.el).classList.add('has-error');
+            showFieldError(cfg.el, `"${domain}" looks like a typo. Please double-check your email.`);
+            valid = false;
+            continue;
+          }
+          // Minimum TLD length (must be at least 2 chars, and known short TLDs are fine)
+          if (tld.length < 2) {
+            document.getElementById(cfg.el).classList.add('has-error');
+            showFieldError(cfg.el, 'Email domain looks incomplete. Please check it.');
+            valid = false;
+          }
         }
       }
 
