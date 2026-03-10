@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Velo — AI-Powered Systems for Coaches, Creators & Wellness Brands</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --amber: #E07A2F;
+      --amber-hover: #C45C25;
+      --amber-glow: rgba(224, 122, 47, 0.15);
+      --dark: #1C1C2A;
+      --dark-card: #252536;
+      --dark-input: #2E2E42;
+      --dark-border: #3A3A50;
+      --warm-white: #FBF7F2;
+      --text-primary: #F1F0FB;
+      --text-secondary: #9896A3;
+      --text-muted: #6B6878;
+      --success: #059669;
+    }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--dark);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* ── NAV ── */
+    .nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 32px;
+      border-bottom: 1px solid var(--dark-border);
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(28, 28, 42, 0.95);
+      backdrop-filter: blur(12px);
+    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text-primary); }
+    .nav-logo {
+      width: 36px; height: 36px; background: var(--amber); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 18px; color: #fff;
+    }
+    .nav-name { font-weight: 700; font-size: 18px; }
+    .nav-cta {
+      padding: 10px 24px; background: var(--amber); color: #fff;
+      border: none; border-radius: 8px; font-weight: 600; font-size: 14px;
+      cursor: pointer; text-decoration: none; transition: background 0.2s;
+    }
+    .nav-cta:hover { background: var(--amber-hover); }
+
+    /* ── HERO ── */
+    .hero {
+      max-width: 800px; margin: 0 auto;
+      padding: 80px 24px 64px; text-align: center;
+    }
+    .hero-badge {
+      display: inline-block; padding: 6px 16px;
+      background: var(--amber-glow); border: 1px solid rgba(224, 122, 47, 0.3);
+      border-radius: 20px; font-size: 13px; font-weight: 600;
+      color: var(--amber); margin-bottom: 24px;
+    }
+    .hero h1 { font-size: 44px; font-weight: 800; line-height: 1.15; margin-bottom: 20px; }
+    .hero h1 span { color: var(--amber); }
+    .hero p { color: var(--text-secondary); font-size: 18px; max-width: 600px; margin: 0 auto 36px; }
+    .hero-cta {
+      display: inline-block; padding: 16px 40px; background: var(--amber); color: #fff;
+      border-radius: 10px; font-weight: 700; font-size: 17px;
+      text-decoration: none; transition: all 0.2s;
+    }
+    .hero-cta:hover { background: var(--amber-hover); transform: translateY(-1px); }
+    .hero-sub { color: var(--text-muted); font-size: 13px; margin-top: 12px; }
+
+    /* ── PROBLEM ── */
+    .problem {
+      max-width: 900px; margin: 0 auto; padding: 0 24px 80px;
+    }
+    .problem h2 { font-size: 28px; font-weight: 700; text-align: center; margin-bottom: 40px; }
+    .problem h2 span { color: var(--amber); }
+    .pain-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+    .pain-card {
+      background: var(--dark-card); border: 1px solid var(--dark-border);
+      border-radius: 12px; padding: 28px;
+    }
+    .pain-icon { font-size: 28px; margin-bottom: 12px; }
+    .pain-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .pain-card p { color: var(--text-secondary); font-size: 14px; line-height: 1.6; }
+
+    /* ── SOLUTION ── */
+    .solution {
+      max-width: 900px; margin: 0 auto; padding: 0 24px 80px;
+    }
+    .solution h2 { font-size: 28px; font-weight: 700; text-align: center; margin-bottom: 12px; }
+    .solution h2 span { color: var(--amber); }
+    .solution-sub { color: var(--text-secondary); text-align: center; font-size: 16px; max-width: 600px; margin: 0 auto 40px; }
+    .sol-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+    .sol-card {
+      background: var(--dark-card); border: 1px solid var(--dark-border);
+      border-radius: 12px; padding: 28px; position: relative;
+      border-top: 3px solid var(--amber);
+    }
+    .sol-num {
+      position: absolute; top: -14px; left: 24px;
+      background: var(--amber); color: #fff; width: 28px; height: 28px;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700;
+    }
+    .sol-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; margin-top: 4px; }
+    .sol-card p { color: var(--text-secondary); font-size: 14px; line-height: 1.6; }
+
+    /* ── SCALE SECTION ── */
+    .scale {
+      max-width: 900px; margin: 0 auto; padding: 0 24px 80px;
+    }
+    .scale h2 { font-size: 28px; font-weight: 700; text-align: center; margin-bottom: 12px; }
+    .scale h2 span { color: var(--amber); }
+    .scale-sub { color: var(--text-secondary); text-align: center; font-size: 16px; max-width: 600px; margin: 0 auto 40px; }
+    .scale-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+    }
+    .scale-card {
+      background: var(--dark-card); border: 1px solid var(--dark-border);
+      border-radius: 12px; padding: 28px; text-align: center;
+    }
+    .scale-card.highlight {
+      border-color: var(--amber);
+      background: rgba(224, 122, 47, 0.05);
+    }
+    .scale-icon { font-size: 36px; margin-bottom: 12px; }
+    .scale-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+    .scale-card .num { font-size: 32px; font-weight: 800; color: var(--amber); margin-bottom: 4px; }
+    .scale-card p { color: var(--text-secondary); font-size: 13px; }
+
+    /* ── USE CASES ── */
+    .usecases {
+      max-width: 900px; margin: 0 auto; padding: 0 24px 80px;
+    }
+    .usecases h2 { font-size: 28px; font-weight: 700; text-align: center; margin-bottom: 12px; }
+    .usecases h2 span { color: var(--amber); }
+    .usecases-sub { color: var(--text-secondary); text-align: center; font-size: 16px; max-width: 600px; margin: 0 auto 40px; }
+    .uc-list { display: flex; flex-direction: column; gap: 16px; }
+    .uc-item {
+      background: var(--dark-card); border: 1px solid var(--dark-border);
+      border-radius: 12px; padding: 24px 28px;
+      display: flex; align-items: flex-start; gap: 16px;
+    }
+    .uc-check {
+      width: 24px; height: 24px; min-width: 24px;
+      background: var(--amber); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 2px;
+    }
+    .uc-check svg { width: 14px; height: 14px; stroke: #fff; fill: none; stroke-width: 3; }
+    .uc-item h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+    .uc-item p { color: var(--text-secondary); font-size: 14px; }
+
+    /* ── HOW IT WORKS ── */
+    .how {
+      max-width: 900px; margin: 0 auto; padding: 0 24px 80px;
+    }
+    .how h2 { font-size: 28px; font-weight: 700; text-align: center; margin-bottom: 40px; }
+    .how h2 span { color: var(--amber); }
+    .how-steps { display: flex; flex-direction: column; gap: 0; }
+    .how-step {
+      display: flex; gap: 20px; padding: 24px 0;
+      border-bottom: 1px solid var(--dark-border);
+    }
+    .how-step:last-child { border-bottom: none; }
+    .how-num {
+      width: 40px; height: 40px; min-width: 40px;
+      background: var(--amber-glow); border: 2px solid var(--amber);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 16px; color: var(--amber);
+    }
+    .how-step h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+    .how-step p { color: var(--text-secondary); font-size: 14px; }
+
+    /* ── BOTTOM CTA ── */
+    .bottom-cta {
+      max-width: 700px; margin: 0 auto; padding: 0 24px 100px; text-align: center;
+    }
+    .cta-box {
+      background: var(--dark-card); border: 2px solid var(--amber);
+      border-radius: 16px; padding: 48px 40px;
+    }
+    .cta-box h2 { font-size: 28px; font-weight: 800; margin-bottom: 12px; }
+    .cta-box h2 span { color: var(--amber); }
+    .cta-box p { color: var(--text-secondary); font-size: 16px; margin-bottom: 28px; max-width: 480px; margin-left: auto; margin-right: auto; }
+    .cta-box .hero-cta { font-size: 16px; padding: 14px 36px; }
+    .cta-box .hero-sub { margin-top: 12px; }
+
+    /* ── FOOTER ── */
+    .footer {
+      text-align: center; padding: 32px 24px;
+      border-top: 1px solid var(--dark-border);
+      color: var(--text-muted); font-size: 13px;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 30px; }
+      .hero { padding: 48px 20px 40px; }
+      .nav { padding: 12px 16px; }
+      .pain-grid, .sol-grid { grid-template-columns: 1fr; }
+      .scale-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <a class="nav-brand" href="#">
+      <div class="nav-logo">V</div>
+      <span class="nav-name">Velo</span>
+    </a>
+    <a class="nav-cta" href="book.html">Book a Free Call</a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge">Built for Coaches, Creators & Wellness Brands</div>
+    <h1>Turn Your Expertise Into a <span>Business That Runs Without You</span></h1>
+    <p>Velo builds AI-powered systems that automate your client acquisition, content, and operations — so you can stop trading hours for dollars and start scaling your impact.</p>
+    <a class="hero-cta" href="book.html">Book Your Free Discovery Call</a>
+    <p class="hero-sub">30 minutes. No pitch. We'll map out exactly where AI can help you scale.</p>
+  </section>
+
+  <!-- PROBLEM -->
+  <section class="problem">
+    <h2>You Built the Audience. <span>Now What?</span></h2>
+    <div class="pain-grid">
+      <div class="pain-card">
+        <div class="pain-icon">📱</div>
+        <h3>Content creation never stops</h3>
+        <p>You know posting is how you grow, but coming up with ideas, filming, editing, writing captions, scheduling — it's a full-time job on top of actually coaching people.</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon">💬</div>
+        <h3>DMs are your sales team (and it's exhausting)</h3>
+        <p>Every new client starts in your inbox. You're copy-pasting the same answers, qualifying leads manually, and losing people who messaged on a day you were too busy to respond.</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon">🔄</div>
+        <h3>Onboarding is different every time</h3>
+        <p>New client signs up — now what? Forms, intake calls, program setup, welcome emails. Every client gets a slightly different experience because there's no system.</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon">📊</div>
+        <h3>You have no idea what's actually working</h3>
+        <p>Which content drives sign-ups? What's your client retention rate? How much are you spending per lead? You're growing on vibes, not data.</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon">⏰</div>
+        <h3>Your income is capped by your time</h3>
+        <p>1-on-1 coaching pays well but doesn't scale. You want to launch a program, build a course, or create a membership — but you can barely keep up with what you've got.</p>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon">🏃</div>
+        <h3>You're the brand AND the business</h3>
+        <p>You're the coach, the marketer, the salesperson, the admin, and the customer service team. Hiring feels risky and you're not sure what to delegate first.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOLUTION -->
+  <section class="solution">
+    <h2>What Velo <span>Builds for You</span></h2>
+    <p class="solution-sub">We don't sell you another platform. We build AI systems around how your business actually works — your voice, your audience, your offers.</p>
+    <div class="sol-grid">
+      <div class="sol-card">
+        <div class="sol-num">1</div>
+        <h3>AI Content Engine</h3>
+        <p>Generate content ideas, draft captions, repurpose long-form into short-form — all in your voice. Show up consistently without spending every evening writing posts.</p>
+      </div>
+      <div class="sol-card">
+        <div class="sol-num">2</div>
+        <h3>Automated Lead Nurture</h3>
+        <p>When someone DMs you or fills out a form, they get an instant, personalized response. Warm leads move through a sequence that educates and sells — without you typing a thing.</p>
+      </div>
+      <div class="sol-card">
+        <div class="sol-num">3</div>
+        <h3>Client Onboarding System</h3>
+        <p>New sign-ups get a seamless experience — intake forms, welcome sequences, program access, and check-in schedules. Same professional experience every time, zero manual work.</p>
+      </div>
+      <div class="sol-card">
+        <div class="sol-num">4</div>
+        <h3>Retention & Check-In Automation</h3>
+        <p>AI tracks client engagement and triggers check-ins at the right time — progress celebrations, accountability nudges, and re-engagement messages before they fall off.</p>
+      </div>
+      <div class="sol-card">
+        <div class="sol-num">5</div>
+        <h3>Business Dashboard</h3>
+        <p>See your revenue, client count, retention rate, content performance, and pipeline in one view. Know exactly what's driving growth and what needs attention.</p>
+      </div>
+      <div class="sol-card">
+        <div class="sol-num">6</div>
+        <h3>Weekly Strategy Call</h3>
+        <p>Not just tools — you get a 30-minute weekly call with your advisor to plan content, refine your offers, review metrics, and solve problems before they slow you down.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCALE SECTION -->
+  <section class="scale">
+    <h2>From 1-on-1 to <span>One-to-Many</span></h2>
+    <p class="scale-sub">Most coaches hit a ceiling around 15-20 clients. AI breaks that ceiling without sacrificing the personal touch.</p>
+    <div class="scale-grid">
+      <div class="scale-card">
+        <div class="scale-icon">👤</div>
+        <div class="num">1:1</div>
+        <h3>Where You Are</h3>
+        <p>Trading time for money. Every client needs your direct attention. Income capped by hours in the day.</p>
+      </div>
+      <div class="scale-card highlight">
+        <div class="scale-icon">👥</div>
+        <div class="num">1:Many</div>
+        <h3>Where Velo Takes You</h3>
+        <p>AI handles the repeatable work. You focus on the high-touch moments that actually need you. Same quality, 3x the clients.</p>
+      </div>
+      <div class="scale-card">
+        <div class="scale-icon">🚀</div>
+        <div class="num">Brand</div>
+        <h3>Where You're Going</h3>
+        <p>Programs, memberships, digital products — all running on systems. Your brand works even when you're not online.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- USE CASES -->
+  <section class="usecases">
+    <h2>Built for <span>Your Kind of Business</span></h2>
+    <p class="usecases-sub">If you're building a brand around your expertise and want to scale without burning out, Velo can help.</p>
+    <div class="uc-list">
+      <div class="uc-item">
+        <div class="uc-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+        <div>
+          <h4>Online Fitness Coaches</h4>
+          <p>Automate program delivery, track client progress with AI-powered check-ins, generate workout content for social, and build a referral engine that fills your next cohort without paid ads.</p>
+        </div>
+      </div>
+      <div class="uc-item">
+        <div class="uc-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+        <div>
+          <h4>Life & Mindset Coaches</h4>
+          <p>Streamline client intake and session scheduling, automate follow-up sequences between sessions, and use AI to help draft personalized action plans and reflection prompts.</p>
+        </div>
+      </div>
+      <div class="uc-item">
+        <div class="uc-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+        <div>
+          <h4>Nutrition & Wellness Coaches</h4>
+          <p>Deliver meal plans and check-ins on autopilot, track client adherence patterns, automate supplement or product recommendations, and generate educational content from your expertise.</p>
+        </div>
+      </div>
+      <div class="uc-item">
+        <div class="uc-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+        <div>
+          <h4>Health & Wellness Influencers</h4>
+          <p>Turn your audience into paying clients with automated funnels. Repurpose your best content across platforms, manage brand partnerships, and track which content actually converts to revenue.</p>
+        </div>
+      </div>
+      <div class="uc-item">
+        <div class="uc-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+        <div>
+          <h4>Course Creators & Membership Owners</h4>
+          <p>Automate enrollment sequences, reduce churn with engagement tracking and re-activation campaigns, upsell members to higher tiers, and manage your community without living in it 24/7.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="how">
+    <h2>How It <span>Works</span></h2>
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="how-num">1</div>
+        <div>
+          <h3>Free Discovery Call (30 min)</h3>
+          <p>We'll walk through your business — your offers, your audience, your content flow, and where you're spending the most time on stuff that should be automated. Then we'll show you a live demo of what your AI-powered coaching business could look like.</p>
+        </div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">2</div>
+        <div>
+          <h3>We Build Your System (2-4 weeks)</h3>
+          <p>No switching platforms or learning new tools. We build around what you already use — your Instagram, your booking system, your email list, your payment processor. You give feedback, we handle the building.</p>
+        </div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">3</div>
+        <div>
+          <h3>Go Live + Ongoing Support</h3>
+          <p>Your system goes live. Leads get nurtured automatically, clients get onboarded seamlessly, and content ideas flow without you staring at a blank screen. Weekly calls keep everything optimized as you grow.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOTTOM CTA -->
+  <section class="bottom-cta">
+    <div class="cta-box">
+      <h2>Ready to <span>Scale Your Impact</span> Without Burning Out?</h2>
+      <p>Book a free 30-minute discovery call. We'll find the bottlenecks in your business, show you what AI can automate, and map out a plan to help you grow past the 1-on-1 ceiling.</p>
+      <a class="hero-cta" href="book.html">Book Your Free Discovery Call</a>
+      <p class="hero-sub">No commitment. No pitch. Just a clear look at what's possible.</p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <p>&copy; 2026 Velo. AI-powered consulting for small businesses.</p>
+  </footer>
+
+</body>
+</html>
