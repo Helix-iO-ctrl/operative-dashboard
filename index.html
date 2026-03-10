@@ -7,6 +7,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -1707,6 +1708,22 @@
                   Phase {d.currentPhase+1}: {d.phases[d.currentPhase]}
                 </span>
               </div>
+              {window.__supabaseLogout && (
+                <button onClick={() => window.__supabaseLogout()} style={{
+                  background:"none", border:"1px solid #E2E8F0", borderRadius:6,
+                  padding:"5px 12px", fontSize:12, color:"#64748B", cursor:"pointer",
+                  fontFamily:"inherit", display:"flex", alignItems:"center", gap:5,
+                  transition:"all .15s" }}
+                  onMouseOver={e => { e.currentTarget.style.borderColor="#CBD5E1"; e.currentTarget.style.color="#475569"; }}
+                  onMouseOut={e => { e.currentTarget.style.borderColor="#E2E8F0"; e.currentTarget.style.color="#64748B"; }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                    <polyline points="16 17 21 12 16 7"/>
+                    <line x1="21" y1="12" x2="9" y2="12"/>
+                  </svg>
+                  Sign Out
+                </button>
+              )}
             </div>
           </div>
 
@@ -2510,7 +2527,187 @@
       );
     }
 
-    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    // ── AUTH GATE ──
+    // Wraps the entire app in a Supabase auth check.
+    // Users must log in before seeing any dashboard content.
+    const supabase = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+
+    function LoginGate() {
+      const [session, setSession] = React.useState(null);
+      const [loading, setLoading] = React.useState(true);
+      const [email, setEmail] = React.useState("");
+      const [password, setPassword] = React.useState("");
+      const [error, setError] = React.useState("");
+      const [mode, setMode] = React.useState("login"); // "login" | "magic" | "magic-sent"
+      const [submitting, setSubmitting] = React.useState(false);
+
+      React.useEffect(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          setSession(session);
+          setLoading(false);
+        });
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+          setSession(session);
+        });
+        return () => subscription.unsubscribe();
+      }, []);
+
+      async function handleLogin(e) {
+        e.preventDefault();
+        setError("");
+        setSubmitting(true);
+        if (mode === "magic") {
+          const { error } = await supabase.auth.signInWithOtp({ email });
+          if (error) { setError(error.message); setSubmitting(false); }
+          else { setMode("magic-sent"); setSubmitting(false); }
+        } else {
+          const { error } = await supabase.auth.signInWithPassword({ email, password });
+          if (error) setError(error.message);
+          setSubmitting(false);
+        }
+      }
+
+      async function handleLogout() {
+        await supabase.auth.signOut();
+        setSession(null);
+      }
+
+      if (loading) {
+        return React.createElement("div", {
+          style: { display:"flex", alignItems:"center", justifyContent:"center",
+            minHeight:"100vh", background:"#1C1C2A", color:"#FBF7F2",
+            fontFamily:"Inter, system-ui, sans-serif" }
+        }, React.createElement("div", {
+          style: { textAlign:"center" }
+        },
+          React.createElement("div", {
+            style: { width:40, height:40, border:"3px solid #E07A2F33",
+              borderTopColor:"#E07A2F", borderRadius:"50%",
+              animation:"spin 0.8s linear infinite", margin:"0 auto 16px" }
+          }),
+          React.createElement("div", { style: { color:"#64748B", fontSize:14 } }, "Loading...")
+        ));
+      }
+
+      if (!session) {
+        // Login screen
+        return React.createElement("div", {
+          style: { display:"flex", alignItems:"center", justifyContent:"center",
+            minHeight:"100vh", background:"#1C1C2A",
+            fontFamily:"Inter, system-ui, sans-serif" }
+        },
+          React.createElement("div", {
+            style: { width:380, padding:"40px 36px", background:"#252536",
+              borderRadius:16, border:"1px solid rgba(255,255,255,0.08)",
+              boxShadow:"0 20px 60px rgba(0,0,0,0.4)" }
+          },
+            // Brand
+            React.createElement("div", { style: { textAlign:"center", marginBottom:32 } },
+              React.createElement("div", {
+                style: { width:48, height:48, background:"#E07A2F", borderRadius:12,
+                  display:"inline-flex", alignItems:"center", justifyContent:"center",
+                  marginBottom:12 }
+              }, React.createElement("span", {
+                style: { color:"white", fontWeight:800, fontSize:22 }
+              }, "V")),
+              React.createElement("h1", {
+                style: { color:"#FBF7F2", fontSize:22, fontWeight:700, marginBottom:4 }
+              }, "Velo Dashboard"),
+              React.createElement("p", {
+                style: { color:"#64748B", fontSize:13 }
+              }, "Sign in to view your project")
+            ),
+
+            // Form
+            React.createElement("form", { onSubmit: handleLogin },
+              // Email
+              React.createElement("div", { style: { marginBottom:14 } },
+                React.createElement("label", {
+                  style: { display:"block", fontSize:12, fontWeight:600,
+                    color:"#94A3B8", marginBottom:6, letterSpacing:"0.5px",
+                    textTransform:"uppercase" }
+                }, "Email"),
+                React.createElement("input", {
+                  type: "email", value: email, required: true,
+                  onChange: e => setEmail(e.target.value),
+                  placeholder: "you@company.com",
+                  style: { width:"100%", padding:"11px 14px", fontSize:14,
+                    background:"#1C1C2A", border:"1px solid rgba(255,255,255,0.12)",
+                    borderRadius:8, color:"#FBF7F2", outline:"none",
+                    fontFamily:"inherit" }
+                })
+              ),
+
+              // Password (only in login mode)
+              mode === "login" && React.createElement("div", { style: { marginBottom:14 } },
+                React.createElement("label", {
+                  style: { display:"block", fontSize:12, fontWeight:600,
+                    color:"#94A3B8", marginBottom:6, letterSpacing:"0.5px",
+                    textTransform:"uppercase" }
+                }, "Password"),
+                React.createElement("input", {
+                  type: "password", value: password, required: true,
+                  onChange: e => setPassword(e.target.value),
+                  placeholder: "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
+                  style: { width:"100%", padding:"11px 14px", fontSize:14,
+                    background:"#1C1C2A", border:"1px solid rgba(255,255,255,0.12)",
+                    borderRadius:8, color:"#FBF7F2", outline:"none",
+                    fontFamily:"inherit" }
+                })
+              ),
+
+              // Magic link sent message
+              mode === "magic-sent" && React.createElement("div", {
+                style: { padding:"14px 16px", background:"rgba(16,185,129,0.1)",
+                  border:"1px solid rgba(16,185,129,0.25)", borderRadius:8,
+                  marginBottom:14, color:"#34D399", fontSize:13, lineHeight:1.5 }
+              }, "Check your email for a magic link. Click it to sign in."),
+
+              // Error
+              error && React.createElement("div", {
+                style: { padding:"10px 14px", background:"rgba(220,38,38,0.1)",
+                  border:"1px solid rgba(220,38,38,0.25)", borderRadius:8,
+                  marginBottom:14, color:"#FCA5A5", fontSize:13 }
+              }, error),
+
+              // Submit
+              mode !== "magic-sent" && React.createElement("button", {
+                type: "submit", disabled: submitting,
+                style: { width:"100%", padding:"12px", fontSize:14, fontWeight:600,
+                  background:"#E07A2F", color:"white", border:"none", borderRadius:8,
+                  cursor: submitting ? "wait" : "pointer", fontFamily:"inherit",
+                  opacity: submitting ? 0.7 : 1, transition:"opacity .2s" }
+              }, submitting ? "Signing in..." : (mode === "magic" ? "Send Magic Link" : "Sign In")),
+
+              // Toggle mode
+              React.createElement("div", { style: { textAlign:"center", marginTop:16 } },
+                React.createElement("button", {
+                  type: "button",
+                  onClick: () => { setMode(mode === "login" ? "magic" : "login"); setError(""); },
+                  style: { background:"none", border:"none", color:"#64748B",
+                    fontSize:12, cursor:"pointer", fontFamily:"inherit",
+                    textDecoration:"underline" }
+                }, mode === "login" ? "Use magic link instead" : "Use password instead")
+              )
+            )
+          )
+        );
+      }
+
+      // Authenticated — render the dashboard with a logout button
+      window.__supabaseSession = session;
+      window.__supabaseLogout = handleLogout;
+      return React.createElement(App);
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(
+      React.createElement(LoginGate)
+    );
   </script>
+  <style>
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
 </body>
 </html>
