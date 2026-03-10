@@ -2659,6 +2659,56 @@
       const isAdmin = Array.isArray(userProjects) && userProjects.some(function(m) { return m.role === 'admin'; });
       const hasUrlSlug = new URLSearchParams(window.location.search).has('p');
 
+      // Merge state
+      const [showMerge, setShowMerge] = React.useState(false);
+      const [allProjects, setAllProjects] = React.useState([]);
+      const [mergeSource, setMergeSource] = React.useState('');
+      const [mergeTarget, setMergeTarget] = React.useState('');
+      const [merging, setMerging] = React.useState(false);
+      const [mergeResult, setMergeResult] = React.useState(null);
+
+      // Load all projects for merge UI
+      async function loadAllProjects() {
+        try {
+          const res = await fetch(
+            window.SUPABASE_URL + '/rest/v1/projects?select=id,name,slug,status,client_name&order=created_at.asc',
+            { headers: { 'apikey': window.SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + session.access_token } }
+          );
+          const data = await res.json();
+          setAllProjects(Array.isArray(data) ? data : []);
+        } catch(e) { console.error('Failed to load all projects:', e); }
+      }
+
+      async function executeMerge() {
+        if (!mergeSource || !mergeTarget || mergeSource === mergeTarget) return;
+        setMerging(true);
+        setMergeResult(null);
+        try {
+          const res = await fetch(
+            window.SUPABASE_URL + '/rest/v1/rpc/merge_projects',
+            { method: 'POST',
+              headers: { 'apikey': window.SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + session.access_token,
+                'Content-Type': 'application/json' },
+              body: JSON.stringify({ source_id: mergeSource, target_id: mergeTarget })
+            }
+          );
+          const result = await res.json();
+          setMergeResult(result);
+          if (result.success) {
+            // Reload projects
+            loadAllProjects();
+            // Reload the project picker
+            const res2 = await fetch(
+              window.SUPABASE_URL + '/rest/v1/project_members?user_id=eq.' + session.user.id + '&select=project_slug,role,projects(slug,name,client_name,status)',
+              { headers: { 'apikey': window.SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + session.access_token, 'Accept': 'application/json' } }
+            );
+            const data2 = await res2.json();
+            setUserProjects(data2 || []);
+          }
+        } catch(e) { setMergeResult({ success: false, error: e.message }); }
+        setMerging(false);
+      }
+
       if (isAdmin && !hasUrlSlug && userProjects && userProjects.length > 1) {
         return h("div", {
           style: { display:"flex", alignItems:"center", justifyContent:"center",
@@ -2683,7 +2733,7 @@
 
           // Project list
           h("div", { style: { display:"flex", flexDirection:"column", gap:12 } },
-            userProjects.map(function(m) {
+            userProjects.filter(function(m) { return m.projects && m.projects.status !== 'merged'; }).map(function(m) {
               const proj = m.projects;
               if (!proj) return null;
               const statusColors = { active: "#10B981", paused: "#F59E0B", completed: "#3B82F6", archived: "#64748B" };
@@ -2716,6 +2766,82 @@
                 )
               );
             })
+          ),
+
+          // ── Admin Tools: Merge Projects ──
+          h("div", { style: { marginTop:24, borderTop:"1px solid rgba(255,255,255,0.08)", paddingTop:20 } },
+            !showMerge
+              ? h("button", {
+                  onClick: function() { setShowMerge(true); loadAllProjects(); },
+                  style: { width:"100%", padding:"10px 16px", background:"rgba(255,255,255,0.04)",
+                    border:"1px solid rgba(255,255,255,0.08)", borderRadius:8, color:"#94A3B8",
+                    fontSize:13, cursor:"pointer", fontFamily:"inherit", display:"flex",
+                    alignItems:"center", justifyContent:"center", gap:8 }
+                }, "\uD83D\uDD00 Merge Projects")
+              : h("div", { style: { background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)",
+                  borderRadius:12, padding:20 } },
+                  h("div", { style: { display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16 } },
+                    h("div", { style: { color:"#FBF7F2", fontSize:14, fontWeight:600 } }, "\uD83D\uDD00 Merge Projects"),
+                    h("button", { onClick: function() { setShowMerge(false); setMergeResult(null); setMergeSource(''); setMergeTarget(''); },
+                      style: { background:"none", border:"none", color:"#64748B", cursor:"pointer", fontSize:16 } }, "\u2715")
+                  ),
+                  h("div", { style: { color:"#64748B", fontSize:12, marginBottom:16, lineHeight:1.5 } },
+                    "Move data from one project into another. The source project will be marked as merged and hidden."),
+
+                  // Source dropdown
+                  h("label", { style: { color:"#94A3B8", fontSize:11, fontWeight:600, display:"block", marginBottom:4 } }, "MERGE FROM (source)"),
+                  h("select", {
+                    value: mergeSource,
+                    onChange: function(e) { setMergeSource(e.target.value); },
+                    style: { width:"100%", padding:"8px 12px", background:"#1C1C2A", color:"#FBF7F2",
+                      border:"1px solid rgba(255,255,255,0.12)", borderRadius:8, fontSize:13,
+                      marginBottom:12, fontFamily:"inherit" }
+                  },
+                    h("option", { value:"" }, "Select source project..."),
+                    allProjects.filter(function(p) { return p.status !== 'merged'; }).map(function(p) {
+                      return h("option", { key: p.id, value: p.id },
+                        p.name + " (" + p.slug + ") \u2014 " + p.status);
+                    })
+                  ),
+
+                  // Target dropdown
+                  h("label", { style: { color:"#94A3B8", fontSize:11, fontWeight:600, display:"block", marginBottom:4 } }, "MERGE INTO (target \u2014 keeps this one)"),
+                  h("select", {
+                    value: mergeTarget,
+                    onChange: function(e) { setMergeTarget(e.target.value); },
+                    style: { width:"100%", padding:"8px 12px", background:"#1C1C2A", color:"#FBF7F2",
+                      border:"1px solid rgba(255,255,255,0.12)", borderRadius:8, fontSize:13,
+                      marginBottom:16, fontFamily:"inherit" }
+                  },
+                    h("option", { value:"" }, "Select target project..."),
+                    allProjects.filter(function(p) { return p.status !== 'merged' && p.id !== mergeSource; }).map(function(p) {
+                      return h("option", { key: p.id, value: p.id },
+                        p.name + " (" + p.slug + ") \u2014 " + p.status);
+                    })
+                  ),
+
+                  // Merge button
+                  h("button", {
+                    onClick: executeMerge,
+                    disabled: !mergeSource || !mergeTarget || mergeSource === mergeTarget || merging,
+                    style: { width:"100%", padding:"10px 16px",
+                      background: (!mergeSource || !mergeTarget || merging) ? "#3A3A50" : "#E07A2F",
+                      color: (!mergeSource || !mergeTarget || merging) ? "#64748B" : "white",
+                      border:"none", borderRadius:8, fontSize:13, fontWeight:600,
+                      cursor: (!mergeSource || !mergeTarget || merging) ? "not-allowed" : "pointer",
+                      fontFamily:"inherit" }
+                  }, merging ? "Merging..." : "Merge Projects"),
+
+                  // Result message
+                  mergeResult && h("div", {
+                    style: { marginTop:12, padding:"10px 14px", borderRadius:8, fontSize:12,
+                      background: mergeResult.success ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.1)",
+                      color: mergeResult.success ? "#10B981" : "#EF4444",
+                      border: "1px solid " + (mergeResult.success ? "rgba(16,185,129,0.2)" : "rgba(239,68,68,0.2)") }
+                  }, mergeResult.success
+                    ? "\u2705 Merged \"" + mergeResult.merged_from + "\" into \"" + mergeResult.merged_into + "\""
+                    : "\u274C " + (mergeResult.error || "Merge failed"))
+                )
           ),
 
           // Sign out link
