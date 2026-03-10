@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Velo — Lead-to-Discovery Automation Flow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #1C1C2A;
+      color: #FBF7F2;
+      min-height: 100vh;
+      padding: 40px 20px 80px;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+
+    /* Header */
+    .header { text-align: center; margin-bottom: 48px; }
+    .header .brand {
+      font-size: 14px; font-weight: 700; letter-spacing: 3px;
+      text-transform: uppercase; color: #E07A2F; margin-bottom: 12px;
+    }
+    .header h1 { font-size: 34px; font-weight: 800; margin-bottom: 8px; }
+    .header .subtitle {
+      font-size: 15px; color: #94A3B8; max-width: 650px;
+      margin: 0 auto; line-height: 1.6;
+    }
+
+    /* Swim lanes */
+    .swim-lanes { position: relative; }
+
+    /* Stage row */
+    .stage {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 0;
+      margin-bottom: 0;
+      position: relative;
+    }
+
+    /* Left lane label */
+    .lane-label {
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      border-right: 2px solid rgba(255,255,255,0.06);
+      position: relative;
+    }
+    .lane-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; margin-bottom: 8px;
+    }
+    .lane-title {
+      font-size: 13px; font-weight: 700; letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .lane-who {
+      font-size: 11px; color: #64748B; margin-top: 3px; font-weight: 500;
+    }
+
+    /* Right content area */
+    .stage-content {
+      padding: 20px 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    /* Step cards within a stage */
+    .step-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .step-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 16px 18px;
+      flex: 1;
+      min-width: 200px;
+      max-width: 320px;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .step-card:hover {
+      background: rgba(255,255,255,0.07);
+      border-color: rgba(255,255,255,0.14);
+      transform: translateY(-1px);
+    }
+
+    .step-card .step-num {
+      font-size: 10px; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; opacity: 0.4; margin-bottom: 6px;
+    }
+    .step-card h3 {
+      font-size: 14px; font-weight: 600; margin-bottom: 5px; line-height: 1.3;
+    }
+    .step-card p {
+      font-size: 12px; color: #94A3B8; line-height: 1.5;
+    }
+    .step-card .step-icon {
+      position: absolute; top: 14px; right: 14px; font-size: 18px; opacity: 0.6;
+    }
+
+    /* Automation badge */
+    .auto-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 10px; font-weight: 700; padding: 2px 8px;
+      border-radius: 100px; margin-top: 8px;
+      letter-spacing: 0.5px; text-transform: uppercase;
+    }
+    .auto-badge.automated {
+      background: rgba(16,185,129,0.15); color: #34D399;
+      border: 1px solid rgba(16,185,129,0.25);
+    }
+    .auto-badge.manual {
+      background: rgba(224,122,47,0.15); color: #E07A2F;
+      border: 1px solid rgba(224,122,47,0.25);
+    }
+    .auto-badge.ai {
+      background: rgba(139,92,246,0.15); color: #A78BFA;
+      border: 1px solid rgba(139,92,246,0.25);
+    }
+
+    /* Arrow connector between stages */
+    .flow-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      grid-column: 1 / -1;
+      padding: 4px 0;
+    }
+    .flow-arrow svg { opacity: 0.2; }
+
+    /* Colors per stage */
+    .stage-trigger .lane-icon { background: #E07A2F; }
+    .stage-trigger .lane-title { color: #E07A2F; }
+    .stage-auto .lane-icon { background: #10B981; }
+    .stage-auto .lane-title { color: #34D399; }
+    .stage-schedule .lane-icon { background: #2563EB; }
+    .stage-schedule .lane-title { color: #60A5FA; }
+    .stage-prep .lane-icon { background: #8B5CF6; }
+    .stage-prep .lane-title { color: #A78BFA; }
+    .stage-meeting .lane-icon { background: #EC4899; }
+    .stage-meeting .lane-title { color: #F472B6; }
+
+    /* Data flow callout */
+    .data-flow {
+      margin: 32px 0;
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 0;
+    }
+    .data-flow-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-right: 2px solid rgba(255,255,255,0.06);
+      padding: 16px;
+    }
+    .data-flow-content {
+      padding: 20px 24px;
+    }
+    .data-flow-title {
+      font-size: 15px; font-weight: 700; color: #E07A2F;
+      margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+    }
+
+    /* Form fields mapping */
+    .field-map {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 10px;
+    }
+    .field-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .field-arrow {
+      color: #E07A2F; font-weight: 700; flex-shrink: 0;
+      margin-top: 1px; font-size: 14px;
+    }
+    .field-from {
+      font-size: 12px; font-weight: 600; color: #FBF7F2;
+    }
+    .field-to {
+      font-size: 11px; color: #64748B; margin-top: 2px;
+    }
+
+    /* Tool stack */
+    .tool-stack {
+      margin-top: 40px;
+      padding: 24px 28px;
+      background: linear-gradient(135deg, rgba(139,92,246,0.08), rgba(139,92,246,0.02));
+      border: 1px solid rgba(139,92,246,0.2);
+      border-radius: 14px;
+    }
+    .tool-stack-title {
+      font-size: 16px; font-weight: 700; color: #A78BFA;
+      margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+    }
+    .tool-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+    }
+    .tool-item {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .tool-icon { font-size: 20px; flex-shrink: 0; }
+    .tool-name { font-size: 13px; font-weight: 600; }
+    .tool-role { font-size: 11px; color: #64748B; margin-top: 1px; }
+
+    /* Bottom summary */
+    .summary-bar {
+      margin-top: 40px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .summary-card {
+      text-align: center;
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .summary-card .big { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
+    .summary-card .label { font-size: 12px; color: #94A3B8; font-weight: 500; }
+    .summary-card.green .big { color: #34D399; }
+    .summary-card.purple .big { color: #A78BFA; }
+    .summary-card.amber .big { color: #E07A2F; }
+
+    @media (max-width: 700px) {
+      .stage { grid-template-columns: 1fr; }
+      .lane-label {
+        flex-direction: row; gap: 10px;
+        border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06);
+        padding: 12px 16px; justify-content: flex-start;
+      }
+      .lane-icon { margin-bottom: 0; }
+      .step-card { max-width: 100%; }
+      .data-flow { grid-template-columns: 1fr; }
+      .data-flow-label { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); }
+      .summary-bar { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="brand">Velo</div>
+      <h1>Lead-to-Discovery Automation</h1>
+      <div class="subtitle">
+        When a lead fills out the landing page form, this flow runs automatically —
+        creating their project folder, pre-filling CLAUDE.md, booking the call,
+        and generating a prep brief so Hayden walks in ready.
+      </div>
+    </div>
+
+    <div class="swim-lanes">
+
+      <!-- Stage 1: Trigger -->
+      <div class="stage stage-trigger">
+        <div class="lane-label">
+          <div class="lane-icon">📝</div>
+          <div class="lane-title">Form Submit</div>
+          <div class="lane-who">The Lead</div>
+        </div>
+        <div class="stage-content">
+          <div class="step-row">
+            <div class="step-card">
+              <div class="step-icon">🌐</div>
+              <div class="step-num">Trigger</div>
+              <h3>Lead fills out landing page form</h3>
+              <p>Intake form on the Velo small business landing page captures business details, pain points, and goals. Takes the lead 3–5 minutes.</p>
+            </div>
+            <div class="step-card">
+              <div class="step-icon">📋</div>
+              <div class="step-num">Captured</div>
+              <h3>Form fields collected</h3>
+              <p>Name, email, business name, business type, team size, revenue range, biggest challenge, what success looks like, and time availability.</p>
+            </div>
+            <div class="step-card">
+              <div class="step-icon">📅</div>
+              <div class="step-num">Redirect</div>
+              <h3>Scheduling page opens</h3>
+              <p>After submission, the lead lands on a Cal.com/Calendly booking page to pick a 45-min discovery call slot. Confirmation email sent automatically.</p>
+              <div class="auto-badge automated">&#9889; Automated</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Arrow -->
+      <div class="flow-arrow">
+        <svg width="24" height="28" viewBox="0 0 24 28" fill="none"><path d="M12 0v24m0 0l-6-6m6 6l6-6" stroke="#FBF7F2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+
+      <!-- Stage 2: Automation -->
+      <div class="stage stage-auto">
+        <div class="lane-label">
+          <div class="lane-icon">⚡</div>
+          <div class="lane-title">Auto-Setup</div>
+          <div class="lane-who">Automation</div>
+        </div>
+        <div class="stage-content">
+          <div class="step-row">
+            <div class="step-card">
+              <div class="step-icon">📁</div>
+              <div class="step-num">Step 1</div>
+              <h3>Client folder created from template</h3>
+              <p>Webhook triggers a script that copies the client-folder-template, renames it to the business name, and places it in the working directory.</p>
+              <div class="auto-badge automated">&#9889; Automated</div>
+            </div>
+            <div class="step-card">
+              <div class="step-icon">✏️</div>
+              <div class="step-num">Step 2</div>
+              <h3>CLAUDE.md pre-filled with form data</h3>
+              <p>Business name, contact, email, type, team size, stage, and the lead's own description of what they want help with — all injected into the template.</p>
+              <div class="auto-badge automated">&#9889; Automated</div>
+            </div>
+            <div class="step-card">
+              <div class="step-icon">🔔</div>
+              <div class="step-num">Step 3</div>
+              <h3>Hayden gets notified</h3>
+              <p>Email/SMS notification with the lead's details, their booked time slot, and a link to the project folder. No action needed yet.</p>
+              <div class="auto-badge automated">&#9889; Automated</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Arrow -->
+      <div class="flow-arrow">
+        <svg width="24" height="28" viewBox="0 0 24 28" fill="none"><path d="M12 0v24m0 0l-6-6m6 6l6-6" stroke="#FBF7F2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+
+      <!-- Stage 3: AI Prep -->
+      <div class="stage stage-prep">
+        <div class="lane-label">
+          <div class="lane-icon">🤖</div>
+          <div class="lane-title">AI Prep Brief</div>
+          <div class="lane-who">Cowork (AI)</div>
+        </div>
+        <div class="stage-content">
+          <div class="step-row">
+            <div class="step-card">
+              <div class="step-icon">🔍</div>
+              <div class="step-num">Step 1</div>
+              <h3>Analyze the lead's responses</h3>
+              <p>Cowork reads the pre-filled CLAUDE.md, researches the business online (website, LinkedIn, reviews), and identifies the likely pain points and opportunities.</p>
+              <div class="auto-badge ai">&#9733; AI-Powered</div>
+            </div>
+            <div class="step-card">
+              <div class="step-icon">💡</div>
+              <div class="step-num">Step 2</div>
+              <h3>Propose engagement type</h3>
+              <p>Based on business size, challenge, and budget signals — recommends Free Founding, Tier 1 Advisory ($2k/mo), or Tier 2 Embedded Build ($3k–$15k). Includes reasoning.</p>
+              <div class="auto-badge ai">&#9733; AI-Powered</div>
+            </div>
+            <div class="step-card">
+              <div class="step-icon">📊</div>
+              <div class="step-num">Step 3</div>
+              <h3>Generate discovery prep brief</h3>
+              <p>One-page document with: business summary, recommended engagement, key questions to ask, potential quick wins to mention, and talking points for the pitch.</p>
+              <div class="auto-badge ai">&#9733; AI-Powered</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Arrow -->
+      <div class="flow-arrow">
+        <svg width="24" height="28" viewBox="0 0 24 28" fill="none"><path d="M12 0v24m0 0l-6-6m6 6l6-6" stroke="#FBF7F2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+
+      <!-- Stage 4: Hayden Reviews -->
+      <div class="stage stage-schedule">
+        <div class="lane-label">
+          <div class="lane-icon">👤</div>
+          <div class="lane-title">Review & Prep</div>
+          <div class="lane-who">Hayden</div>
+        </div>
+        <div class="stage-content">
+          <div class="step-row">
+            <div class="step-card">
+              <div class="step-icon">📖</div>
+              <div class="step-num">5 min</div>
+              <h3>Review the prep brief</h3>
+              <p>Read the AI-generated prep doc. Adjust the proposed engagement type if needed. Note any additional questions to ask on the call.</p>
+              <div class="auto-badge manual">&#9998; Hayden reviews</div>
+            </div>
+            <div class="step-card">
+              <div class="step-icon">🎯</div>
+              <div class="step-num">2 min</div>
+              <h3>Confirm engagement approach</h3>
+              <p>Decide: founding (free for case study), advisory retainer, or project-based build. Walk into the call with a clear recommendation in mind.</p>
+              <div class="auto-badge manual">&#9998; Hayden decides</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Arrow -->
+      <div class="flow-arrow">
+        <svg width="24" height="28" viewBox="0 0 24 28" fill="none"><path d="M12 0v24m0 0l-6-6m6 6l6-6" stroke="#FBF7F2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+
+      <!-- Stage 5: Discovery Meeting -->
+      <div class="stage stage-meeting">
+        <div class="lane-label">
+          <div class="lane-icon">🎙️</div>
+          <div class="lane-title">Discovery Call</div>
+          <div class="lane-who">Hayden + Lead</div>
+        </div>
+        <div class="stage-content">
+          <div class="step-row">
+            <div class="step-card">
+              <div class="step-icon">🤝</div>
+              <div class="step-num">45 min</div>
+              <h3>Run the discovery meeting</h3>
+              <p>Use the discovery call agenda. You already know their business basics from the form — go deeper on goals, constraints, and the real blockers. Show the dashboard demo.</p>
+              <div class="auto-badge manual">&#9998; Live meeting</div>
+            </div>
+            <div class="step-card">
+              <div class="step-icon">🚀</div>
+              <div class="step-num">After call</div>
+              <h3>Paste notes → Cowork builds everything</h3>
+              <p>Paste your meeting notes into the client's Cowork folder. It completes the business brief, creates tasks, builds the dashboard, and sends the welcome message. Done.</p>
+              <div class="auto-badge ai">&#9733; AI-Powered</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /swim-lanes -->
+
+    <!-- Form → CLAUDE.md Mapping -->
+    <div class="data-flow">
+      <div class="data-flow-label">
+        <div style="text-align:center">
+          <div style="font-size:24px; margin-bottom:4px">📋</div>
+          <div style="font-size:11px; font-weight:600; color:#64748B; text-transform:uppercase; letter-spacing:0.5px">Data Map</div>
+        </div>
+      </div>
+      <div class="data-flow-content">
+        <div class="data-flow-title">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 8h14M8 1v14" stroke="#E07A2F" stroke-width="2" stroke-linecap="round"/></svg>
+          Form Fields → CLAUDE.md Mapping
+        </div>
+        <div class="field-map">
+          <div class="field-item">
+            <span class="field-arrow">→</span>
+            <div>
+              <div class="field-from">"Your name" + "Email"</div>
+              <div class="field-to">→ Primary Contact + Email</div>
+            </div>
+          </div>
+          <div class="field-item">
+            <span class="field-arrow">→</span>
+            <div>
+              <div class="field-from">"Business name"</div>
+              <div class="field-to">→ Business Name</div>
+            </div>
+          </div>
+          <div class="field-item">
+            <span class="field-arrow">→</span>
+            <div>
+              <div class="field-from">"What does your business do?"</div>
+              <div class="field-to">→ Business Type + "What they want help with"</div>
+            </div>
+          </div>
+          <div class="field-item">
+            <span class="field-arrow">→</span>
+            <div>
+              <div class="field-from">"How many people on your team?"</div>
+              <div class="field-to">→ Team Size</div>
+            </div>
+          </div>
+          <div class="field-item">
+            <span class="field-arrow">→</span>
+            <div>
+              <div class="field-from">"Approximate annual revenue"</div>
+              <div class="field-to">→ Stage (early/growing/established) + Tier signal</div>
+            </div>
+          </div>
+          <div class="field-item">
+            <span class="field-arrow">→</span>
+            <div>
+              <div class="field-from">"Biggest challenge right now"</div>
+              <div class="field-to">→ Discovery Questions + Prep Brief focus area</div>
+            </div>
+          </div>
+          <div class="field-item">
+            <span class="field-arrow">→</span>
+            <div>
+              <div class="field-from">"What would success look like in 90 days?"</div>
+              <div class="field-to">→ Engagement Scope + 90-day success definition</div>
+            </div>
+          </div>
+          <div class="field-item">
+            <span class="field-arrow">→</span>
+            <div>
+              <div class="field-from">"Hours/week you can commit"</div>
+              <div class="field-to">→ Client time commitment + Engagement fit signal</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tool Stack -->
+    <div class="tool-stack">
+      <div class="tool-stack-title">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 1l2 5h5l-4 3 1.5 5L9 11l-4.5 3L6 9 2 6h5L9 1z" fill="#A78BFA"/></svg>
+        Recommended Tool Stack
+      </div>
+      <div class="tool-grid">
+        <div class="tool-item">
+          <div class="tool-icon">📝</div>
+          <div>
+            <div class="tool-name">Tally / Typeform</div>
+            <div class="tool-role">Form builder (free, webhook support)</div>
+          </div>
+        </div>
+        <div class="tool-item">
+          <div class="tool-icon">📅</div>
+          <div>
+            <div class="tool-name">Cal.com</div>
+            <div class="tool-role">Scheduling (free, open-source)</div>
+          </div>
+        </div>
+        <div class="tool-item">
+          <div class="tool-icon">⚡</div>
+          <div>
+            <div class="tool-name">Make / Zapier</div>
+            <div class="tool-role">Webhook → folder creation + notification</div>
+          </div>
+        </div>
+        <div class="tool-item">
+          <div class="tool-icon">🤖</div>
+          <div>
+            <div class="tool-name">Cowork (Claude)</div>
+            <div class="tool-role">AI prep brief + project setup</div>
+          </div>
+        </div>
+        <div class="tool-item">
+          <div class="tool-icon">📊</div>
+          <div>
+            <div class="tool-name">GitHub Pages</div>
+            <div class="tool-role">Client dashboard hosting</div>
+          </div>
+        </div>
+        <div class="tool-item">
+          <div class="tool-icon">📧</div>
+          <div>
+            <div class="tool-name">Gmail / SendGrid</div>
+            <div class="tool-role">Notifications + client emails</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary stats -->
+    <div class="summary-bar">
+      <div class="summary-card green">
+        <div class="big">~7 min</div>
+        <div class="label">Hayden's time per lead (review only)</div>
+      </div>
+      <div class="summary-card purple">
+        <div class="big">80%</div>
+        <div class="label">of pre-meeting work is automated</div>
+      </div>
+      <div class="summary-card amber">
+        <div class="big">&lt; 24hrs</div>
+        <div class="label">from form fill to discovery-ready</div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
