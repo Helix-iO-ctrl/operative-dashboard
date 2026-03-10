@@ -2543,34 +2543,31 @@
       // "login" | "signup" | "magic" | "magic-sent" | "signup-success"
       const [mode, setMode] = React.useState("login");
       const [submitting, setSubmitting] = React.useState(false);
-      // Transition state: "none" | "welcome" | "reveal"
-      const [transition, setTransition] = React.useState("none");
-      const [wasLoggedOut, setWasLoggedOut] = React.useState(true); // track if user just logged in
+      // Transition: 0=none, 1=welcome, 2=reveal
+      const [transition, setTransition] = React.useState(0);
+      const prevSession = React.useRef(null);
 
       React.useEffect(() => {
-        supabase.auth.getSession().then(({ data: { session } }) => {
-          if (session) setWasLoggedOut(false); // already logged in, skip animation
-          setSession(session);
+        supabase.auth.getSession().then(({ data: { session: s } }) => {
+          prevSession.current = s; // if already logged in, record it (no animation)
+          setSession(s);
           setLoading(false);
         });
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-          if (!session) setWasLoggedOut(true); // reset so animation plays on next login
-          setSession(session);
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
+          // Detect fresh login: had no session before, now have one
+          if (s && !prevSession.current) {
+            prevSession.current = s;
+            setSession(s);
+            setTransition(1); // welcome
+            window.__veloRevealTimer1 = window.setTimeout(function() { setTransition(2); }, 1600);
+            window.__veloRevealTimer2 = window.setTimeout(function() { setTransition(0); }, 2400);
+          } else {
+            prevSession.current = s;
+            setSession(s);
+          }
         });
         return () => subscription.unsubscribe();
       }, []);
-
-      // Trigger welcome animation when session first appears after login
-      const transitionTriggered = React.useRef(false);
-      React.useEffect(() => {
-        if (session && wasLoggedOut && !transitionTriggered.current) {
-          transitionTriggered.current = true;
-          setWasLoggedOut(false);
-          setTransition("welcome");
-          setTimeout(() => setTransition("reveal"), 1600);
-          setTimeout(() => { setTransition("none"); transitionTriggered.current = false; }, 2400);
-        }
-      }, [session, wasLoggedOut]);
 
       async function handleSubmit(e) {
         e.preventDefault();
@@ -2815,8 +2812,8 @@
       window.__supabaseLogout = handleLogout;
 
       // Welcome transition overlay
-      if (transition === "welcome" || transition === "reveal") {
-        const isRevealing = transition === "reveal";
+      if (transition === 1 || transition === 2) {
+        const isRevealing = transition === 2;
         return h("div", { style: { position:"relative", minHeight:"100vh" } },
           // Dashboard renders underneath (invisible at first, then fades in)
           h("div", {
