@@ -701,50 +701,73 @@
     // ══════════════════════════════════════════════
     // CAL.COM INTEGRATION — LIVE
     // ══════════════════════════════════════════════
+
+    // Bootstrap Cal.com embed (official pattern)
+    (function (C, A, L) {
+      let p = function (a, ar) { a.q.push(ar); };
+      let d = C.document;
+      C.Cal = C.Cal || function () {
+        let cal = C.Cal;
+        let ar = arguments;
+        if (!cal.loaded) {
+          cal.ns = {};
+          cal.q = cal.q || [];
+          d.head.appendChild(d.createElement("script")).src = A;
+          cal.loaded = true;
+        }
+        if (ar[0] === L) {
+          const api = function () { p(api, arguments); };
+          const namespace = ar[1];
+          api.q = api.q || [];
+          if (typeof namespace === "string") {
+            cal.ns[namespace] = cal.ns[namespace] || api;
+            p(cal.ns[namespace], ar);
+            p(cal, ["initNamespace", namespace]);
+          } else p(cal, ar);
+          return;
+        }
+        p(cal, ar);
+      };
+    })(window, "https://app.cal.com/embed/embed.js", "init");
+
+    Cal("init", {origin: "https://app.cal.com"});
+
+    let calEmbedLoaded = false;
+
     function loadCalEmbed() {
-      // Show fallback after 8s if embed doesn't load
-      const fallbackTimer = setTimeout(() => {
-        document.getElementById('cal-fallback').classList.remove('hidden');
-      }, 8000);
+      if (calEmbedLoaded) return;
+      calEmbedLoaded = true;
 
-      // Load Cal.com embed script
-      const script = document.createElement('script');
-      script.src = 'https://app.cal.com/embed/embed.js';
-      script.async = true;
-      script.onload = function() {
-        clearTimeout(fallbackTimer);
-        Cal("init", {origin: "https://cal.com"});
-        Cal("inline", {
-          elementOrSelector: "#cal-inline",
-          calLink: "veloai/30min",
-          layout: "month_view",
-          config: {
-            name: formData.full_name || '',
-            email: formData.email || '',
-            theme: "dark",
-          }
-        });
+      // Show fallback after 10s if embed doesn't load
+      setTimeout(() => {
+        const el = document.getElementById('cal-inline');
+        if (el && !el.querySelector('iframe')) {
+          document.getElementById('cal-fallback').classList.remove('hidden');
+        }
+      }, 10000);
 
-        // Listen for successful booking
-        Cal("on", {
-          action: "bookingSuccessful",
-          callback: async function(e) {
-            // Store booking date if available
-            if (e && e.detail && e.detail.data) {
-              formData.booking_date = e.detail.data.date || null;
-            }
-            // Submit lead to Supabase
-            await submitLead();
-            // Move to confirmation step
-            goToStep3();
+      Cal("inline", {
+        elementOrSelector: "#cal-inline",
+        calLink: "veloai/30min",
+        layout: "month_view",
+        config: {
+          name: formData.full_name || '',
+          email: formData.email || '',
+          theme: "dark",
+        }
+      });
+
+      // Listen for successful booking
+      Cal("on", {
+        action: "bookingSuccessful",
+        callback: async function(e) {
+          if (e && e.detail && e.detail.data) {
+            formData.booking_date = e.detail.data.date || null;
           }
-        });
-      };
-      script.onerror = function() {
-        clearTimeout(fallbackTimer);
-        document.getElementById('cal-fallback').classList.remove('hidden');
-      };
-      document.head.appendChild(script);
+          await submitLead();
+          goToStep3();
+        }
+      });
     }
 
     // Original goToStep2 calls this after switching views
