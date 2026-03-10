@@ -2561,13 +2561,14 @@
       }, []);
 
       // Trigger welcome animation when session first appears after login
+      const transitionTriggered = React.useRef(false);
       React.useEffect(() => {
-        if (session && wasLoggedOut) {
+        if (session && wasLoggedOut && !transitionTriggered.current) {
+          transitionTriggered.current = true;
           setWasLoggedOut(false);
           setTransition("welcome");
-          const t1 = setTimeout(() => setTransition("reveal"), 1600);
-          const t2 = setTimeout(() => setTransition("none"), 2400);
-          return () => { clearTimeout(t1); clearTimeout(t2); };
+          setTimeout(() => setTransition("reveal"), 1600);
+          setTimeout(() => { setTransition("none"); transitionTriggered.current = false; }, 2400);
         }
       }, [session, wasLoggedOut]);
 
