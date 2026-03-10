@@ -634,7 +634,8 @@
       document.getElementById('step-ind-3').querySelector('.step-dot').classList.add('done');
       document.getElementById('step-ind-3').querySelector('.step-dot').textContent = '✓';
 
-      // Populate confirmation details
+      // Populate confirmation details with dashboard link
+      const dashUrl = `${window.location.origin}${window.location.pathname.replace('book.html','')}project-dashboard.html?p=${createdProjectSlug || makeSlug(formData.business_name)}`;
       const details = document.getElementById('confirmation-details');
       details.innerHTML = `
         <div class="detail-row">
@@ -651,46 +652,242 @@
         </div>
         <div class="detail-row">
           <span class="detail-label">Status</span>
-          <span class="detail-value" style="color: var(--success);">Pending confirmation</span>
+          <span class="detail-value" style="color: var(--success);">✓ Booked</span>
+        </div>
+        <div style="margin-top: 20px; padding: 16px; background: rgba(224,122,47,0.1); border: 1px solid rgba(224,122,47,0.3); border-radius: 10px;">
+          <div style="font-weight: 600; color: var(--amber); margin-bottom: 6px;">Your project dashboard is live</div>
+          <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
+            We've already started mapping your business. Take a look before our call — you'll see the questions we'll work through together.
+          </div>
+          <a href="${dashUrl}" target="_blank" style="display:inline-block; padding: 10px 20px; background: var(--amber); color: #fff; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px;">
+            View Your Dashboard →
+          </a>
         </div>
       `;
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // ── Submit to Supabase ──
-    async function submitLead() {
-      const payload = {
-        full_name:            formData.full_name,
-        email:                formData.email,
-        phone:                formData.phone,
-        business_name:        formData.business_name,
-        business_description: formData.business_description,
-        employee_count:       formData.employee_count,
-        biggest_challenge:    formData.biggest_challenge,
-        status:               'booked',
-        source:               'landing-page',
-        utm_source:           formData.utm_source,
-        utm_medium:           formData.utm_medium,
-        utm_campaign:         formData.utm_campaign,
+    // ══════════════════════════════════════════════
+    // SLUG GENERATOR
+    // ══════════════════════════════════════════════
+    function makeSlug(name) {
+      return name.toLowerCase()
+        .replace(/['']/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '')
+        .substring(0, 40);
+    }
+
+    // ══════════════════════════════════════════════
+    // SMART DISCOVERY QUESTION GENERATOR
+    // Tailors questions based on business info
+    // ══════════════════════════════════════════════
+    function generateDiscoveryQuestions(fd) {
+      const biz = (fd.business_description || '').toLowerCase();
+      const challenge = (fd.biggest_challenge || '').toLowerCase();
+      const empCount = fd.employee_count || '1';
+      const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+      // Core questions every prospect gets
+      const questions = [
+        { id: 'dq1', q: `What does a typical week look like for you running ${fd.business_name}?`,
+          urgency: 'critical', note: 'Understand the owner\'s day-to-day — where they spend time, what drains energy, what they wish they could delegate.' },
+        { id: 'dq2', q: 'What are the 2–3 tasks that eat up most of your time but don\'t directly make you money?',
+          urgency: 'critical', note: 'Identify the biggest time sinks and automation opportunities. These become quick wins.' },
+        { id: 'dq3', q: 'If you could wave a magic wand and fix one thing in your business tomorrow, what would it be?',
+          urgency: 'critical', note: 'Gets to the emotional core of what they want fixed. Often reveals the real problem behind the stated challenge.' },
+        { id: 'dq4', q: 'How are you currently tracking leads, customers, and follow-ups?',
+          urgency: 'high', note: 'Most small businesses have no CRM or use spreadsheets/memory. This reveals ops maturity and quick-win potential.' },
+        { id: 'dq5', q: 'Walk me through what happens from when a new customer contacts you to when they pay you.',
+          urgency: 'high', note: 'Maps the full sales/delivery funnel. Look for manual steps, delays, and drop-off points that AI can fix.' },
+        { id: 'dq6', q: 'What tools and software are you currently using to run the business?',
+          urgency: 'high', note: 'Inventory their tech stack. Identify integration opportunities and gaps where AI tools could slot in.' },
+      ];
+
+      // Challenge-specific questions
+      if (challenge.includes('time') || challenge.includes('busy') || challenge.includes('overwhelm')) {
+        questions.push({ id: 'dq-time', q: 'If you had 10 extra hours per week, what would you spend them on?',
+          urgency: 'high', note: 'They identified time as their core challenge. Understand what they\'d do with freed-up capacity — grow, rest, or both.' });
+      }
+      if (challenge.includes('lead') || challenge.includes('customer') || challenge.includes('sales') || challenge.includes('marketing')) {
+        questions.push({ id: 'dq-leads', q: 'Where do most of your customers currently come from, and what\'s your cost to acquire a new one?',
+          urgency: 'high', note: 'They need more customers. Understand current acquisition channels and whether they know their CAC.' });
+      }
+      if (challenge.includes('hire') || challenge.includes('staff') || challenge.includes('team') || challenge.includes('employee')) {
+        questions.push({ id: 'dq-team', q: 'What tasks would you hire for first if you could, and what\'s stopping you?',
+          urgency: 'high', note: 'Staffing challenge — AI might replace the need to hire for certain functions. Explore what roles they need.' });
+      }
+      if (challenge.includes('system') || challenge.includes('process') || challenge.includes('organize') || challenge.includes('chaos')) {
+        questions.push({ id: 'dq-systems', q: 'If a key person on your team was out for a week, what would break?',
+          urgency: 'high', note: 'Systems/process challenge — find the single points of failure and undocumented processes.' });
+      }
+      if (challenge.includes('grow') || challenge.includes('scale') || challenge.includes('revenue') || challenge.includes('money')) {
+        questions.push({ id: 'dq-growth', q: 'What\'s your revenue goal for the next 12 months, and what do you think is the #1 bottleneck to hitting it?',
+          urgency: 'high', note: 'Growth-focused — understand where they want to go and what they think is in the way.' });
+      }
+
+      // Size-specific questions
+      if (empCount === '1' || empCount === 'just-me') {
+        questions.push({ id: 'dq-solo', q: 'As a solo operator, what\'s the one thing you\'d automate first if it were easy?',
+          urgency: 'medium', note: 'Solo businesses have unique constraints. Every hour saved is directly felt.' });
+      }
+      if (empCount === '6-10' || empCount === '11-15' || empCount === '15+') {
+        questions.push({ id: 'dq-team-ops', q: 'How does your team communicate day-to-day, and where do things fall through the cracks?',
+          urgency: 'medium', note: 'Larger teams have coordination overhead. AI can help with handoffs, reminders, and dashboards.' });
+      }
+
+      // Closing questions (always included)
+      questions.push(
+        { id: 'dq-budget', q: 'Have you invested in any tools or consultants before to solve this? What happened?',
+          urgency: 'medium', note: 'Understand their history with solutions — what worked, what didn\'t, and their appetite for investment.' },
+        { id: 'dq-timeline', q: 'If we worked together, what would success look like for you in 90 days?',
+          urgency: 'critical', note: 'Defines the success criteria for the engagement. Use their answer to scope the proposal and set expectations.' }
+      );
+
+      return questions;
+    }
+
+    // ══════════════════════════════════════════════
+    // GENERATE FULL DASHBOARD DATA
+    // ══════════════════════════════════════════════
+    function generateDashboardData(fd, slug) {
+      const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const questions = generateDiscoveryQuestions(fd);
+
+      return {
+        name: fd.business_name,
+        client: fd.full_name,
+        lastUpdated: today,
+        phases: ['Discovery', 'Quick Wins', 'Systems Build', 'Optimize & Scale'],
+        currentPhase: 0,
+        summary: { total: 5, done: 0, inProgress: 1, blocked: 0, todo: 4 },
+
+        disciplines: [
+          {
+            id: 'discovery', label: 'Discovery & Onboarding',
+            color: '#E07A2F', lightColor: '#FEF3E2', borderColor: '#FBBF6E',
+            owner: 'Hayden',
+            tasks: [
+              { id: 1, text: 'Complete discovery call — discuss business fundamentals, goals, and quick wins', status: 'in-progress', priority: 'high' },
+              { id: 2, text: 'Review dashboard and provide feedback on open questions', status: 'todo', priority: 'high' },
+              { id: 3, text: 'Map current tech stack and identify integration points', status: 'todo', priority: 'medium' },
+              { id: 4, text: 'Define 90-day success criteria and engagement scope', status: 'todo', priority: 'high' },
+              { id: 5, text: 'Kick off first quick win — identify and start the highest-impact automation', status: 'todo', priority: 'high' },
+            ],
+          },
+        ],
+
+        decisions: [
+          { date: today, title: 'Discovery call booked — engagement initiated',
+            detail: `${fd.full_name} from ${fd.business_name} (${fd.employee_count || 'size TBD'} employees) booked a discovery call. Business: ${fd.business_description || 'Details pending'}. Primary challenge: ${fd.biggest_challenge || 'To be discussed'}.` },
+        ],
+
+        openQuestions: questions,
+
+        weeklyUpdates: [],
+
+        assets: [],
+        feedbackResponses: {},
       };
+    }
+
+    // ══════════════════════════════════════════════
+    // FULL BOOKING SUBMISSION
+    // Creates project + dashboard + lead in one go
+    // ══════════════════════════════════════════════
+    const HAYDEN_USER_ID = 'a5efbba4-c07c-4c15-9821-c5716cf6545e';
+    let createdProjectSlug = null;
+
+    async function submitLead() {
+      const slug = makeSlug(formData.business_name);
+      createdProjectSlug = slug;
+      const dashboardData = generateDashboardData(formData, slug);
 
       try {
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
+        // 1. Create the project with dashboard data
+        const projRes = await fetch(`${SUPABASE_URL}/rest/v1/projects`, {
           method: 'POST',
           headers: {
             'apikey':       SUPABASE_ANON_KEY,
             'Content-Type': 'application/json',
             'Prefer':       'return=minimal',
           },
-          body: JSON.stringify(payload),
+          body: JSON.stringify({
+            slug:          slug,
+            name:          formData.business_name,
+            client_name:   formData.full_name,
+            status:        'discovery',
+            dashboard_data: dashboardData,
+          }),
+        });
+        if (!projRes.ok) {
+          const err = await projRes.text();
+          console.error('Project creation error:', err);
+          // If slug conflict, try with a suffix
+          if (err.includes('duplicate') || err.includes('unique')) {
+            const slug2 = slug + '-' + Date.now().toString(36).slice(-4);
+            createdProjectSlug = slug2;
+            const projRes2 = await fetch(`${SUPABASE_URL}/rest/v1/projects`, {
+              method: 'POST',
+              headers: {
+                'apikey':       SUPABASE_ANON_KEY,
+                'Content-Type': 'application/json',
+                'Prefer':       'return=minimal',
+              },
+              body: JSON.stringify({
+                slug:          slug2,
+                name:          formData.business_name,
+                client_name:   formData.full_name,
+                status:        'discovery',
+                dashboard_data: dashboardData,
+              }),
+            });
+            if (!projRes2.ok) console.error('Project creation retry failed:', await projRes2.text());
+          }
+        }
+
+        // 2. Add Hayden as project admin
+        await fetch(`${SUPABASE_URL}/rest/v1/project_members`, {
+          method: 'POST',
+          headers: {
+            'apikey':       SUPABASE_ANON_KEY,
+            'Content-Type': 'application/json',
+            'Prefer':       'return=minimal',
+          },
+          body: JSON.stringify({
+            project_slug: createdProjectSlug,
+            user_id:      HAYDEN_USER_ID,
+            role:         'admin',
+          }),
         });
 
-        if (!res.ok) {
-          const errText = await res.text();
-          console.error('Supabase error:', errText);
-          return false;
-        }
+        // 3. Insert the lead record
+        const leadRes = await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
+          method: 'POST',
+          headers: {
+            'apikey':       SUPABASE_ANON_KEY,
+            'Content-Type': 'application/json',
+            'Prefer':       'return=minimal',
+          },
+          body: JSON.stringify({
+            full_name:            formData.full_name,
+            email:                formData.email,
+            phone:                formData.phone,
+            business_name:        formData.business_name,
+            business_description: formData.business_description,
+            employee_count:       formData.employee_count,
+            biggest_challenge:    formData.biggest_challenge,
+            status:               'booked',
+            project_slug:         createdProjectSlug,
+            source:               'landing-page',
+            utm_source:           formData.utm_source,
+            utm_medium:           formData.utm_medium,
+            utm_campaign:         formData.utm_campaign,
+          }),
+        });
+        if (!leadRes.ok) console.error('Lead insert error:', await leadRes.text());
+
         return true;
       } catch (err) {
         console.error('Submit error:', err);
