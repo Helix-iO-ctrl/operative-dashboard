@@ -1,0 +1,2713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Operative — Project Dashboard</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #F8FAFC; color: #1E293B; }
+    table { border-collapse: collapse; width: 100%; }
+    button { font-family: inherit; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- ============================================================
+    ✏️  EDIT YOUR PROJECT DATA HERE
+    This is the only section you need to update as work progresses.
+    ============================================================ -->
+  <script>
+    window.PROJECT_DATA = {
+      name: "Velo — AI Consulting OS",
+      client: "Hayden Barnes (Owner/CEO)",
+      lastUpdated: "Mar 10, 2026",
+      phases: ["Active Engagements", "Case Study Publish", "Paid Growth", "Scale & License"],
+      currentPhase: 0,
+
+      // ── SUMMARY (keep in sync with tasks below) ──
+      summary: { total: 49, done: 11, inProgress: 1, blocked: 0, todo: 37 },
+
+      // ── DISCIPLINES & TASKS ──
+      // status: "todo" | "in-progress" | "blocked" | "done"
+      // priority: "high" | "medium" | "low"
+      disciplines: [
+        {
+          id: "strategy", label: "Strategy",
+          color: "#2563EB", lightColor: "#EFF6FF", borderColor: "#BFDBFE",
+          owner: "Hayden",
+          tasks: [
+            { id: 1,  text: "Write Capabilities & Market Opportunity Report (Track A + B, competitive gap, funnel)", status: "done",    priority: "high" },
+            { id: 2,  text: "Write business brief: one-page positioning doc for internal reference",                 status: "todo",    priority: "high" },
+            { id: 3,  text: "Founding client offer terms finalized — contractor friend engaged free for case study + referrals",    status: "done",    priority: "high" },
+            { id: 4,  text: "Pricing committed — Two-tier model: Advisory Retainer ($2k/mo) + Embedded Build ($3k-$15k project)",      status: "done",    priority: "high" },
+            { id: 5,  text: "Identify 5 founding client outreach contacts — Jordan B. (logistics), Zak & Ciara B. (gym/PT), Gregg D. (real estate), Greta R. (SLP), Patrick (Ortho Clinic)", status: "done",    priority: "high" },
+            { id: 6,  text: "Track B (consultant license) — deprioritized. Revisit after Track A is validated and first case study is live.", status: "todo",    priority: "low" },
+            { id: 7,  text: "Define 'success' outcomes for each founding client engagement (outcomes doc)",          status: "todo",    priority: "medium" },
+            { id: 8,  text: "Validate Track B pricing — is $197/mo the right number for consultant license?",       status: "todo",    priority: "low" },
+            { id: 46, text: "Target geography defined — Salt Lake County & Utah County, open to remote beyond",      status: "done",    priority: "high" },
+            { id: 47, text: "Draft founding client case study agreement (what Hayden gets: numbers, testimonial, referrals)", status: "todo", priority: "medium" },
+          ],
+        },
+        {
+          id: "marketing", label: "Marketing",
+          color: "#DC2626", lightColor: "#FEF2F2", borderColor: "#FECACA",
+          owner: "Hayden",
+          tasks: [
+            { id: 9,  text: "Build consultant landing page (landing-consultants.html)",                              status: "done",    priority: "high" },
+            { id: 10, text: "Build small business landing page (landing-small-business.html)",                       status: "done",    priority: "high" },
+            { id: 11, text: "Build full marketing campaign brief (marketing-campaign-brief.html)",                   status: "done",    priority: "high" },
+            { id: 12, text: "Update LinkedIn headline and About section — reflect two-tier offer, Utah focus",      status: "todo",    priority: "high" },
+            { id: 13, text: "Record Loom demo video (2–3 min): dashboard + session workflow",      status: "todo",    priority: "medium" },
+            { id: 14, text: "Send warm network outreach to 10-15 personal contacts (outreach templates ready)", status: "todo", priority: "high" },
+            { id: 15, text: "Publish first LinkedIn post: 'Why I built Velo' or contractor project teaser",      status: "todo",    priority: "high" },
+            { id: 16, text: "Send 5 LinkedIn connection requests/day to local business owners (SL + Utah County)",        status: "todo",    priority: "high" },
+            { id: 48, text: "Join 2-3 local business Facebook groups (Utah County Business Network, etc.)",      status: "todo",    priority: "high" },
+            { id: 49, text: "Kick off contractor CRM project — discovery call, scope requirements, set timeline", status: "in-progress", priority: "high" },
+            { id: 17, text: "Set up email capture on landing pages — ConvertKit or Beehiiv free tier",               status: "todo",    priority: "medium" },
+            { id: 18, text: "Write 3-email welcome sequence (welcome → problem framing → solution intro)",           status: "todo",    priority: "medium" },
+            { id: 19, text: "Create public weekly snapshot example with dummy data (shareable in DMs)",              status: "todo",    priority: "medium" },
+            { id: 20, text: "LinkedIn post: 'The gap in business consulting that no one is filling' (Week 2)",       status: "todo",    priority: "medium" },
+            { id: 21, text: "LinkedIn post: income potential table for AI consultants (Week 2)",                      status: "todo",    priority: "medium" },
+            { id: 22, text: "LinkedIn post: 'What a live client dashboard looks like' with screenshot (Week 3)",     status: "todo",    priority: "medium" },
+            { id: 23, text: "Follow up on founding client outreach — book discovery calls",                          status: "todo",    priority: "high" },
+            { id: 24, text: "Write full case study from first founding client engagement",                           status: "todo",    priority: "high" },
+            { id: 25, text: "Launch LinkedIn Sales Navigator cold DM campaign (10–15 DMs/week)",                     status: "todo",    priority: "medium" },
+            { id: 26, text: "Launch LinkedIn Sponsored Post — small biz track (once case study exists)",             status: "todo",    priority: "medium" },
+            { id: 27, text: "Launch LinkedIn Sponsored Post — consultant track (once case study exists)",            status: "todo",    priority: "medium" },
+            { id: 28, text: "Pitch 3 podcast guest appearances (business ops / AI-in-business shows)",              status: "todo",    priority: "low" },
+          ],
+        },
+        {
+          id: "operations", label: "Operations",
+          color: "#059669", lightColor: "#ECFDF5", borderColor: "#A7F3D0",
+          owner: "Hayden",
+          tasks: [
+            { id: 29, text: "Purchase velo.io and deploy landing pages — domain available (~$35/yr), unblocks everything",          status: "todo", priority: "high" },
+            { id: 30, text: "Write founding client onboarding protocol: session 1 → dashboard live → first snapshot",status: "todo",    priority: "high" },
+            { id: 31, text: "Create case study agreement template (written exchange: free engagement ↔ case study)", status: "todo",    priority: "high" },
+            { id: 32, text: "Set up Calendly / Cal.com booking link and embed in both landing pages",                status: "todo",    priority: "high" },
+            { id: 33, text: "Create client proposal one-pager PDF (leave-behind after discovery call)",              status: "todo",    priority: "medium" },
+            { id: 34, text: "Define engagement kickoff checklist (actions in hours 0–48 after a client signs)",      status: "todo",    priority: "medium" },
+            { id: 35, text: "Set up first client project folder using AI-Business-OS-Template when founding client is confirmed",  status: "todo",    priority: "medium" },
+            { id: 36, text: "GitHub Pages set up for Velo internal dashboard (helix-io-ctrl/operative-dashboard)",   status: "done",    priority: "medium" },
+          ],
+        },
+        {
+          id: "creative", label: "Creative",
+          color: "#D97706", lightColor: "#FFFBEB", borderColor: "#FDE68A",
+          owner: "Hayden",
+          tasks: [
+            { id: 37, text: "Brand name finalized: Velo — single brand for both Track A (small biz advisory) and Track B (consultants)", status: "done", priority: "high" },
+            { id: 38, text: "Design LinkedIn banner for Velo brand — 'AI-Powered Business Advisor' positioning",     status: "todo",    priority: "high" },
+            { id: 39, text: "Design Velo logo / wordmark",                                                            status: "in-progress", priority: "high" },
+            { id: 40, text: "Write brand voice guide: tone, language rules, what we say / what we don't",            status: "todo",    priority: "low" },
+            { id: 41, text: "Velo brand color palette selected",   status: "done",    priority: "low",
+              assetPath: "docs/creative/velo-color-palette.html" },
+          ],
+        },
+        {
+          id: "data", label: "Data & Analytics",
+          color: "#0891B2", lightColor: "#ECFEFF", borderColor: "#A5F3FC",
+          owner: "Hayden",
+          tasks: [
+            { id: 42, text: "Set up outreach pipeline tracker (spreadsheet: contact, date, status, notes)",          status: "todo",    priority: "high" },
+            { id: 43, text: "Define weekly metrics to track: discovery calls, call→client conversion, MRR",          status: "todo",    priority: "medium" },
+            { id: 44, text: "Install Plausible or Google Analytics on both landing pages",                            status: "todo",    priority: "medium" },
+            { id: 45, text: "Set up KPI dashboard (simple spreadsheet): MRR, active clients, pipeline, calls/week", status: "todo",    priority: "medium" },
+          ],
+        },
+      ],
+
+      // ── DECISIONS ──
+      decisions: [
+        { date: "Mar 10, 2026", title: "Two-tier offer model replaces three-tier concept",
+          detail: "Tier 1: AI Advisory Retainer ($2k/mo or $6k/90-day sprint). Tier 2: Embedded AI Systems Build ($3k-$15k project-based). The project template becomes a free lead magnet, not a paid tier. Future 'school' / educational product may be explored separately." },
+        { date: "Mar 10, 2026", title: "Contractor friend engaged as first founding client (free for case study)",
+          detail: "Building: custom CRM from text messages, Google Calendar integration, alert system, dashboard. In exchange: case study with real revenue numbers, video testimonial, warm introductions to 3-5 other business owners. If paid, this project would be priced at $5,000." },
+        { date: "Mar 10, 2026", title: "Target geography: Salt Lake County & Utah County",
+          detail: "Primary target market for local lead generation. Open to remote clients beyond that area. Local focus is for building social proof and referral network." },
+        { date: "Mar 10, 2026", title: "Offer structure, lead gen plan, and outreach templates documented",
+          detail: "Three key docs created: docs/strategy/offer-structure.md (pricing guide), docs/marketing/local-lead-gen-plan.md (5-channel local strategy), docs/marketing/outreach-templates.md (warm, LinkedIn, cold email templates)." },
+        { date: "Mar 6, 2026", title: "Velo brand color palette selected — Amber (#E07A2F) as primary",
+          detail: "Cowork selected the palette based on brief: approachable, not another AI brand, different. Primary: Velo Amber #E07A2F. Dark: Deep Night #1C1C2A. Background: Warm White #FBF7F2. Accent: Burnt Amber #C45C25. Neutral: Slate #6B6878. Asset: docs/creative/velo-color-palette.html" },
+        { date: "Mar 6, 2026", title: "Brand name finalized: Velo — one brand for both tracks",
+          detail: "Velo is the business name for all markets — Track A (small biz advisory) and Track B (consultants). The previous two-brand idea (Operative + Velo) is retired. Domain: velo.io. Brand design work begins now." },
+        { date: "Mar 6, 2026", title: "Domain: velo.io selected — purchase is the next action",
+          detail: "velo.io is available (~$35/yr). All .com options are taken. Purchasing velo.io unblocks landing page deployment, LinkedIn profile update, and brand design work." },
+        { date: "Mar 6, 2026", title: "Folder structure stays as-is — no renaming needed",
+          detail: "Hayden will use the Operative subfolder for Velo/Operative work and the Helix folder for Helix client work. No folder rename required." },
+        { date: "Mar 6, 2026", title: "Track B (consultant licensing) deprioritized — focus 100% on Track A first",
+          detail: "Hayden confirmed he wants to test, refine, and validate the advisory product before selling it to other consultants. Track B will be revisited once Track A is proven and the first case study is published." },
+        { date: "Mar 6, 2026", title: "GitHub hosting: using Helix-iO-ctrl for now, org account later",
+          detail: "Since Velo is a personal project at this stage, the existing Helix GitHub account is sufficient. When the first paying client signs, a separate GitHub org will be created for clean branding." },
+        { date: "Mar 6, 2026", title: "Founding client outreach targets identified",
+          detail: "4 of 5 warm contacts confirmed: Jordan B. (logistics company), Zak & Ciara B. (gym + personal training), Gregg D. (real estate), Greta R. (SLP). 5th contact TBD." },
+        { date: "Mar 6, 2026", title: "Operative gets its own subfolder — clean separation from Helix client project",
+          detail: "Operative lives at /Consulting OS Discovery/Operative/. Helix files in the parent folder are not touched. Clean project isolation." },
+        { date: "Mar 6, 2026", title: "Operative is a live case study for the AI Business OS template",
+          detail: "Running Hayden's own business through the system is the best proof of concept. Generates real dashboard screenshots, session outputs, and weekly snapshots to use as sales materials." },
+        { date: "Mar 6, 2026", title: "Founding client strategy: free or discounted in exchange for case study",
+          detail: "First 2–3 clients offered at free (full case study + testimonial + recording) or $500 discovery + $1,000/month. No hard sell or paid ads until proof exists." },
+        { date: "Mar 6, 2026", title: "Marketing strategy: case-study-first, then paid",
+          detail: "No paid ads until first case study is published. Phase 1: LinkedIn organic + warm direct outreach. Phase 2 (Month 3–4): light paid spend ($300–500). Phase 3 (Month 5+): scale." },
+        { date: "Mar 6, 2026", title: "Business model confirmed: Track A ($2k/mo advisory) + Track B ($197/mo license — deprioritized)",
+          detail: "Track A: $2,000/month retainer or $6,000/90-day engagement or $500 paid discovery. Track B: $197/month or $1,497/year consultant license — on hold until Track A is validated." },
+        { date: "Mar 6, 2026", title: "Full 12-week marketing campaign brief completed",
+          detail: "Three budget tiers: Bootstrap ($30/mo), Scrappy ($450/mo, recommended), Growth ($2,000–2,800/mo). Content calendar, channel strategy, KPIs, and risk mitigations all documented." },
+        { date: "Mar 7, 2026", title: "5th founding client outreach contact confirmed: Patrick (Ortho Clinic)",
+          detail: "Full outreach list now complete: Jordan B. (logistics), Zak & Ciara B. (gym/PT), Gregg D. (real estate), Greta R. (SLP), Patrick (Ortho Clinic). All 5 warm contacts confirmed. Outreach can begin." },
+        { date: "Mar 7, 2026", title: "Next work priority: Velo logo / wordmark (Option A)",
+          detail: "Hayden selected Option A from the priority question — Velo logo/wordmark is the next creative asset. Color palette is already set (Velo Amber #E07A2F), so this is the logical next step before LinkedIn banner or outreach launch." },
+      ],
+
+      // ── OPEN QUESTIONS ──
+      // urgency: "critical" | "high" | "medium"
+      openQuestions: [
+        { id: "q1", q: "How should the client kickoff process be standardized across all 4 active projects?",
+          urgency: "high", note: "Running 4 projects in parallel with no repeatable process. Need a template folder structure, kickoff checklist, and dashboard setup protocol so each new client gets the same quality experience." },
+        { id: "q2", q: "What scope and timeline for Zak & Ciara's gym automation project?",
+          urgency: "high", note: "They're on board but haven't had the discovery meeting yet. Need to schedule, define scope (what automations?), and set expectations for deliverables and timeline." },
+        { id: "q3", q: "Is velo.io still the domain target, or should we consider alternatives?",
+          urgency: "high", note: "Domain purchase is a blocker for deploying landing pages and establishing the brand online. Need to confirm and buy." },
+        { id: "q4", q: "What feedback loop should the Greta SLP Assistant tool have to improve progress report quality?",
+          urgency: "medium", note: "Lightweight tool is already built. Next step is a feedback mechanism so Greta can rate outputs and the tool improves over time." },
+        { id: "q5", q: "How should each client engagement map to Velo's pricing tiers (advisory retainer vs. embedded build vs. free founding)?",
+          urgency: "medium", note: "4 projects are running but not all have clear commercial terms. Need to decide which are free case studies, which become paying clients, and when to have that conversation." },
+        { id: "q6", q: "When should Jordan be pulled into an active engagement?",
+          urgency: "low", note: "Largest company in the pipeline (multi-million $/yr). Waiting until current projects are stable and there's bandwidth. Could be a Tier 1 retainer client." },
+      ],
+
+      // ── WEEKLY UPDATES ──
+      // Auto-populated every Friday by the weekly-snapshot scheduled task.
+      // Each entry: { week, dateRange, pct, done, blockers, wins: [], nextUp: [], snapshotUrl }
+      weeklyUpdates: [],
+
+      // ── ASSET LIBRARY ──
+      // Central catalog of all deliverables. Each asset can have multiple versions.
+      // status options: "draft" | "in-review" | "revision-needed" | "approved"
+      assets: [
+        {
+          id: "color-palette",
+          title: "Velo Brand Color Palette",
+          discipline: "creative",
+          description: "Primary brand colors: Velo Amber, Deep Night, Warm White, Burnt Amber, Slate.",
+          status: "approved",
+          versions: [
+            {
+              version: 1,
+              date: "Mar 6, 2026",
+              url: "https://helix-io-ctrl.github.io/operative-dashboard/docs/creative/velo-color-palette.html",
+              note: "Palette selected. Primary: Velo Amber #E07A2F. Approved by Hayden.",
+              status: "approved",
+            },
+          ],
+        },
+        {
+          id: "landing-small-biz",
+          title: "Small Business Landing Page",
+          discipline: "marketing",
+          description: "Landing page targeting small business owners for Track A advisory services.",
+          status: "approved",
+          versions: [
+            {
+              version: 1,
+              date: "Mar 6, 2026",
+              url: "https://helix-io-ctrl.github.io/operative-dashboard/landing-small-business.html",
+              note: "Initial version with two-tier pricing, testimonial placeholders, and booking CTA.",
+              status: "approved",
+            },
+          ],
+        },
+        {
+          id: "landing-consultants",
+          title: "Consultant Landing Page",
+          discipline: "marketing",
+          description: "Landing page for Track B — consultant licensing program (deprioritized).",
+          status: "approved",
+          versions: [
+            {
+              version: 1,
+              date: "Mar 6, 2026",
+              url: "https://helix-io-ctrl.github.io/operative-dashboard/landing-consultants.html",
+              note: "Initial version. Track B is deprioritized — page built but not actively marketed.",
+              status: "approved",
+            },
+          ],
+        },
+        {
+          id: "campaign-brief",
+          title: "Marketing Campaign Brief",
+          discipline: "marketing",
+          description: "12-week campaign plan with 3 budget tiers, channel strategy, content calendar, and KPIs.",
+          status: "approved",
+          versions: [
+            {
+              version: 1,
+              date: "Mar 6, 2026",
+              url: "https://helix-io-ctrl.github.io/operative-dashboard/marketing-campaign-brief.html",
+              note: "Complete brief: Bootstrap ($30/mo), Scrappy ($450/mo), Growth ($2k+/mo) tiers.",
+              status: "approved",
+            },
+          ],
+        },
+        {
+          id: "capabilities-report",
+          title: "Capabilities & Market Report",
+          discipline: "strategy",
+          description: "Full competitive landscape analysis, market opportunity sizing, and positioning framework.",
+          status: "approved",
+          versions: [
+            {
+              version: 1,
+              date: "Mar 6, 2026",
+              url: "https://helix-io-ctrl.github.io/operative-dashboard/AI-Business-OS%20%E2%80%94%20Capabilities%20%26%20Market%20Report.html",
+              note: "Comprehensive report covering 7 competitor platforms, market gaps, and Velo's differentiation.",
+              status: "approved",
+            },
+          ],
+        },
+        {
+          id: "kickoff-protocol",
+          title: "Client Kickoff Protocol (SOP)",
+          discipline: "operations",
+          description: "Step-by-step process for taking a new client from interested to actively delivering. Covers pre-kickoff, discovery, setup, and first delivery.",
+          status: "approved",
+          versions: [
+            {
+              version: 1,
+              date: "Mar 10, 2026",
+              note: "Complete SOP with checklist. Covers Phase 0 (pre-kickoff) through Phase 3 (first delivery in Week 1).",
+              status: "approved",
+            },
+          ],
+        },
+        {
+          id: "discovery-agenda",
+          title: "Discovery Call Agenda",
+          discipline: "operations",
+          description: "Structured agenda for client discovery meetings. Includes pre-call prep message, 7-section call guide, and post-call notes template.",
+          status: "approved",
+          versions: [
+            {
+              version: 1,
+              date: "Mar 10, 2026",
+              note: "Full agenda covering intros, business fundamentals, goals, constraints, resources, the pitch, and next steps.",
+              status: "approved",
+            },
+          ],
+        },
+        {
+          id: "client-folder-template",
+          title: "Client Project Folder Template",
+          discipline: "operations",
+          description: "Reusable starter folder for each new client engagement. Contains CLAUDE.md, COWORK.md, all skill files, task files, and doc templates.",
+          status: "approved",
+          versions: [
+            {
+              version: 1,
+              date: "Mar 10, 2026",
+              note: "Complete template with 9 skills, 6 task files, strategy doc templates, decision log, and README.",
+              status: "approved",
+            },
+          ],
+        },
+      ],
+      feedbackResponses: {},
+    };
+  </script>
+
+  <!-- ============================================================
+    🔌 SUPABASE CONFIG
+    Update PROJECT_SLUG for each new client dashboard.
+    Do not change SUPABASE_URL or SUPABASE_ANON_KEY.
+    ============================================================ -->
+  <script>
+    window.SUPABASE_URL      = 'https://gzpuectetjatqbpcdgqt.supabase.co';
+    window.SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6cHVlY3RldGphdHFicGNkZ3F0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MTc3MTMsImV4cCI6MjA4ODI5MzcxM30.KkIr6SSqQtO3aGDtCCxUIBOgbEgjtVeqExlW_Yv-QZ0';
+    window.PROJECT_SLUG      = 'operative'; // ← change this per client dashboard
+  </script>
+
+  <!-- ============================================================
+    🔧 APP CODE — no need to edit below this line
+    ============================================================ -->
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+    const d = window.PROJECT_DATA;
+
+    const STATUS = {
+      done:          { label: "Done",        dot: "#059669", badge: "#DCFCE7", badgeText: "#166534" },
+      "in-progress": { label: "In Progress", dot: "#2563EB", badge: "#DBEAFE", badgeText: "#1E40AF" },
+      blocked:       { label: "Blocked",     dot: "#DC2626", badge: "#FEE2E2", badgeText: "#991B1B" },
+      todo:          { label: "To Do",       dot: "#9CA3AF", badge: "#F3F4F6", badgeText: "#6B7280" },
+    };
+    const PRIORITY = {
+      high:   { label: "High", color: "#DC2626", bg: "#FEE2E2" },
+      medium: { label: "Med",  color: "#D97706", bg: "#FEF3C7" },
+      low:    { label: "Low",  color: "#6B7280", bg: "#F3F4F6" },
+    };
+    const URGENCY = {
+      critical: { color: "#DC2626", bg: "#FEF2F2", label: "Critical" },
+      high:     { color: "#D97706", bg: "#FFFBEB", label: "High" },
+      medium:   { color: "#2563EB", bg: "#EFF6FF", label: "Medium" },
+      low:      { color: "#64748B", bg: "#F1F5F9", label: "Low" },
+    };
+
+    const BRAND = "#E07A2F"; // Velo Amber accent
+
+    const ASSET_STATUS = {
+      draft:             { label: "Draft",            color: "#64748B", bg: "#F1F5F9", dot: "#94A3B8" },
+      "in-review":       { label: "In Review",        color: "#2563EB", bg: "#DBEAFE", dot: "#2563EB" },
+      "revision-needed": { label: "Revision Needed",  color: "#D97706", bg: "#FEF3C7", dot: "#D97706" },
+      approved:          { label: "Approved",          color: "#059669", bg: "#DCFCE7", dot: "#059669" },
+    };
+
+    const FEEDBACK_STATUS = {
+      viewed:       { label: "Viewed",       color: "#64748B", bg: "#F1F5F9", icon: "👁" },
+      implementing: { label: "Implementing", color: "#2563EB", bg: "#DBEAFE", icon: "🔧" },
+      deferred:     { label: "Deferred to v2", color: "#D97706", bg: "#FEF3C7", icon: "📋" },
+      done:         { label: "Applied",      color: "#059669", bg: "#DCFCE7", icon: "✅" },
+    };
+
+    function formatDate(iso) {
+      const d = new Date(iso);
+      return d.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+    }
+
+    function Badge({ color, bg, children }) {
+      return (
+        <span style={{ display:"inline-flex", alignItems:"center", background:bg, color,
+          fontSize:11, fontWeight:600, padding:"2px 8px", borderRadius:4, whiteSpace:"nowrap" }}>
+          {children}
+        </span>
+      );
+    }
+
+    function ProgressBar({ done, total, color }) {
+      const pct = total > 0 ? Math.round((done/total)*100) : 0;
+      return (
+        <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+          <div style={{ flex:1, height:4, background:"#F1F5F9", borderRadius:2, overflow:"hidden" }}>
+            <div style={{ width:`${pct}%`, height:"100%", background:color, borderRadius:2, transition:"width .5s ease" }} />
+          </div>
+          <span style={{ fontSize:11, color:"#94A3B8", minWidth:28, textAlign:"right" }}>{pct}%</span>
+        </div>
+      );
+    }
+
+    function FeedbackResponseBanner({ feedbackKey, feedbackResponses }) {
+      const resp = feedbackResponses[feedbackKey];
+      if (!resp) return null;
+      const fs = FEEDBACK_STATUS[resp.status];
+      if (!fs) return null;
+      return (
+        <div style={{ background: fs.bg, border: `1px solid ${fs.color}22`, borderRadius: 6,
+          padding: "8px 12px", marginTop: 8, marginBottom: 4 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+            <span style={{ fontSize: 12 }}>{fs.icon}</span>
+            <Badge color={fs.color} bg={fs.bg}>{fs.label}</Badge>
+            <span style={{ fontSize: 11, color: "#94A3B8" }}>
+              {resp.respondedBy}, {resp.respondedAt}
+            </span>
+          </div>
+          <div style={{ fontSize: 12, color: "#374151", lineHeight: 1.5 }}>{resp.note}</div>
+        </div>
+      );
+    }
+
+    function TaskTable({ tasks, comments = {}, onCommentAdded, viewedAssets = new Set(), onAssetViewed = () => {}, feedbackResponses = {} }) {
+      const [hoveredTask, setHoveredTask]   = useState(null);
+      const [openPanel, setOpenPanel]       = useState(null);
+      const [panelName, setPanelName]       = useState('');
+      const [panelBody, setPanelBody]       = useState('');
+      const [panelError, setPanelError]     = useState('');
+      const [panelLoading, setPanelLoading] = useState(false);
+      const [assetModal, setAssetModal]     = useState(null); // assetPath string or null
+      const [expandedComments, setExpandedComments] = useState(new Set()); // track which comment sections are expanded
+
+      function toggleCommentSection(key) {
+        setExpandedComments(prev => {
+          const next = new Set(prev);
+          if (next.has(key)) next.delete(key);
+          else next.add(key);
+          return next;
+        });
+      }
+
+      function openAsset(assetPath) {
+        setAssetModal(assetPath);
+        onAssetViewed(assetPath);
+      }
+
+      function openComment(taskId) {
+        setOpenPanel(taskId);
+        setPanelName(''); setPanelBody(''); setPanelError('');
+      }
+      function closePanel() {
+        setOpenPanel(null);
+        setPanelName(''); setPanelBody(''); setPanelError('');
+      }
+      async function submitComment(t) {
+        setPanelLoading(true); setPanelError('');
+        try {
+          const res = await fetch(`${window.SUPABASE_URL}/rest/v1/comments`, {
+            method: 'POST',
+            headers: {
+              'apikey': window.SUPABASE_ANON_KEY,
+              'Authorization': `Bearer ${window.SUPABASE_ANON_KEY}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=representation',
+            },
+            body: JSON.stringify({
+              project_slug: window.PROJECT_SLUG,
+              item_type: 'task',
+              item_id: String(t.id),
+              item_text: t.text,
+              commenter_name: panelName.trim(),
+              body: panelBody.trim(),
+            }),
+          });
+          if (!res.ok) throw new Error(`Error ${res.status}`);
+          const [newComment] = await res.json();
+          onCommentAdded(newComment);
+          closePanel();
+        } catch(e) {
+          setPanelError('Something went wrong — please try again.');
+          console.error('Comment submit failed:', e);
+        } finally {
+          setPanelLoading(false);
+        }
+      }
+
+      const canSend = panelName.trim() && panelBody.trim() && !panelLoading;
+
+      return (
+        <>
+        {/* ── Asset preview modal ── */}
+        {assetModal && (
+          <div onClick={() => setAssetModal(null)} style={{
+            position:"fixed", inset:0, background:"rgba(15,23,42,0.65)",
+            zIndex:9999, display:"flex", alignItems:"center", justifyContent:"center",
+            padding:24 }}>
+            <div onClick={e => e.stopPropagation()} style={{
+              background:"white", borderRadius:14, width:"90vw", height:"86vh",
+              maxWidth:1100, display:"flex", flexDirection:"column", overflow:"hidden",
+              boxShadow:"0 32px 80px rgba(0,0,0,0.35)" }}>
+              {/* Modal header */}
+              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between",
+                padding:"12px 20px", borderBottom:"1px solid #E2E8F0", flexShrink:0 }}>
+                <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                  <div style={{ width:8, height:8, borderRadius:"50%", background:BRAND }} />
+                  <span style={{ fontSize:13, fontWeight:600, color:"#1E293B" }}>Asset Preview</span>
+                  <span style={{ fontSize:11, color:"#94A3B8", fontFamily:"'SF Mono',monospace" }}>
+                    {assetModal}
+                  </span>
+                </div>
+                <button onClick={() => setAssetModal(null)} style={{
+                  background:"#F1F5F9", border:"none", borderRadius:6,
+                  width:28, height:28, fontSize:14, cursor:"pointer",
+                  color:"#64748B", display:"flex", alignItems:"center", justifyContent:"center",
+                  fontFamily:"inherit", lineHeight:1 }}>✕</button>
+              </div>
+              {/* iframe — no download controls */}
+              <iframe
+                src={assetModal}
+                title="Asset Preview"
+                sandbox="allow-scripts allow-same-origin"
+                style={{ flex:1, border:"none", width:"100%", display:"block" }}
+              />
+            </div>
+          </div>
+        )}
+        <table>
+          <thead>
+            <tr style={{ background:"#F8FAFC" }}>
+              {["Task","Priority","Status"].map(h => (
+                <th key={h} style={{ padding:"9px 16px", textAlign:"left", fontSize:11,
+                  fontWeight:600, color:"#94A3B8", textTransform:"uppercase",
+                  letterSpacing:"0.06em", borderBottom:"1px solid #E2E8F0" }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {(() => {
+              // Pre-process: collect groups so we can render them as clusters
+              const rendered = new Set();
+              const rows = [];
+
+              tasks.forEach((t, idx) => {
+                if (rendered.has(t.id)) return;
+
+                // ── Grouped tasks: render as a connected cluster ──
+                if (t.groupId) {
+                  const group = tasks.filter(g => g.groupId === t.groupId);
+                  group.forEach(g => rendered.add(g.id));
+                  const groupAsset = group.find(g => g.groupAsset)?.groupAsset;
+                  const groupLabel = group.find(g => g.groupLabel)?.groupLabel || "Shared deliverable";
+
+                  // Collect all comments for tasks in this group + group-level comments
+                  // Group comments stored as item_type='task', item_id='group:<groupId>' to satisfy DB constraint
+                  const groupComments = comments[`task-group:${t.groupId}`] || [];
+                  const allTaskComments = {};
+                  group.forEach(g => { allTaskComments[g.id] = comments[`task-${g.id}`] || []; });
+                  const isGroupPanelOpen = openPanel === `group-${t.groupId}`;
+
+                  rows.push(
+                    <React.Fragment key={`group-${t.groupId}`}>
+                      <tr>
+                        <td colSpan={3} style={{ padding:0, borderBottom:"1px solid #F1F5F9" }}>
+                          <div style={{ borderLeft:`3px solid ${BRAND}`, margin:"0 12px", padding:"14px 12px" }}>
+                            {/* Group label */}
+                            <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:10 }}>
+                              <span style={{ fontSize:10, fontWeight:700, color:BRAND,
+                                textTransform:"uppercase", letterSpacing:"0.08em" }}>
+                                {groupLabel}
+                              </span>
+                              <span style={{ fontSize:10, color:"#94A3B8" }}>
+                                {group.length} tasks delivered together
+                              </span>
+                            </div>
+
+                            {/* Stacked task items — each with hover note */}
+                            {group.map((g, gi) => {
+                              const gs = STATUS[g.status]; const gp = PRIORITY[g.priority];
+                              const taskNotes = allTaskComments[g.id] || [];
+                              const isTaskPanelOpen = openPanel === g.id;
+                              return (
+                                <div key={g.id}>
+                                  <div
+                                    onMouseEnter={() => setHoveredTask(g.id)}
+                                    onMouseLeave={() => setHoveredTask(null)}
+                                    style={{
+                                      display:"flex", alignItems:"center", justifyContent:"space-between",
+                                      padding:"6px 0",
+                                      borderTop: gi > 0 ? "1px solid #F1F5F9" : "none",
+                                      background: hoveredTask === g.id ? "#FAFBFF" : "transparent",
+                                      borderRadius:4, margin:"0 -4px", padding:"6px 4px" }}>
+                                    <div style={{ display:"flex", alignItems:"center", gap:8, flex:1 }}>
+                                      <span style={{ display:"inline-block", width:7, height:7, borderRadius:"50%",
+                                        background:gs.dot, flexShrink:0 }} />
+                                      <span style={{ fontSize:13,
+                                        color: g.status==="done" ? "#94A3B8" : "#1E293B",
+                                        textDecoration: g.status==="done" ? "line-through" : "none",
+                                        lineHeight:1.5 }}>
+                                        {g.text}
+                                      </span>
+                                    </div>
+                                    <div style={{ display:"flex", gap:6, flexShrink:0, marginLeft:12, alignItems:"center" }}>
+                                      {hoveredTask === g.id && !isTaskPanelOpen && (
+                                        <button onClick={() => openComment(g.id)} style={{
+                                          background:"none", border:"1px solid #E2E8F0", borderRadius:4,
+                                          padding:"2px 8px", fontSize:11, color:"#64748B", cursor:"pointer",
+                                          display:"flex", alignItems:"center", gap:4, whiteSpace:"nowrap",
+                                          fontFamily:"inherit" }}>
+                                          💬 Note
+                                        </button>
+                                      )}
+                                      <Badge color={gp.color} bg={gp.bg}>{gp.label}</Badge>
+                                      <Badge color={gs.badgeText} bg={gs.badge}>{gs.label}</Badge>
+                                    </div>
+                                  </div>
+
+                                  {/* Per-task inline comment panel */}
+                                  {isTaskPanelOpen && (
+                                    <div style={{ padding:"8px 0 8px 15px" }}>
+                                      <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:8, padding:"12px 14px" }}>
+                                        <div style={{ fontSize:12, color:"#64748B", marginBottom:10 }}>
+                                          Note on: <strong style={{ color:"#374151" }}>"{g.text}"</strong>
+                                        </div>
+                                        <div style={{ display:"grid", gridTemplateColumns:"80px 1fr", gap:"8px 12px", alignItems:"center" }}>
+                                          <label style={{ fontSize:12, color:"#64748B", textAlign:"right" }}>Your name</label>
+                                          <input value={panelName} onChange={e => setPanelName(e.target.value)}
+                                            placeholder="e.g. Hayden" style={{ fontSize:13, padding:"6px 10px",
+                                            border:"1px solid #E2E8F0", borderRadius:6, outline:"none",
+                                            fontFamily:"inherit", color:"#1E293B" }} />
+                                          <label style={{ fontSize:12, color:"#64748B", textAlign:"right" }}>Note</label>
+                                          <textarea value={panelBody} onChange={e => setPanelBody(e.target.value)}
+                                            placeholder="Type your note here..." rows={2}
+                                            style={{ fontSize:13, padding:"6px 10px", border:"1px solid #E2E8F0",
+                                            borderRadius:6, outline:"none", fontFamily:"inherit",
+                                            resize:"vertical", color:"#1E293B" }} />
+                                        </div>
+                                        {panelError && <div style={{ fontSize:12, color:"#DC2626", marginTop:8 }}>⚠ {panelError}</div>}
+                                        <div style={{ display:"flex", justifyContent:"flex-end", gap:8, marginTop:10 }}>
+                                          <button onClick={closePanel} style={{ fontSize:12, padding:"6px 14px",
+                                            border:"1px solid #E2E8F0", borderRadius:6, background:"white",
+                                            color:"#64748B", cursor:"pointer", fontFamily:"inherit" }}>Cancel</button>
+                                          <button onClick={() => submitComment(g)} disabled={!canSend} style={{
+                                            fontSize:12, padding:"6px 14px", border:"none", borderRadius:6,
+                                            fontFamily:"inherit", fontWeight:600,
+                                            cursor: canSend ? "pointer" : "not-allowed",
+                                            background: canSend ? BRAND : "#E2E8F0",
+                                            color: canSend ? "white" : "#94A3B8" }}>
+                                            {panelLoading ? 'Sending...' : 'Send →'}
+                                          </button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {/* Per-task existing comments — only shown when task comments expanded */}
+                                  {expandedComments.has(`task-${g.id}`) && taskNotes.map((c, ci) => (
+                                    <div key={`tc-${ci}`} style={{ padding:"2px 0 2px 15px" }}>
+                                      <span style={{ fontSize:12, color:"#64748B" }}>
+                                        💬 <strong style={{ color:"#374151", fontWeight:600 }}>{c.commenter_name}</strong>
+                                        , {formatDate(c.created_at)} · "{c.body}"
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              );
+                            })}
+
+                            {/* Shared asset + group-level note — one for the whole group */}
+                            {(() => {
+                              const groupFeedbackKey = `task-group:${t.groupId}`;
+                              const totalGroupComments = groupComments.length + group.reduce((sum, g) => sum + (allTaskComments[g.id] || []).length, 0);
+                              const groupResp = feedbackResponses[groupFeedbackKey];
+                              const groupFs = groupResp ? FEEDBACK_STATUS[groupResp.status] : null;
+                              const isGroupExpanded = expandedComments.has(groupFeedbackKey);
+
+                              return (
+                                <>
+                                <div style={{ marginTop:10, paddingTop:10, borderTop:"1px solid #F1F5F9",
+                                  display:"flex", alignItems:"center", gap:10, flexWrap:"wrap" }}>
+                                  {groupAsset && (
+                                    <button onClick={() => openAsset(groupAsset)} style={{
+                                      background:"none", border:`1px solid ${BRAND}`,
+                                      borderRadius:5, padding:"4px 12px", fontSize:11, color:BRAND,
+                                      cursor:"pointer", fontFamily:"inherit",
+                                      display:"inline-flex", alignItems:"center", gap:6,
+                                      textDecoration:"none" }}>
+                                      {!viewedAssets.has(groupAsset) && (
+                                        <span style={{ background:BRAND, color:"white", fontSize:9,
+                                          fontWeight:700, borderRadius:3, padding:"1px 5px",
+                                          letterSpacing:"0.06em", textTransform:"uppercase" }}>NEW</span>
+                                      )}
+                                      View asset →
+                                    </button>
+                                  )}
+                                  {!isGroupPanelOpen && (
+                                    <button onClick={() => openComment(`group-${t.groupId}`)} style={{
+                                      background:"none", border:"1px solid #E2E8F0", borderRadius:5,
+                                      padding:"4px 12px", fontSize:11, color:"#64748B", cursor:"pointer",
+                                      display:"inline-flex", alignItems:"center", gap:5,
+                                      fontFamily:"inherit" }}>
+                                      💬 Note on deliverable
+                                    </button>
+                                  )}
+                                  {/* Collapsible feedback toggle */}
+                                  {totalGroupComments > 0 && (
+                                    <button onClick={() => toggleCommentSection(groupFeedbackKey)} style={{
+                                      background: isGroupExpanded ? "#F1F5F9" : "none",
+                                      border:"1px solid #E2E8F0", borderRadius:5,
+                                      padding:"4px 12px", fontSize:11, color:"#64748B", cursor:"pointer",
+                                      display:"inline-flex", alignItems:"center", gap:5,
+                                      fontFamily:"inherit" }}>
+                                      {isGroupExpanded ? "▾" : "▸"} {totalGroupComments} comment{totalGroupComments !== 1 ? "s" : ""}
+                                      {groupFs && (
+                                        <span style={{ fontSize:10, fontWeight:600, color: groupFs.color,
+                                          background: groupFs.bg, padding:"1px 6px", borderRadius:3, marginLeft:4 }}>
+                                          {groupFs.icon} {groupFs.label}
+                                        </span>
+                                      )}
+                                    </button>
+                                  )}
+                                  {/* Show status badge even if no toggle needed */}
+                                  {totalGroupComments === 0 && groupFs && (
+                                    <span style={{ fontSize:10, fontWeight:600, color: groupFs.color,
+                                      background: groupFs.bg, padding:"2px 8px", borderRadius:4,
+                                      display:"inline-flex", alignItems:"center", gap:4 }}>
+                                      {groupFs.icon} {groupFs.label}
+                                    </span>
+                                  )}
+                                </div>
+
+                                {/* Expanded comments section */}
+                                {isGroupExpanded && (
+                                  <div style={{ marginTop:8, padding:"10px 12px", background:"#FAFBFF",
+                                    borderRadius:8, border:"1px solid #E2E8F0" }}>
+                                    {/* Feedback response banner */}
+                                    <FeedbackResponseBanner feedbackKey={groupFeedbackKey} feedbackResponses={feedbackResponses} />
+
+                                    {/* Group-level comments */}
+                                    {groupComments.map((c, ci) => (
+                                      <div key={`gc-${ci}`} style={{ marginTop: 6, padding:"6px 0",
+                                        borderTop: ci > 0 ? "1px solid #F1F5F9" : "none" }}>
+                                        <span style={{ fontSize:12, color:"#64748B" }}>
+                                          💬 <strong style={{ color:"#374151", fontWeight:600 }}>{c.commenter_name}</strong>
+                                          , {formatDate(c.created_at)}
+                                        </span>
+                                        <div style={{ fontSize:12, color:"#1E293B", marginTop:2, lineHeight:1.5, paddingLeft:18 }}>
+                                          {c.body}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                                </>
+                              );
+                            })()}
+
+                            {/* Group-level comment panel */}
+                            {isGroupPanelOpen && (
+                              <div style={{ marginTop:10 }}>
+                                <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:8, padding:"12px 14px" }}>
+                                  <div style={{ fontSize:12, color:"#64748B", marginBottom:10 }}>
+                                    Note on deliverable: <strong style={{ color:"#374151" }}>"{groupLabel}"</strong>
+                                  </div>
+                                  <div style={{ display:"grid", gridTemplateColumns:"80px 1fr", gap:"8px 12px", alignItems:"center" }}>
+                                    <label style={{ fontSize:12, color:"#64748B", textAlign:"right" }}>Your name</label>
+                                    <input value={panelName} onChange={e => setPanelName(e.target.value)}
+                                      placeholder="e.g. Hayden" style={{ fontSize:13, padding:"6px 10px",
+                                      border:"1px solid #E2E8F0", borderRadius:6, outline:"none",
+                                      fontFamily:"inherit", color:"#1E293B" }} />
+                                    <label style={{ fontSize:12, color:"#64748B", textAlign:"right" }}>Note</label>
+                                    <textarea value={panelBody} onChange={e => setPanelBody(e.target.value)}
+                                      placeholder="Overall feedback on this deliverable..." rows={2}
+                                      style={{ fontSize:13, padding:"6px 10px", border:"1px solid #E2E8F0",
+                                      borderRadius:6, outline:"none", fontFamily:"inherit",
+                                      resize:"vertical", color:"#1E293B" }} />
+                                  </div>
+                                  {panelError && <div style={{ fontSize:12, color:"#DC2626", marginTop:8 }}>⚠ {panelError}</div>}
+                                  <div style={{ display:"flex", justifyContent:"flex-end", gap:8, marginTop:10 }}>
+                                    <button onClick={closePanel} style={{ fontSize:12, padding:"6px 14px",
+                                      border:"1px solid #E2E8F0", borderRadius:6, background:"white",
+                                      color:"#64748B", cursor:"pointer", fontFamily:"inherit" }}>Cancel</button>
+                                    <button onClick={() => {
+                                      setPanelLoading(true); setPanelError('');
+                                      fetch(`${window.SUPABASE_URL}/rest/v1/comments`, {
+                                        method: 'POST',
+                                        headers: {
+                                          'apikey': window.SUPABASE_ANON_KEY,
+                                          'Authorization': `Bearer ${window.SUPABASE_ANON_KEY}`,
+                                          'Content-Type': 'application/json',
+                                          'Prefer': 'return=representation',
+                                        },
+                                        body: JSON.stringify({
+                                          project_slug: window.PROJECT_SLUG,
+                                          item_type: 'task',
+                                          item_id: `group:${t.groupId}`,
+                                          item_text: groupLabel,
+                                          commenter_name: panelName.trim(),
+                                          body: panelBody.trim(),
+                                        }),
+                                      })
+                                      .then(res => { if (!res.ok) throw new Error(`Error ${res.status}`); return res.json(); })
+                                      .then(([newComment]) => { onCommentAdded(newComment); closePanel(); })
+                                      .catch(() => { setPanelError('Something went wrong — please try again.'); })
+                                      .finally(() => setPanelLoading(false));
+                                    }} disabled={!canSend} style={{
+                                      fontSize:12, padding:"6px 14px", border:"none", borderRadius:6,
+                                      fontFamily:"inherit", fontWeight:600,
+                                      cursor: canSend ? "pointer" : "not-allowed",
+                                      background: canSend ? BRAND : "#E2E8F0",
+                                      color: canSend ? "white" : "#94A3B8" }}>
+                                      {panelLoading ? 'Sending...' : 'Send →'}
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    </React.Fragment>
+                  );
+                  return;
+                }
+
+                // ── Regular (ungrouped) task ──
+                rendered.add(t.id);
+                const s = STATUS[t.status]; const p = PRIORITY[t.priority];
+                const taskComments  = comments[`task-${t.id}`] || [];
+                const assetKey = t.assetPath ? `task-asset:${t.id}` : null;
+                const assetComments = assetKey ? (comments[assetKey] || []) : [];
+                const isPanelOpen   = openPanel === t.id;
+                const isAssetPanelOpen = openPanel === `asset-${t.id}`;
+                const totalCommentCount = taskComments.length + assetComments.length;
+                const commentSectionKey = assetKey || `task-${t.id}`;
+                const isCommentsExpanded = expandedComments.has(commentSectionKey);
+                const assetResp = assetKey ? feedbackResponses[assetKey] : null;
+                const assetFs = assetResp ? FEEDBACK_STATUS[assetResp.status] : null;
+                const hasBelowContent = isCommentsExpanded || isPanelOpen || isAssetPanelOpen;
+
+                rows.push(
+                  <React.Fragment key={t.id}>
+                    <tr
+                      onMouseEnter={() => setHoveredTask(t.id)}
+                      onMouseLeave={() => setHoveredTask(null)}
+                      style={{ background: hoveredTask === t.id ? '#FAFBFF' : 'white' }}
+                    >
+                      <td style={{ padding:"11px 16px", borderBottom: hasBelowContent ? "none" : "1px solid #F1F5F9" }}>
+                        <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between" }}>
+                          <div style={{ display:"flex", alignItems:"flex-start", gap:9, flex:1 }}>
+                            <span style={{ display:"inline-block", width:7, height:7, borderRadius:"50%",
+                              background:s.dot, marginTop:4, flexShrink:0 }} />
+                            <div>
+                              <div style={{ fontSize:13, color:t.status==="done"?"#94A3B8":"#1E293B",
+                                textDecoration:t.status==="done"?"line-through":"none", lineHeight:1.5 }}>
+                                {t.text}
+                              </div>
+                              {t.assetPath && (
+                                <div style={{ display:"flex", alignItems:"center", gap:8, marginTop:5, flexWrap:"wrap" }}>
+                                  <button onClick={() => openAsset(t.assetPath)} style={{
+                                    background:"none", border:`1px solid ${BRAND}`,
+                                    borderRadius:5, padding:"2px 9px", fontSize:11, color:BRAND,
+                                    cursor:"pointer", fontFamily:"inherit",
+                                    display:"inline-flex", alignItems:"center", gap:5,
+                                    textDecoration:"none" }}>
+                                    {!viewedAssets.has(t.assetPath) && (
+                                      <span style={{ background:BRAND, color:"white", fontSize:9,
+                                        fontWeight:700, borderRadius:3, padding:"1px 5px",
+                                        letterSpacing:"0.06em", textTransform:"uppercase" }}>NEW</span>
+                                    )}
+                                    View asset →
+                                  </button>
+                                  {!isAssetPanelOpen && (
+                                    <button onClick={() => openComment(`asset-${t.id}`)} style={{
+                                      background:"none", border:"1px solid #E2E8F0", borderRadius:5,
+                                      padding:"2px 9px", fontSize:11, color:"#64748B", cursor:"pointer",
+                                      display:"inline-flex", alignItems:"center", gap:5,
+                                      fontFamily:"inherit" }}>
+                                      💬 Feedback
+                                    </button>
+                                  )}
+                                  {/* Collapsible feedback toggle */}
+                                  {totalCommentCount > 0 && (
+                                    <button onClick={() => toggleCommentSection(commentSectionKey)} style={{
+                                      background: isCommentsExpanded ? "#F1F5F9" : "none",
+                                      border:"1px solid #E2E8F0", borderRadius:5,
+                                      padding:"2px 9px", fontSize:11, color:"#64748B", cursor:"pointer",
+                                      display:"inline-flex", alignItems:"center", gap:5,
+                                      fontFamily:"inherit" }}>
+                                      {isCommentsExpanded ? "▾" : "▸"} {totalCommentCount} comment{totalCommentCount !== 1 ? "s" : ""}
+                                      {assetFs && (
+                                        <span style={{ fontSize:10, fontWeight:600, color: assetFs.color,
+                                          background: assetFs.bg, padding:"1px 6px", borderRadius:3, marginLeft:2 }}>
+                                          {assetFs.icon} {assetFs.label}
+                                        </span>
+                                      )}
+                                    </button>
+                                  )}
+                                  {totalCommentCount === 0 && assetFs && (
+                                    <span style={{ fontSize:10, fontWeight:600, color: assetFs.color,
+                                      background: assetFs.bg, padding:"2px 8px", borderRadius:4,
+                                      display:"inline-flex", alignItems:"center", gap:4 }}>
+                                      {assetFs.icon} {assetFs.label}
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+                              {t.blocker && <div style={{ fontSize:11, color:"#DC2626", marginTop:3 }}>⚠ {t.blocker}</div>}
+                            </div>
+                          </div>
+                          {hoveredTask === t.id && !isPanelOpen && !t.assetPath && (
+                            <button onClick={() => openComment(t.id)} style={{
+                              background:"none", border:"1px solid #E2E8F0", borderRadius:4,
+                              padding:"2px 8px", fontSize:11, color:"#64748B", cursor:"pointer",
+                              display:"flex", alignItems:"center", gap:4, whiteSpace:"nowrap", flexShrink:0,
+                              fontFamily:"inherit" }}>
+                              💬 Note
+                            </button>
+                          )}
+                          {hoveredTask === t.id && !isPanelOpen && t.assetPath && (
+                            <button onClick={() => openComment(t.id)} style={{
+                              background:"none", border:"1px solid #E2E8F0", borderRadius:4,
+                              padding:"2px 8px", fontSize:11, color:"#64748B", cursor:"pointer",
+                              display:"flex", alignItems:"center", gap:4, whiteSpace:"nowrap", flexShrink:0,
+                              fontFamily:"inherit" }}>
+                              💬 Note on task
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                      <td style={{ padding:"11px 16px", borderBottom: hasBelowContent ? "none" : "1px solid #F1F5F9", whiteSpace:"nowrap" }}>
+                        <Badge color={p.color} bg={p.bg}>{p.label}</Badge>
+                      </td>
+                      <td style={{ padding:"11px 16px", borderBottom: hasBelowContent ? "none" : "1px solid #F1F5F9", whiteSpace:"nowrap" }}>
+                        <Badge color={s.badgeText} bg={s.badge}>{s.label}</Badge>
+                      </td>
+                    </tr>
+
+                    {/* Task-level comment panel */}
+                    {isPanelOpen && (
+                      <tr>
+                        <td colSpan={3} style={{
+                          padding:"0 16px 12px 44px",
+                          borderBottom: (taskComments.length > 0 || assetComments.length > 0) ? "none" : "1px solid #F1F5F9",
+                          background:"#F8FAFC" }}>
+                          <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:8, padding:"14px 16px" }}>
+                            <div style={{ fontSize:12, color:"#64748B", marginBottom:12 }}>
+                              Leave a note on: <strong style={{ color:"#374151" }}>"{t.text}"</strong>
+                            </div>
+                            <div style={{ display:"grid", gridTemplateColumns:"80px 1fr", gap:"8px 12px", alignItems:"center" }}>
+                              <label style={{ fontSize:12, color:"#64748B", textAlign:"right" }}>Your name</label>
+                              <input value={panelName} onChange={e => setPanelName(e.target.value)}
+                                placeholder="e.g. Hayden" style={{ fontSize:13, padding:"6px 10px",
+                                border:"1px solid #E2E8F0", borderRadius:6, outline:"none",
+                                fontFamily:"inherit", color:"#1E293B" }} />
+                              <label style={{ fontSize:12, color:"#64748B", textAlign:"right" }}>Note</label>
+                              <textarea value={panelBody} onChange={e => setPanelBody(e.target.value)}
+                                placeholder="Type your note here..." rows={2}
+                                style={{ fontSize:13, padding:"6px 10px", border:"1px solid #E2E8F0",
+                                borderRadius:6, outline:"none", fontFamily:"inherit", resize:"vertical", color:"#1E293B" }} />
+                            </div>
+                            {panelError && <div style={{ fontSize:12, color:"#DC2626", marginTop:8 }}>⚠ {panelError}</div>}
+                            <div style={{ display:"flex", justifyContent:"flex-end", gap:8, marginTop:12 }}>
+                              <button onClick={closePanel} style={{ fontSize:12, padding:"6px 14px",
+                                border:"1px solid #E2E8F0", borderRadius:6, background:"white",
+                                color:"#64748B", cursor:"pointer", fontFamily:"inherit" }}>Cancel</button>
+                              <button onClick={() => submitComment(t)} disabled={!canSend} style={{
+                                fontSize:12, padding:"6px 14px", border:"none", borderRadius:6,
+                                fontFamily:"inherit", fontWeight:600,
+                                cursor: canSend ? "pointer" : "not-allowed",
+                                background: canSend ? BRAND : "#E2E8F0",
+                                color: canSend ? "white" : "#94A3B8" }}>
+                                {panelLoading ? 'Sending...' : 'Send →'}
+                              </button>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+
+                    {/* Asset feedback panel */}
+                    {isAssetPanelOpen && (
+                      <tr>
+                        <td colSpan={3} style={{
+                          padding:"0 16px 12px 44px",
+                          borderBottom: (taskComments.length > 0 || assetComments.length > 0) ? "none" : "1px solid #F1F5F9",
+                          background:"#F8FAFC" }}>
+                          <div style={{ background:"white", border:`1px solid ${BRAND}33`, borderRadius:8, padding:"14px 16px" }}>
+                            <div style={{ fontSize:12, color:"#64748B", marginBottom:12 }}>
+                              Feedback on asset: <strong style={{ color:BRAND }}>"{t.text}"</strong>
+                            </div>
+                            <div style={{ display:"grid", gridTemplateColumns:"80px 1fr", gap:"8px 12px", alignItems:"center" }}>
+                              <label style={{ fontSize:12, color:"#64748B", textAlign:"right" }}>Your name</label>
+                              <input value={panelName} onChange={e => setPanelName(e.target.value)}
+                                placeholder="e.g. Hayden" style={{ fontSize:13, padding:"6px 10px",
+                                border:"1px solid #E2E8F0", borderRadius:6, outline:"none",
+                                fontFamily:"inherit", color:"#1E293B" }} />
+                              <label style={{ fontSize:12, color:"#64748B", textAlign:"right" }}>Feedback</label>
+                              <textarea value={panelBody} onChange={e => setPanelBody(e.target.value)}
+                                placeholder="What do you think of this deliverable?" rows={2}
+                                style={{ fontSize:13, padding:"6px 10px", border:"1px solid #E2E8F0",
+                                borderRadius:6, outline:"none", fontFamily:"inherit", resize:"vertical", color:"#1E293B" }} />
+                            </div>
+                            {panelError && <div style={{ fontSize:12, color:"#DC2626", marginTop:8 }}>⚠ {panelError}</div>}
+                            <div style={{ display:"flex", justifyContent:"flex-end", gap:8, marginTop:12 }}>
+                              <button onClick={closePanel} style={{ fontSize:12, padding:"6px 14px",
+                                border:"1px solid #E2E8F0", borderRadius:6, background:"white",
+                                color:"#64748B", cursor:"pointer", fontFamily:"inherit" }}>Cancel</button>
+                              <button onClick={() => {
+                                setPanelLoading(true); setPanelError('');
+                                fetch(`${window.SUPABASE_URL}/rest/v1/comments`, {
+                                  method: 'POST',
+                                  headers: {
+                                    'apikey': window.SUPABASE_ANON_KEY,
+                                    'Authorization': `Bearer ${window.SUPABASE_ANON_KEY}`,
+                                    'Content-Type': 'application/json',
+                                    'Prefer': 'return=representation',
+                                  },
+                                  body: JSON.stringify({
+                                    project_slug: window.PROJECT_SLUG,
+                                    item_type: 'task',
+                                    item_id: `asset:${t.id}`,
+                                    item_text: t.text,
+                                    commenter_name: panelName.trim(),
+                                    body: panelBody.trim(),
+                                  }),
+                                })
+                                .then(res => { if (!res.ok) throw new Error(`Error ${res.status}`); return res.json(); })
+                                .then(([nc]) => { onCommentAdded(nc); closePanel(); })
+                                .catch(() => { setPanelError('Something went wrong — please try again.'); })
+                                .finally(() => setPanelLoading(false));
+                              }} disabled={!canSend} style={{
+                                fontSize:12, padding:"6px 14px", border:"none", borderRadius:6,
+                                fontFamily:"inherit", fontWeight:600,
+                                cursor: canSend ? "pointer" : "not-allowed",
+                                background: canSend ? BRAND : "#E2E8F0",
+                                color: canSend ? "white" : "#94A3B8" }}>
+                                {panelLoading ? 'Sending...' : 'Send Feedback →'}
+                              </button>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+
+                    {/* Collapsible comments section */}
+                    {isCommentsExpanded && (taskComments.length > 0 || assetComments.length > 0) && (
+                      <tr>
+                        <td colSpan={3} style={{
+                          padding: "4px 16px 10px 44px",
+                          borderBottom: "1px solid #F1F5F9",
+                          background:"#F8FAFC" }}>
+                          <div style={{ padding:"10px 12px", background:"#FAFBFF",
+                            borderRadius:8, border:"1px solid #E2E8F0" }}>
+                            {/* Feedback response banner */}
+                            {assetKey && <FeedbackResponseBanner feedbackKey={assetKey} feedbackResponses={feedbackResponses} />}
+
+                            {/* Task comments */}
+                            {taskComments.map((c, ci) => (
+                              <div key={`c-${ci}`} style={{ marginTop: 6, padding:"6px 0",
+                                borderTop: ci > 0 ? "1px solid #F1F5F9" : "none" }}>
+                                <span style={{ fontSize:12, color:"#64748B" }}>
+                                  💬 <strong style={{ color:"#374151", fontWeight:600 }}>{c.commenter_name}</strong>
+                                  , {formatDate(c.created_at)}
+                                </span>
+                                <div style={{ fontSize:12, color:"#1E293B", marginTop:2, lineHeight:1.5, paddingLeft:18 }}>
+                                  {c.body}
+                                </div>
+                              </div>
+                            ))}
+
+                            {/* Asset feedback comments */}
+                            {assetComments.map((c, ci) => (
+                              <div key={`ac-${ci}`} style={{ marginTop: 6, padding:"6px 0",
+                                borderTop: (ci > 0 || taskComments.length > 0) ? "1px solid #F1F5F9" : "none" }}>
+                                <span style={{ fontSize:12, color:"#64748B" }}>
+                                  🎨 <strong style={{ color:BRAND, fontWeight:600 }}>{c.commenter_name}</strong>
+                                  , {formatDate(c.created_at)}
+                                </span>
+                                <div style={{ fontSize:12, color:"#1E293B", marginTop:2, lineHeight:1.5, paddingLeft:18 }}>
+                                  {c.body}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              });
+
+              return rows;
+            })()}
+          </tbody>
+        </table>
+        </>
+      );
+    }
+
+    const REACTIONS = [
+      { key:'agree',    emoji:'👍', label:'Agreed',   defaultBody:'Agreed'   },
+      { key:'question', emoji:'❓', label:'Question',  defaultBody:'Question' },
+      { key:'concern',  emoji:'⚠️', label:'Concern',  defaultBody:'Concern'  },
+    ];
+
+    function DecisionRow({ dec, index, comments, onCommentAdded }) {
+      const [selected, setSelected] = useState(null);
+      const [name, setName]         = useState('');
+      const [note, setNote]         = useState('');
+      const [error, setError]       = useState('');
+      const [loading, setLoading]   = useState(false);
+
+      const decComments = comments[`decision-${index}`] || [];
+      const counts = { agree:0, question:0, concern:0 };
+      decComments.forEach(c => { if (c.reaction) counts[c.reaction]++; });
+      const notes = decComments.filter(c => !REACTIONS.map(r=>r.defaultBody).includes(c.body));
+
+      function pickReaction(key) {
+        setSelected(key === selected ? null : key);
+        setName(''); setNote(''); setError('');
+      }
+
+      async function submitReaction() {
+        setLoading(true); setError('');
+        const r = REACTIONS.find(r => r.key === selected);
+        try {
+          const res = await fetch(`${window.SUPABASE_URL}/rest/v1/comments`, {
+            method: 'POST',
+            headers: {
+              'apikey': window.SUPABASE_ANON_KEY,
+              'Authorization': `Bearer ${window.SUPABASE_ANON_KEY}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=representation',
+            },
+            body: JSON.stringify({
+              project_slug: window.PROJECT_SLUG,
+              item_type: 'decision',
+              item_id: String(index),
+              item_text: dec.title,
+              commenter_name: name.trim(),
+              body: note.trim() || r.defaultBody,
+              reaction: selected,
+            }),
+          });
+          if (!res.ok) throw new Error(`Error ${res.status}`);
+          const [newComment] = await res.json();
+          onCommentAdded(newComment);
+          setSelected(null); setName(''); setNote('');
+        } catch(e) {
+          setError('Something went wrong — please try again.');
+          console.error('Reaction submit failed:', e);
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      const canConfirm = name.trim() && !loading;
+
+      return (
+        <div style={{ borderBottom:"1px solid #F1F5F9" }}>
+          <div style={{ display:"grid", gridTemplateColumns:"130px 1fr", padding:"16px 18px", gap:16 }}>
+            <span style={{ fontSize:12, color:"#94A3B8", paddingTop:1 }}>{dec.date}</span>
+            <div>
+              <div style={{ fontSize:13, fontWeight:600, color:"#0F172A", marginBottom:4 }}>{dec.title}</div>
+              <div style={{ fontSize:12, color:"#64748B", lineHeight:1.6, marginBottom:12 }}>{dec.detail}</div>
+
+              {/* Notes from reactions that included custom text */}
+              {notes.map((c, ci) => (
+                <div key={ci} style={{ fontSize:12, color:"#64748B", marginBottom:6 }}>
+                  {REACTIONS.find(r=>r.key===c.reaction)?.emoji || '💬'}{' '}
+                  <strong style={{ color:"#374151" }}>{c.commenter_name}</strong>
+                  , {formatDate(c.created_at)} · "{c.body}"
+                </div>
+              ))}
+
+              {/* Reaction buttons */}
+              <div style={{ display:"flex", gap:8, marginTop: notes.length ? 10 : 0 }}>
+                {REACTIONS.map(r => {
+                  const isActive = selected === r.key;
+                  return (
+                    <button key={r.key} onClick={() => pickReaction(r.key)} style={{
+                      fontSize:12, padding:"5px 12px", borderRadius:6, fontFamily:"inherit",
+                      border: isActive ? `1px solid ${BRAND}` : '1px solid #E2E8F0',
+                      background: isActive ? '#ECFDF5' : 'white',
+                      color: isActive ? BRAND : '#374151',
+                      fontWeight: isActive ? 600 : 400,
+                      cursor:"pointer", transition:"all .1s" }}>
+                      {r.emoji} {r.label}{counts[r.key] > 0 ? ` (${counts[r.key]})` : ''}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Confirm form — appears when a reaction is selected */}
+              {selected && (
+                <div style={{ marginTop:10, padding:"12px 14px", background:"#F8FAFC",
+                  borderRadius:8, border:"1px solid #E2E8F0" }}>
+                  <div style={{ fontSize:12, color:"#64748B", marginBottom:8 }}>
+                    {REACTIONS.find(r=>r.key===selected).emoji} {REACTIONS.find(r=>r.key===selected).label} — confirm your name and add an optional note
+                  </div>
+                  <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+                    <input
+                      value={name}
+                      onChange={e => setName(e.target.value)}
+                      placeholder="Your name"
+                      style={{ fontSize:13, padding:"6px 10px", border:"1px solid #E2E8F0",
+                        borderRadius:6, outline:"none", fontFamily:"inherit", color:"#1E293B", width:160 }}
+                    />
+                    <input
+                      value={note}
+                      onChange={e => setNote(e.target.value)}
+                      placeholder="Add a note (optional)"
+                      style={{ fontSize:13, padding:"6px 10px", border:"1px solid #E2E8F0",
+                        borderRadius:6, outline:"none", fontFamily:"inherit", color:"#1E293B", flex:1, minWidth:160 }}
+                    />
+                  </div>
+                  {error && <div style={{ fontSize:12, color:"#DC2626", marginTop:6 }}>⚠ {error}</div>}
+                  <div style={{ display:"flex", gap:8, marginTop:8 }}>
+                    <button onClick={() => { setSelected(null); setName(''); setNote(''); }} style={{
+                      fontSize:12, padding:"5px 12px", border:"1px solid #E2E8F0",
+                      borderRadius:6, background:"white", color:"#64748B", cursor:"pointer", fontFamily:"inherit" }}>
+                      Cancel
+                    </button>
+                    <button onClick={submitReaction} disabled={!canConfirm} style={{
+                      fontSize:12, padding:"5px 12px", border:"none", borderRadius:6,
+                      fontFamily:"inherit", fontWeight:600,
+                      cursor: canConfirm ? "pointer" : "not-allowed",
+                      background: canConfirm ? BRAND : "#E2E8F0",
+                      color: canConfirm ? "white" : "#94A3B8" }}>
+                      {loading ? 'Submitting...' : 'Confirm →'}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function QuestionRow({ item, index, comments, onCommentAdded }) {
+      const [name, setName]       = useState('');
+      const [answer, setAnswer]   = useState('');
+      const [error, setError]     = useState('');
+      const [loading, setLoading] = useState(false);
+
+      const u = URGENCY[item.urgency];
+      const qKey = `question-${item.id || index}`;
+      const qComments = comments[qKey] || [];
+      const canSubmit = name.trim() && answer.trim() && !loading;
+
+      async function submitAnswer() {
+        setLoading(true); setError('');
+        try {
+          const res = await fetch(`${window.SUPABASE_URL}/rest/v1/comments`, {
+            method: 'POST',
+            headers: {
+              'apikey': window.SUPABASE_ANON_KEY,
+              'Authorization': `Bearer ${window.SUPABASE_ANON_KEY}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=representation',
+            },
+            body: JSON.stringify({
+              project_slug: window.PROJECT_SLUG,
+              item_type: 'question',
+              item_id: item.id || String(index),
+              item_text: item.q,
+              commenter_name: name.trim(),
+              body: answer.trim(),
+            }),
+          });
+          if (!res.ok) throw new Error(`Error ${res.status}`);
+          const [newComment] = await res.json();
+          onCommentAdded(newComment);
+          setName(''); setAnswer('');
+        } catch(e) {
+          setError('Something went wrong — please try again.');
+          console.error('Answer submit failed:', e);
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      return (
+        <div style={{ borderBottom:"1px solid #F1F5F9" }}>
+          <div style={{ display:"grid", gridTemplateColumns:"80px 1fr", padding:"16px 18px", gap:14, alignItems:"start" }}>
+            <Badge color={u.color} bg={u.bg}>{u.label}</Badge>
+            <div>
+              <div style={{ fontSize:13, color:"#0F172A", fontWeight:500, marginBottom:4 }}>{item.q}</div>
+              <div style={{ fontSize:12, color:"#64748B", lineHeight:1.5, marginBottom:12 }}>{item.note}</div>
+
+              {/* Existing answers */}
+              {qComments.map((c, ci) => (
+                <div key={ci} style={{ fontSize:12, marginBottom:10, padding:"10px 12px",
+                  background:"#F8FAFC", borderRadius:6, borderLeft:`2px solid ${BRAND}` }}>
+                  <span style={{ color:"#94A3B8" }}>
+                    <strong style={{ color:"#374151" }}>{c.commenter_name}</strong>, {formatDate(c.created_at)}
+                  </span>
+                  <div style={{ marginTop:4, color:"#1E293B", lineHeight:1.6, fontSize:13 }}>{c.body}</div>
+                </div>
+              ))}
+
+              {/* Answer form */}
+              <textarea
+                value={answer}
+                onChange={e => setAnswer(e.target.value)}
+                placeholder="Type your answer here..."
+                rows={2}
+                style={{ width:"100%", fontSize:13, padding:"8px 10px", border:"1px solid #E2E8F0",
+                  borderRadius:6, outline:"none", fontFamily:"inherit", resize:"vertical",
+                  color:"#1E293B", marginBottom:8, display:"block" }}
+              />
+              <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
+                <input
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  placeholder="Your name"
+                  style={{ fontSize:13, padding:"6px 10px", border:"1px solid #E2E8F0",
+                    borderRadius:6, outline:"none", fontFamily:"inherit", color:"#1E293B", width:160 }}
+                />
+                <button onClick={submitAnswer} disabled={!canSubmit} style={{
+                  fontSize:12, padding:"6px 16px", border:"none", borderRadius:6,
+                  fontFamily:"inherit", fontWeight:600,
+                  cursor: canSubmit ? "pointer" : "not-allowed",
+                  background: canSubmit ? BRAND : "#E2E8F0",
+                  color: canSubmit ? "white" : "#94A3B8" }}>
+                  {loading ? 'Submitting...' : 'Submit Answer →'}
+                </button>
+                {error && <span style={{ fontSize:12, color:"#DC2626" }}>⚠ {error}</span>}
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function ProgressModal({ pct, done, total, onClose }) {
+      // Generate DNA helix path data
+      const helixHeight = 320;
+      const helixWidth = 120;
+      const rungs = 16;
+      const amplitude = 40;
+      const cx = helixWidth / 2;
+      const filledRungs = Math.round((pct / 100) * rungs);
+
+      // Build two sine wave strands
+      const strand1Points = [];
+      const strand2Points = [];
+      for (let i = 0; i <= rungs * 4; i++) {
+        const t = i / (rungs * 4);
+        const y = t * helixHeight;
+        const x1 = cx + Math.sin(t * Math.PI * 2 * (rungs / 4)) * amplitude;
+        const x2 = cx - Math.sin(t * Math.PI * 2 * (rungs / 4)) * amplitude;
+        strand1Points.push(`${x1},${y}`);
+        strand2Points.push(`${x2},${y}`);
+      }
+
+      return (
+        <div onClick={onClose} style={{
+          position:"fixed", inset:0, background:"rgba(15,23,42,0.75)",
+          zIndex:9999, display:"flex", alignItems:"center", justifyContent:"center",
+          padding:32 }}>
+          <div onClick={e => e.stopPropagation()} style={{
+            background:"linear-gradient(135deg, #0F172A 0%, #1E293B 100%)",
+            borderRadius:20, width:420, overflow:"hidden",
+            boxShadow:"0 32px 80px rgba(0,0,0,0.5)",
+            display:"flex", flexDirection:"column", alignItems:"center",
+            padding:"40px 32px 32px" }}>
+
+            {/* Close */}
+            <button onClick={onClose} style={{
+              position:"absolute", top:16, right:16,
+              background:"rgba(255,255,255,0.1)", border:"none", borderRadius:6,
+              width:28, height:28, fontSize:14, cursor:"pointer",
+              color:"#94A3B8", display:"flex", alignItems:"center", justifyContent:"center",
+              fontFamily:"inherit" }}>✕</button>
+
+            {/* Title */}
+            <div style={{ fontSize:10, fontWeight:700, color: BRAND, textTransform:"uppercase",
+              letterSpacing:"0.15em", marginBottom:4 }}>Project Progress</div>
+            <div style={{ fontSize:32, fontWeight:800, color:"white", marginBottom:2 }}>
+              {pct}%
+            </div>
+            <div style={{ fontSize:12, color:"#94A3B8", marginBottom:28 }}>
+              {done} of {total} tasks complete
+            </div>
+
+            {/* DNA Helix visualization */}
+            <div style={{ position:"relative", width:helixWidth + 40, height:helixHeight + 20 }}>
+              <svg width={helixWidth + 40} height={helixHeight + 20} viewBox={`-20 -10 ${helixWidth+40} ${helixHeight+20}`}>
+                {/* Glow filter */}
+                <defs>
+                  <filter id="glow">
+                    <feGaussianBlur stdDeviation="3" result="blur" />
+                    <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                  </filter>
+                  <linearGradient id="helixGrad" x1="0" y1="1" x2="0" y2="0">
+                    <stop offset="0%" stopColor="#2563EB" />
+                    <stop offset={`${pct}%`} stopColor="#2563EB" />
+                    <stop offset={`${pct}%`} stopColor="#334155" />
+                    <stop offset="100%" stopColor="#334155" />
+                  </linearGradient>
+                  <linearGradient id="helixGradAlt" x1="0" y1="1" x2="0" y2="0">
+                    <stop offset="0%" stopColor="#7C3AED" />
+                    <stop offset={`${pct}%`} stopColor="#7C3AED" />
+                    <stop offset={`${pct}%`} stopColor="#334155" />
+                    <stop offset="100%" stopColor="#334155" />
+                  </linearGradient>
+                </defs>
+
+                {/* Rungs (horizontal connectors) */}
+                {Array.from({ length: rungs }, (_, i) => {
+                  const t = (i + 0.5) / rungs;
+                  const y = t * helixHeight;
+                  const x1 = cx + Math.sin(t * Math.PI * 2 * (rungs / 4)) * amplitude;
+                  const x2 = cx - Math.sin(t * Math.PI * 2 * (rungs / 4)) * amplitude;
+                  const filled = i < filledRungs;
+                  return (
+                    <line key={`rung-${i}`}
+                      x1={x1} y1={y} x2={x2} y2={y}
+                      stroke={filled ? "rgba(37,99,235,0.3)" : "rgba(51,65,85,0.2)"}
+                      strokeWidth={2}
+                      strokeDasharray={filled ? "none" : "3,3"} />
+                  );
+                })}
+
+                {/* Strand 1 */}
+                <polyline
+                  points={strand1Points.join(' ')}
+                  fill="none"
+                  stroke="url(#helixGrad)"
+                  strokeWidth={3}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  filter={pct > 0 ? "url(#glow)" : "none"} />
+
+                {/* Strand 2 */}
+                <polyline
+                  points={strand2Points.join(' ')}
+                  fill="none"
+                  stroke="url(#helixGradAlt)"
+                  strokeWidth={3}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  filter={pct > 0 ? "url(#glow)" : "none"} />
+
+                {/* Node dots at rung intersections */}
+                {Array.from({ length: rungs }, (_, i) => {
+                  const t = (i + 0.5) / rungs;
+                  const y = t * helixHeight;
+                  const x1 = cx + Math.sin(t * Math.PI * 2 * (rungs / 4)) * amplitude;
+                  const x2 = cx - Math.sin(t * Math.PI * 2 * (rungs / 4)) * amplitude;
+                  const filled = i < filledRungs;
+                  return (
+                    <React.Fragment key={`nodes-${i}`}>
+                      <circle cx={x1} cy={y} r={filled ? 4 : 3}
+                        fill={filled ? "#2563EB" : "#334155"}
+                        stroke={filled ? "#2563EB" : "none"} strokeWidth={1}
+                        filter={filled ? "url(#glow)" : "none"} />
+                      <circle cx={x2} cy={y} r={filled ? 4 : 3}
+                        fill={filled ? "#7C3AED" : "#334155"}
+                        stroke={filled ? "#7C3AED" : "none"} strokeWidth={1}
+                        filter={filled ? "url(#glow)" : "none"} />
+                    </React.Fragment>
+                  );
+                })}
+
+                {/* Fill level line */}
+                {pct > 0 && pct < 100 && (
+                  <line
+                    x1={-10} y1={helixHeight * (1 - pct/100)}
+                    x2={helixWidth + 10} y2={helixHeight * (1 - pct/100)}
+                    stroke={BRAND} strokeWidth={1} strokeDasharray="4,4" opacity={0.5} />
+                )}
+              </svg>
+            </div>
+
+            {/* Phase info */}
+            <div style={{ display:"flex", gap:12, marginTop:20, width:"100%" }}>
+              {d.phases.map((p, i) => (
+                <div key={p} style={{ flex:1, textAlign:"center" }}>
+                  <div style={{ height:3, borderRadius:2, marginBottom:6,
+                    background: i <= d.currentPhase ? (i < d.currentPhase ? "rgba(37,99,235,0.3)" : BRAND) : "#334155" }} />
+                  <div style={{ fontSize:10, color: i === d.currentPhase ? "white" : "#64748B",
+                    fontWeight: i === d.currentPhase ? 600 : 400 }}>{p}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Discipline breakdown */}
+            <div style={{ marginTop:20, width:"100%", padding:"14px 0", borderTop:"1px solid #334155" }}>
+              {d.disciplines.map(disc => {
+                const dDone = disc.tasks.filter(t => t.status === "done").length;
+                const dTotal = disc.tasks.length;
+                const dPct = dTotal > 0 ? Math.round((dDone / dTotal) * 100) : 0;
+                return (
+                  <div key={disc.id} style={{ display:"flex", alignItems:"center", gap:10,
+                    padding:"4px 0" }}>
+                    <div style={{ width:18, height:18, borderRadius:4,
+                      background: disc.color + "22", border:`1px solid ${disc.color}44`,
+                      display:"flex", alignItems:"center", justifyContent:"center",
+                      fontSize:9, fontWeight:700, color: disc.color, flexShrink:0 }}>
+                      {disc.label[0]}
+                    </div>
+                    <span style={{ fontSize:11, color:"#94A3B8", width:72, flexShrink:0 }}>{disc.label}</span>
+                    <div style={{ flex:1, height:4, background:"#1E293B", borderRadius:2, overflow:"hidden" }}>
+                      <div style={{ width:`${dPct}%`, height:"100%", background: disc.color,
+                        borderRadius:2, transition:"width .5s ease" }} />
+                    </div>
+                    <span style={{ fontSize:10, fontWeight:600, color: disc.color, width:32,
+                      textAlign:"right", flexShrink:0 }}>{dPct}%</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function PreviewModal({ url, title, onClose }) {
+      if (!url) return null;
+      return (
+        <div onClick={onClose} style={{
+          position:"fixed", inset:0, background:"rgba(15,23,42,0.6)",
+          zIndex:9999, display:"flex", alignItems:"center", justifyContent:"center",
+          padding:32 }}>
+          <div onClick={e => e.stopPropagation()} style={{
+            background:"white", borderRadius:14, width:"88vw", height:"82vh",
+            maxWidth:1060, display:"flex", flexDirection:"column", overflow:"hidden",
+            boxShadow:"0 32px 80px rgba(0,0,0,0.3)" }}>
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between",
+              padding:"10px 18px", borderBottom:"1px solid #E2E8F0", flexShrink:0 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                <div style={{ width:7, height:7, borderRadius:"50%", background:BRAND }} />
+                <span style={{ fontSize:13, fontWeight:600, color:"#1E293B" }}>{title || "Preview"}</span>
+              </div>
+              <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                <a href={url} target="_blank" rel="noreferrer" style={{
+                  fontSize:11, color:BRAND, textDecoration:"none", fontWeight:500,
+                  padding:"4px 10px", border:`1px solid ${BRAND}`, borderRadius:5,
+                  display:"inline-flex", alignItems:"center", gap:4 }}>
+                  Open in new tab ↗
+                </a>
+                <button onClick={onClose} style={{
+                  background:"#F1F5F9", border:"none", borderRadius:6,
+                  width:28, height:28, fontSize:14, cursor:"pointer",
+                  color:"#64748B", display:"flex", alignItems:"center", justifyContent:"center",
+                  fontFamily:"inherit", lineHeight:1 }}>✕</button>
+              </div>
+            </div>
+            <iframe
+              src={url}
+              title={title || "Preview"}
+              sandbox="allow-scripts allow-same-origin"
+              style={{ flex:1, border:"none", width:"100%", display:"block" }}
+            />
+          </div>
+        </div>
+      );
+    }
+
+    function App() {
+      const [sel, setSel]           = useState("strategy");
+      const [tab, setTab]           = useState("overview");
+      const [comments, setComments] = useState({});
+      const [previewUrl, setPreviewUrl]     = useState(null);
+      const [previewTitle, setPreviewTitle] = useState("");
+      const [assetFeedbackOpen, setAssetFeedbackOpen] = useState(false);
+      const [assetLibExpanded, setAssetLibExpanded] = useState(null); // asset id for expanded version history
+      const [assetPreview, setAssetPreview]         = useState(null); // { url, title }
+      const [showDone, setShowDone]                 = useState(false); // collapse done tasks on overview
+      const [taskFilter, setTaskFilter]              = useState(null); // null = all, "done" | "in-progress" | "blocked" | "todo"
+      const [showProgressModal, setShowProgressModal]      = useState(false); // DNA helix progress modal
+
+      // Lifted from TaskTable so section headers can also read it
+      const [viewedAssets, setViewedAssets] = useState(() => {
+        try { return new Set(JSON.parse(localStorage.getItem('velo_viewed_assets_v1') || '[]')); }
+        catch { return new Set(); }
+      });
+      function onAssetViewed(assetPath) {
+        if (!viewedAssets.has(assetPath)) {
+          const updated = new Set([...viewedAssets, assetPath]);
+          setViewedAssets(updated);
+          localStorage.setItem('velo_viewed_assets_v1', JSON.stringify([...updated]));
+        }
+      }
+      // Returns true if a discipline has at least one unviewed asset
+      function discHasNew(disc) {
+        return disc.tasks.some(t =>
+          (t.assetPath && !viewedAssets.has(t.assetPath)) ||
+          (t.groupAsset && !viewedAssets.has(t.groupAsset))
+        );
+      }
+
+      useEffect(() => {
+        async function fetchComments() {
+          try {
+            const res = await fetch(
+              `${window.SUPABASE_URL}/rest/v1/comments` +
+              `?project_slug=eq.${window.PROJECT_SLUG}&order=created_at.asc`,
+              { headers: {
+                  'apikey': window.SUPABASE_ANON_KEY,
+                  'Authorization': `Bearer ${window.SUPABASE_ANON_KEY}`,
+              }}
+            );
+            if (!res.ok) throw new Error(`Supabase error: ${res.status}`);
+            const data = await res.json();
+            const grouped = {};
+            data.forEach(c => {
+              const key = `${c.item_type}-${c.item_id}`;
+              if (!grouped[key]) grouped[key] = [];
+              grouped[key].push(c);
+            });
+            setComments(grouped);
+          } catch (e) {
+            console.error('Comments fetch failed:', e);
+          }
+        }
+        fetchComments();
+      }, []);
+
+      function onCommentAdded(newComment) {
+        setComments(prev => {
+          const key = `${newComment.item_type}-${newComment.item_id}`;
+          return { ...prev, [key]: [...(prev[key] || []), newComment] };
+        });
+      }
+
+      const selected  = d.disciplines.find(x => x.id === sel);
+      const total     = d.disciplines.reduce((a,disc) => a + disc.tasks.length, 0);
+      const done      = d.disciplines.reduce((a,disc) => a + disc.tasks.filter(t=>t.status==="done").length, 0);
+      const inProg    = d.disciplines.reduce((a,disc) => a + disc.tasks.filter(t=>t.status==="in-progress").length, 0);
+      const blocked   = d.disciplines.reduce((a,disc) => a + disc.tasks.filter(t=>t.status==="blocked").length, 0);
+      const pct       = total > 0 ? Math.round((done/total)*100) : 0;
+
+      return (
+        <div style={{ minHeight:"100vh", background:"#F8FAFC", fontFamily:"'Inter',system-ui,sans-serif" }}>
+
+          {/* ── Shared preview modal ── */}
+          <PreviewModal url={previewUrl} title={previewTitle} onClose={() => { setPreviewUrl(null); setPreviewTitle(""); }} />
+
+          {/* ── DNA Helix progress modal ── */}
+          {showProgressModal && (
+            <ProgressModal pct={pct} done={done} total={total} onClose={() => setShowProgressModal(false)} />
+          )}
+
+          {/* ── TOP BAR ── */}
+          <div style={{ background:"white", borderBottom:"1px solid #E2E8F0", padding:"0 28px",
+            display:"flex", alignItems:"center", justifyContent:"space-between",
+            height:56, position:"sticky", top:0, zIndex:10 }}>
+            <div style={{ display:"flex", alignItems:"center", gap:20 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:9 }}>
+                <div style={{ width:28, height:28, borderRadius:6, background:BRAND,
+                  display:"flex", alignItems:"center", justifyContent:"center" }}>
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <rect x="1" y="1" width="5" height="5" rx="1" fill="white" opacity=".9"/>
+                    <rect x="8" y="1" width="5" height="5" rx="1" fill="white" opacity=".6"/>
+                    <rect x="1" y="8" width="5" height="5" rx="1" fill="white" opacity=".6"/>
+                    <rect x="8" y="8" width="5" height="5" rx="1" fill="white" opacity=".9"/>
+                  </svg>
+                </div>
+                <span style={{ fontSize:14, fontWeight:700, color:"#0F172A" }}>{d.name}</span>
+              </div>
+              <span style={{ color:"#E2E8F0" }}>|</span>
+              <div style={{ display:"flex", gap:2 }}>
+                {[["overview","Overview"],["tasks","Tasks"],["decisions","Decisions"],["updates","Weekly Updates"],["questions","Open Questions"]].map(([id,label])=>(
+                  <button key={id} onClick={()=>{ setTab(id); if (id !== "tasks") setTaskFilter(null); }} style={{
+                    background: tab===id?"#F1F5F9":"transparent", border:"none", cursor:"pointer",
+                    padding:"6px 12px", borderRadius:6, fontSize:13,
+                    fontWeight: tab===id?600:400,
+                    color: tab===id?"#0F172A":"#64748B", fontFamily:"inherit",
+                    display:"flex", alignItems:"center", gap:6 }}>
+                    {label}
+                    {id==="questions" && d.openQuestions.length > 0 && (
+                      <span style={{
+                        background: BRAND, color:"white",
+                        fontSize:10, fontWeight:700, borderRadius:10,
+                        padding:"1px 6px", lineHeight:"16px", minWidth:16,
+                        textAlign:"center" }}>
+                        {d.openQuestions.length}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+              <div style={{ textAlign:"right" }}>
+                <span style={{ fontSize:12, color:"#94A3B8" }}>Updated {d.lastUpdated}</span>
+                <div style={{ fontSize:10, color:"#CBD5E1", marginTop:1 }}>
+                  {(() => {
+                    try {
+                      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                      const tzAbbr = new Date().toLocaleTimeString('en-US', { timeZoneName:'short' }).split(' ').pop();
+                      const time = d.lastUpdatedTime || new Date().toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit', hour12:true });
+                      return `${time} ${tzAbbr}`;
+                    } catch(e) { return ''; }
+                  })()}
+                </div>
+              </div>
+              <div style={{ display:"flex", alignItems:"center", gap:6, background:"#F0FDF4",
+                border:"1px solid #BBF7D0", padding:"4px 10px", borderRadius:6 }}>
+                <div style={{ width:6, height:6, borderRadius:"50%", background:"#059669" }} />
+                <span style={{ fontSize:12, fontWeight:600, color:"#166534" }}>
+                  Phase {d.currentPhase+1}: {d.phases[d.currentPhase]}
+                </span>
+              </div>
+              {window.__supabaseLogout && (
+                <button onClick={() => window.__supabaseLogout()} style={{
+                  background:"none", border:"1px solid #E2E8F0", borderRadius:6,
+                  padding:"5px 12px", fontSize:12, color:"#64748B", cursor:"pointer",
+                  fontFamily:"inherit", display:"flex", alignItems:"center", gap:5,
+                  transition:"all .15s" }}
+                  onMouseOver={e => { e.currentTarget.style.borderColor="#CBD5E1"; e.currentTarget.style.color="#475569"; }}
+                  onMouseOut={e => { e.currentTarget.style.borderColor="#E2E8F0"; e.currentTarget.style.color="#64748B"; }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                    <polyline points="16 17 21 12 16 7"/>
+                    <line x1="21" y1="12" x2="9" y2="12"/>
+                  </svg>
+                  Sign Out
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div style={{ maxWidth:1100, margin:"0 auto", padding:"28px" }}>
+
+            {/* ── OVERVIEW ── */}
+            {tab==="overview" && <>
+
+              {/* Phase bar */}
+              <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:10,
+                padding:"16px 20px", marginBottom:20,
+                display:"flex", alignItems:"center", gap:20 }}>
+                <span style={{ fontSize:11, fontWeight:600, color:"#64748B", whiteSpace:"nowrap" }}>PROJECT PHASE</span>
+                <div style={{ display:"flex", flex:1, gap:8 }}>
+                  {d.phases.map((p,i)=>(
+                    <div key={p} style={{ flex:1 }}>
+                      <div style={{ height:5, borderRadius:3,
+                        background: i<=d.currentPhase ? BRAND : "#E2E8F0",
+                        opacity: i<d.currentPhase?0.4:1 }} />
+                      <div style={{ fontSize:11, marginTop:5,
+                        color:i===d.currentPhase ? BRAND : "#94A3B8",
+                        fontWeight:i===d.currentPhase?600:400 }}>{p}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Stat cards — interactive */}
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(5,1fr)", gap:12, marginBottom:20 }}>
+                {[
+                  { label:"Total Tasks",  value:total,     color:"#1E293B", bg:"white",   border:"#E2E8F0", filter: null },
+                  { label:"Done",         value:done,      color:"#059669", bg:"#F0FDF4", border:"#BBF7D0", filter: "done" },
+                  { label:"In Progress",  value:inProg,    color:"#2563EB", bg:"#EFF6FF", border:"#BFDBFE", filter: "in-progress" },
+                  { label:"Blocked",      value:blocked,   color:"#DC2626", bg:"#FEF2F2", border:"#FECACA", filter: "blocked" },
+                  { label:"Overall",      value:`${pct}%`, color:"#7C3AED", bg:"#F5F3FF", border:"#DDD6FE", filter: "__helix__" },
+                ].map(s=>(
+                  <button key={s.label} onClick={() => {
+                    if (s.filter === "__helix__") { setShowProgressModal(true); }
+                    else { setTaskFilter(s.filter); setTab("tasks"); }
+                  }} style={{ background:s.bg, border:`1px solid ${s.border}`,
+                    borderRadius:10, padding:"16px 18px", cursor:"pointer",
+                    fontFamily:"inherit", textAlign:"left",
+                    transition:"transform .1s, box-shadow .15s",
+                    outline:"none" }}
+                    onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = `0 4px 12px ${s.color}18`; }}
+                    onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}>
+                    <div style={{ fontSize:26, fontWeight:700, color:s.color, lineHeight:1 }}>{s.value}</div>
+                    <div style={{ fontSize:11, color:"#94A3B8", marginTop:5, fontWeight:500, display:"flex", alignItems:"center", gap:4 }}>
+                      {s.label}
+                      <span style={{ fontSize:10, color: s.color, opacity:0.5 }}>→</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              {/* Discipline chips + tasks */}
+              <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:10,
+                overflow:"hidden", marginBottom:16 }}>
+
+                {/* Chips row */}
+                <div style={{ padding:"10px 14px", display:"flex", gap:8, borderBottom:"1px solid #F1F5F9",
+                  overflowX:"auto" }}>
+                  {d.disciplines.map(disc => {
+                    const dDone  = disc.tasks.filter(t => t.status === "done").length;
+                    const dTotal = disc.tasks.length;
+                    const dActive = dTotal - dDone;
+                    const isSel  = sel === disc.id;
+                    return (
+                      <button key={disc.id} onClick={() => { setSel(disc.id); setShowDone(false); }}
+                        style={{
+                          display:"flex", alignItems:"center", gap:8,
+                          padding:"7px 12px", borderRadius:8,
+                          border: isSel ? `2px solid ${disc.color}` : "1px solid #E2E8F0",
+                          background: isSel ? disc.lightColor : "white",
+                          cursor:"pointer", fontFamily:"inherit",
+                          transition:"all .15s", flexShrink:0 }}>
+                        <div style={{ width:24, height:24, borderRadius:5,
+                          background: isSel ? disc.color : disc.lightColor,
+                          border: isSel ? "none" : `1px solid ${disc.borderColor}`,
+                          display:"flex", alignItems:"center", justifyContent:"center",
+                          fontSize:11, fontWeight:700,
+                          color: isSel ? "white" : disc.color }}>
+                          {disc.label[0]}
+                        </div>
+                        <div style={{ textAlign:"left" }}>
+                          <div style={{ display:"flex", alignItems:"center", gap:5 }}>
+                            <span style={{ fontSize:12, fontWeight:600,
+                              color: isSel ? disc.color : "#374151" }}>{disc.label}</span>
+                            {discHasNew(disc) && (
+                              <span style={{ background:BRAND, color:"white", fontSize:8,
+                                fontWeight:700, borderRadius:3, padding:"0px 4px",
+                                letterSpacing:"0.06em", textTransform:"uppercase" }}>NEW</span>
+                            )}
+                          </div>
+                          <div style={{ fontSize:10, color:"#94A3B8", marginTop:1 }}>
+                            {dActive} active · {dDone}/{dTotal}
+                          </div>
+                        </div>
+                        {/* Mini progress ring */}
+                        <div style={{ width:28, height:28, position:"relative", flexShrink:0 }}>
+                          <svg width="28" height="28" viewBox="0 0 28 28">
+                            <circle cx="14" cy="14" r="11" fill="none" stroke="#E2E8F0" strokeWidth="2.5" />
+                            <circle cx="14" cy="14" r="11" fill="none" stroke={disc.color} strokeWidth="2.5"
+                              strokeDasharray={`${(dDone/dTotal)*69.12} 69.12`}
+                              strokeLinecap="round"
+                              transform="rotate(-90 14 14)"
+                              style={{ transition:"stroke-dasharray .5s ease" }} />
+                          </svg>
+                          <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center",
+                            justifyContent:"center", fontSize:7, fontWeight:700, color: disc.color }}>
+                            {Math.round((dDone/dTotal)*100)}%
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Tasks for selected discipline — full TaskTable with all features */}
+                {selected && (
+                  <div>
+                    {/* Header */}
+                    <div style={{ padding:"10px 18px", background:selected.lightColor,
+                      borderBottom:"1px solid #F1F5F9",
+                      display:"flex", alignItems:"center", gap:8 }}>
+                      <div style={{ width:22, height:22, borderRadius:5, background:"white",
+                        border:`1px solid ${selected.borderColor}`,
+                        display:"flex", alignItems:"center", justifyContent:"center",
+                        fontSize:10, fontWeight:700, color:selected.color }}>{selected.label[0]}</div>
+                      <span style={{ fontSize:12, fontWeight:600, color:"#0F172A" }}>{selected.label} Tasks</span>
+                      <span style={{ fontSize:11, color:"#94A3B8" }}>
+                        {selected.tasks.filter(t=>t.status!=="done").length} active · {selected.tasks.filter(t=>t.status==="done").length} done
+                      </span>
+                    </div>
+
+                    {/* Active tasks — full TaskTable functionality */}
+                    {(() => {
+                      const activeTasks = selected.tasks.filter(t => t.status !== "done");
+                      const doneTasks = selected.tasks.filter(t => t.status === "done");
+                      return (
+                        <>
+                          {activeTasks.length > 0 && (
+                            <TaskTable tasks={activeTasks} comments={comments} onCommentAdded={onCommentAdded} viewedAssets={viewedAssets} onAssetViewed={onAssetViewed} feedbackResponses={d.feedbackResponses || {}} />
+                          )}
+                          {activeTasks.length === 0 && (
+                            <div style={{ padding:"16px 18px", fontSize:12, color:"#94A3B8", textAlign:"center" }}>
+                              All tasks complete in this discipline
+                            </div>
+                          )}
+
+                          {/* Collapsed done tasks */}
+                          {doneTasks.length > 0 && (
+                            <>
+                              <button onClick={() => setShowDone(!showDone)}
+                                style={{
+                                  width:"100%", padding:"9px 18px", background:"#F8FAFC",
+                                  border:"none", borderTop:"1px solid #E2E8F0",
+                                  cursor:"pointer", fontFamily:"inherit", textAlign:"left",
+                                  display:"flex", alignItems:"center", gap:8 }}>
+                                <span style={{ fontSize:11, color:"#94A3B8" }}>{showDone ? "▾" : "▸"}</span>
+                                <div style={{ width:7, height:7, borderRadius:"50%", background:"#059669", flexShrink:0 }} />
+                                <span style={{ fontSize:12, fontWeight:500, color:"#64748B" }}>
+                                  {doneTasks.length} completed task{doneTasks.length !== 1 ? "s" : ""}
+                                </span>
+                              </button>
+                              {showDone && (
+                                <TaskTable tasks={doneTasks} comments={comments} onCommentAdded={onCommentAdded} viewedAssets={viewedAssets} onAssetViewed={onAssetViewed} feedbackResponses={d.feedbackResponses || {}} />
+                              )}
+                            </>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </div>
+                )}
+              </div>
+
+              {/* ── Two-column: Open Questions + Asset Library ── */}
+              <div style={{ display:"grid", gridTemplateColumns: ((d.openQuestions || []).length > 0 && (d.assets || []).length > 0) ? "1fr 1fr" : "1fr", gap:16, marginTop:16 }}>
+
+              {/* Open Questions — left column */}
+              {d.openQuestions.length > 0 && (
+                <div style={{ background:"#FFFBEB", border:"1px solid #FDE68A", borderRadius:10,
+                  padding:"14px 18px", alignSelf:"start" }}>
+                  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
+                    <span style={{ fontSize:13, fontWeight:700, color:"#92400E" }}>
+                      ❓ {d.openQuestions.length} Open Question{d.openQuestions.length !== 1 ? "s" : ""}
+                    </span>
+                    <button onClick={() => setTab("questions")} style={{
+                      background:BRAND, color:"white", border:"none", borderRadius:6,
+                      padding:"4px 10px", fontSize:11, fontWeight:600,
+                      cursor:"pointer", fontFamily:"inherit" }}>
+                      Answer →
+                    </button>
+                  </div>
+                  {d.openQuestions.map((q, i) => {
+                    const u = URGENCY[q.urgency];
+                    return (
+                      <div key={q.id || i} style={{
+                        display:"flex", alignItems:"flex-start", gap:8,
+                        padding:"7px 0",
+                        borderTop: i > 0 ? "1px solid #FDE68A" : "none" }}>
+                        <Badge color={u.color} bg={u.bg}>{u.label}</Badge>
+                        <span style={{ fontSize:12, color:"#78350F", lineHeight:1.5 }}>{q.q}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Asset Library — right column */}
+              {(d.assets || []).length > 0 && (
+                <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:10,
+                  overflow:"hidden", alignSelf:"start" }}>
+                  <div style={{ padding:"14px 18px", borderBottom:"1px solid #F1F5F9",
+                    display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                      <span style={{ fontSize:13, fontWeight:600, color:"#0F172A" }}>Asset Library</span>
+                      <span style={{ fontSize:11, color:"#94A3B8" }}>{d.assets.length} deliverable{d.assets.length !== 1 ? "s" : ""}</span>
+                    </div>
+                    <span style={{ fontSize:11, color:"#94A3B8" }}>Click to preview · expand for version history</span>
+                  </div>
+
+                  {d.assets.map(asset => {
+                    const disc = d.disciplines.find(di => di.id === asset.discipline);
+                    const as = ASSET_STATUS[asset.status] || ASSET_STATUS.draft;
+                    const latestVersion = asset.versions[asset.versions.length - 1];
+                    const isExpanded = assetLibExpanded === asset.id;
+                    const latestUrl = latestVersion ? latestVersion.url : null;
+                    const isNewAsset = latestUrl && !viewedAssets.has(latestUrl);
+
+                    return (
+                      <div key={asset.id} style={{ borderBottom:"1px solid #F1F5F9" }}>
+                        {/* Asset card */}
+                        <div style={{ padding:"14px 18px", display:"flex", alignItems:"center", gap:14 }}>
+                          {/* Discipline icon */}
+                          {disc && (
+                            <div style={{ width:36, height:36, borderRadius:8,
+                              background: disc.lightColor, border:`1px solid ${disc.borderColor}`,
+                              display:"flex", alignItems:"center", justifyContent:"center",
+                              fontSize:14, fontWeight:700, color: disc.color, flexShrink:0 }}>
+                              {disc.label[0]}
+                            </div>
+                          )}
+
+                          {/* Title + description */}
+                          <div style={{ flex:1, minWidth:0 }}>
+                            <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
+                              <span style={{ fontSize:13, fontWeight:600, color:"#0F172A" }}>{asset.title}</span>
+                              {isNewAsset && (
+                                <span style={{ background:BRAND, color:"white", fontSize:9,
+                                  fontWeight:700, borderRadius:3, padding:"1px 5px",
+                                  letterSpacing:"0.06em", textTransform:"uppercase" }}>NEW</span>
+                              )}
+                              <Badge color={as.color} bg={as.bg}>{as.label}</Badge>
+                            </div>
+                            <div style={{ fontSize:12, color:"#64748B", marginTop:2 }}>{asset.description}</div>
+                            {latestVersion && (
+                              <div style={{ fontSize:11, color:"#94A3B8", marginTop:3 }}>
+                                v{latestVersion.version} · {latestVersion.date}
+                                {asset.versions.length > 1 && ` · ${asset.versions.length} versions`}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Action buttons */}
+                          <div style={{ display:"flex", gap:8, flexShrink:0 }}>
+                            {asset.versions.length > 0 && (
+                              <button onClick={() => setAssetLibExpanded(isExpanded ? null : asset.id)} style={{
+                                background:"none", border:"1px solid #E2E8F0", borderRadius:6,
+                                padding:"6px 12px", fontSize:11, color:"#64748B", cursor:"pointer",
+                                display:"flex", alignItems:"center", gap:4,
+                                fontFamily:"inherit" }}>
+                                {isExpanded ? "▾" : "▸"} {asset.versions.length === 1 ? "Details" : `${asset.versions.length} versions`}
+                              </button>
+                            )}
+                            {latestUrl && (
+                              <button onClick={() => { setAssetPreview({ url: latestUrl, title: asset.title }); onAssetViewed(latestUrl); }} style={{
+                                background:BRAND, border:"none", borderRadius:6,
+                                padding:"6px 14px", fontSize:11, color:"white", cursor:"pointer",
+                                fontWeight:600, fontFamily:"inherit",
+                                display:"flex", alignItems:"center", gap:5 }}>
+                                View →
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Expanded version history */}
+                        {isExpanded && (
+                          <div style={{ padding:"0 18px 14px 68px" }}>
+                            {asset.versions.slice().reverse().map((v, vi) => {
+                              const vs = ASSET_STATUS[v.status] || ASSET_STATUS.draft;
+                              const isCurrent = vi === 0;
+                              return (
+                                <div key={v.version} style={{
+                                  display:"flex", alignItems:"flex-start", gap:12,
+                                  padding:"10px 0",
+                                  borderTop: vi > 0 ? "1px solid #F1F5F9" : "none" }}>
+                                  {/* Version timeline dot */}
+                                  <div style={{ display:"flex", flexDirection:"column", alignItems:"center", flexShrink:0, paddingTop:2 }}>
+                                    <div style={{ width:10, height:10, borderRadius:"50%",
+                                      background: isCurrent ? vs.dot : "#E2E8F0",
+                                      border: isCurrent ? "none" : "2px solid #E2E8F0" }} />
+                                    {vi < asset.versions.length - 1 && (
+                                      <div style={{ width:2, height:24, background:"#E2E8F0", marginTop:4 }} />
+                                    )}
+                                  </div>
+
+                                  {/* Version content */}
+                                  <div style={{ flex:1, minWidth:0 }}>
+                                    <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
+                                      <span style={{ fontSize:12, fontWeight:600, color: isCurrent ? "#0F172A" : "#94A3B8" }}>
+                                        v{v.version}
+                                      </span>
+                                      <span style={{ fontSize:11, color:"#94A3B8" }}>{v.date}</span>
+                                      <Badge color={vs.color} bg={vs.bg}>{vs.label}</Badge>
+                                      {isCurrent && (
+                                        <span style={{ fontSize:10, color:BRAND, fontWeight:600 }}>LATEST</span>
+                                      )}
+                                    </div>
+                                    {v.note && (
+                                      <div style={{ fontSize:12, color:"#64748B", marginTop:4, lineHeight:1.5 }}>
+                                        {v.note}
+                                      </div>
+                                    )}
+                                  </div>
+
+                                  {/* View this version */}
+                                  {v.url && (
+                                    <button onClick={() => { setAssetPreview({ url: v.url, title: `${asset.title} v${v.version}` }); onAssetViewed(v.url); }} style={{
+                                      background:"none", border:`1px solid ${isCurrent ? BRAND : "#E2E8F0"}`,
+                                      borderRadius:5, padding:"3px 10px", fontSize:11,
+                                      color: isCurrent ? BRAND : "#94A3B8", cursor:"pointer",
+                                      fontFamily:"inherit", flexShrink:0 }}>
+                                      View →
+                                    </button>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              </div>{/* close two-column grid */}
+
+              {/* Asset Library preview modal */}
+              {assetPreview && (
+                <PreviewModal
+                  url={assetPreview.url}
+                  title={assetPreview.title}
+                  onClose={() => setAssetPreview(null)}
+                />
+              )}
+
+              {/* ── Asset Feedback (collapsible, filtered — only pending/deferred/no-status) ── */}
+              {(() => {
+                const fr = d.feedbackResponses || {};
+                // Collect all asset/group feedback from comments, excluding "done" items
+                const feedbackItems = [];
+                Object.keys(comments).forEach(key => {
+                  if (key.startsWith('task-asset:') || key.startsWith('task-group:')) {
+                    const resp = fr[key];
+                    // Skip items that are fully applied
+                    if (resp && resp.status === 'done') return;
+
+                    const isGroup = key.startsWith('task-group:');
+                    const refId = isGroup ? key.replace('task-group:', '') : key.replace('task-asset:', '');
+                    let disc = null;
+                    let taskText = '';
+                    d.disciplines.forEach(di => {
+                      di.tasks.forEach(t => {
+                        if (isGroup && t.groupId === refId) { disc = di; taskText = t.groupLabel || refId; }
+                        if (!isGroup && String(t.id) === refId) { disc = di; taskText = t.text; }
+                      });
+                    });
+                    comments[key].forEach(c => {
+                      feedbackItems.push({ ...c, disc, taskText, isGroup, commentKey: key });
+                    });
+                  }
+                });
+                if (feedbackItems.length === 0) return null;
+
+                // Group by discipline
+                const byDisc = {};
+                feedbackItems.forEach(f => {
+                  const label = f.disc ? f.disc.label : 'General';
+                  if (!byDisc[label]) byDisc[label] = { disc: f.disc, items: [] };
+                  byDisc[label].items.push(f);
+                });
+
+                return (
+                  <div style={{ background:"white", border:`1px solid #E2E8F0`,
+                    borderRadius:10, marginTop:16, overflow:"hidden" }}>
+                    {/* Collapsible header */}
+                    <button onClick={() => setAssetFeedbackOpen(!assetFeedbackOpen)} style={{
+                      width:"100%", padding:"14px 20px", background:"white", border:"none",
+                      cursor:"pointer", fontFamily:"inherit", textAlign:"left",
+                      display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                      <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                        <span style={{ fontSize:12, color:"#64748B" }}>{assetFeedbackOpen ? "▾" : "▸"}</span>
+                        <span style={{ fontSize:13, fontWeight:600, color:"#64748B" }}>
+                          🎨 Pending Feedback
+                        </span>
+                        <span style={{ fontSize:11, color:"#94A3B8" }}>
+                          {feedbackItems.length} item{feedbackItems.length !== 1 ? 's' : ''} awaiting update
+                        </span>
+                      </div>
+                      <div style={{ display:"flex", gap:6 }}>
+                        {Object.entries(byDisc).map(([label, { disc }]) => (
+                          disc && <div key={label} style={{ width:18, height:18, borderRadius:4,
+                            background:disc.lightColor, border:`1px solid ${disc.borderColor}`,
+                            display:"flex", alignItems:"center", justifyContent:"center",
+                            fontSize:9, fontWeight:700, color:disc.color }}>{disc.label[0]}</div>
+                        ))}
+                      </div>
+                    </button>
+
+                    {/* Expanded content */}
+                    {assetFeedbackOpen && (
+                      <div style={{ padding:"0 20px 16px", borderTop:"1px solid #F1F5F9" }}>
+                        {Object.entries(byDisc).map(([label, { disc, items }]) => (
+                          <div key={label} style={{ marginTop:12 }}>
+                            <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:8 }}>
+                              {disc && (
+                                <div style={{ width:20, height:20, borderRadius:4,
+                                  background:disc.lightColor, border:`1px solid ${disc.borderColor}`,
+                                  display:"flex", alignItems:"center", justifyContent:"center",
+                                  fontSize:10, fontWeight:700, color:disc.color }}>{disc.label[0]}</div>
+                              )}
+                              <span style={{ fontSize:12, fontWeight:600, color: disc ? disc.color : "#64748B" }}>{label}</span>
+                            </div>
+                            {items.map((f, fi) => {
+                              const resp = fr[f.commentKey];
+                              const fs = resp ? FEEDBACK_STATUS[resp.status] : null;
+                              return (
+                                <div key={fi} style={{
+                                  padding:"8px 12px", marginBottom:4, marginLeft:28,
+                                  background:"#F8FAFC", borderRadius:6,
+                                  borderLeft:`2px solid ${disc ? disc.color : BRAND}` }}>
+                                  <div style={{ fontSize:12, color:"#1E293B", lineHeight:1.5 }}>"{f.body}"</div>
+                                  <div style={{ fontSize:11, color:"#94A3B8", marginTop:4, display:"flex", alignItems:"center", gap:6, flexWrap:"wrap" }}>
+                                    <span>
+                                      <strong style={{ color:"#374151" }}>{f.commenter_name}</strong>
+                                      , {formatDate(f.created_at)}
+                                      {f.taskText && <span> · on <em>{f.taskText}</em></span>}
+                                    </span>
+                                    {fs && (
+                                      <span style={{ fontSize:10, fontWeight:600, color: fs.color,
+                                        background: fs.bg, padding:"1px 6px", borderRadius:3 }}>
+                                        {fs.icon} {fs.label}
+                                      </span>
+                                    )}
+                                  </div>
+                                  {resp && resp.note && (
+                                    <div style={{ fontSize:11, color:"#64748B", marginTop:6, padding:"6px 8px",
+                                      background:"white", borderRadius:4, border:"1px solid #E2E8F0", lineHeight:1.5 }}>
+                                      <strong style={{ color:"#374151" }}>Response:</strong> {resp.note}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+            </>}
+
+            {/* ── TASKS ── */}
+            {tab==="tasks" && (() => {
+              // Compute filtered tasks per discipline
+              const filterLabel = taskFilter ? STATUS[taskFilter]?.label || "All" : "All";
+              const allFilteredTasks = taskFilter
+                ? d.disciplines.flatMap(disc => disc.tasks.filter(t => t.status === taskFilter))
+                : null;
+
+              return (
+              <div>
+                {/* Filter bar */}
+                {taskFilter && (
+                  <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:14,
+                    padding:"10px 16px", background:"white", border:"1px solid #E2E8F0",
+                    borderRadius:10 }}>
+                    <span style={{ fontSize:12, color:"#64748B" }}>Filtered to:</span>
+                    <Badge color={STATUS[taskFilter].badgeText} bg={STATUS[taskFilter].badge}>{filterLabel}</Badge>
+                    <span style={{ fontSize:12, color:"#94A3B8" }}>
+                      {allFilteredTasks.length} task{allFilteredTasks.length !== 1 ? "s" : ""} across all disciplines
+                    </span>
+                    <button onClick={() => setTaskFilter(null)} style={{
+                      marginLeft:"auto", background:"none", border:"1px solid #E2E8F0",
+                      borderRadius:6, padding:"4px 10px", fontSize:11, color:"#64748B",
+                      cursor:"pointer", fontFamily:"inherit" }}>
+                      Clear filter ✕
+                    </button>
+                  </div>
+                )}
+
+                <div style={{ display:"grid", gridTemplateColumns:"200px 1fr", gap:16 }}>
+                <div style={{ background:"white", border:"1px solid #E2E8F0",
+                  borderRadius:10, overflow:"hidden", alignSelf:"start" }}>
+                  {d.disciplines.map(disc=>{
+                    const dDone = disc.tasks.filter(t=>t.status==="done").length;
+                    const filteredCount = taskFilter
+                      ? disc.tasks.filter(t => t.status === taskFilter).length
+                      : disc.tasks.length;
+                    return (
+                      <div key={disc.id} onClick={()=>setSel(disc.id)} style={{
+                        padding:"10px 14px", cursor:"pointer",
+                        display:"flex", justifyContent:"space-between", alignItems:"center",
+                        background:sel===disc.id?disc.lightColor:"white",
+                        borderLeft:`3px solid ${sel===disc.id?disc.color:"transparent"}`,
+                        borderBottom:"1px solid #F1F5F9",
+                        opacity: taskFilter && filteredCount === 0 ? 0.4 : 1 }}>
+                        <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                          <span style={{ fontSize:13, fontWeight:sel===disc.id?600:400,
+                            color:sel===disc.id?disc.color:"#374151" }}>{disc.label}</span>
+                          {discHasNew(disc) && (
+                            <span style={{ background:BRAND, color:"white", fontSize:9,
+                              fontWeight:700, borderRadius:3, padding:"1px 5px",
+                              letterSpacing:"0.06em", textTransform:"uppercase" }}>NEW</span>
+                          )}
+                        </div>
+                        <span style={{ fontSize:11, color:"#94A3B8" }}>
+                          {taskFilter ? filteredCount : `${dDone}/${disc.tasks.length}`}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+                {selected && (
+                  <div style={{ background:"white", border:"1px solid #E2E8F0",
+                    borderRadius:10, overflow:"hidden" }}>
+                    <div style={{ padding:"14px 18px", borderBottom:"1px solid #F1F5F9",
+                      background:selected.lightColor, display:"flex", alignItems:"center", gap:8 }}>
+                      <span style={{ fontSize:14, fontWeight:600, color:"#0F172A" }}>{selected.label}</span>
+                      {taskFilter && (
+                        <Badge color={STATUS[taskFilter].badgeText} bg={STATUS[taskFilter].badge}>{filterLabel}</Badge>
+                      )}
+                    </div>
+                    <TaskTable
+                      tasks={taskFilter ? selected.tasks.filter(t => t.status === taskFilter) : selected.tasks}
+                      comments={comments} onCommentAdded={onCommentAdded}
+                      viewedAssets={viewedAssets} onAssetViewed={onAssetViewed}
+                      feedbackResponses={d.feedbackResponses || {}} />
+                    {taskFilter && selected.tasks.filter(t => t.status === taskFilter).length === 0 && (
+                      <div style={{ padding:"24px 18px", textAlign:"center", fontSize:12, color:"#94A3B8" }}>
+                        No {filterLabel.toLowerCase()} tasks in {selected.label}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+              </div>
+              );
+            })()}
+
+            {/* ── DECISIONS ── */}
+            {tab==="decisions" && (
+              <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:10, overflow:"hidden" }}>
+                <div style={{ padding:"14px 18px", borderBottom:"1px solid #F1F5F9" }}>
+                  <span style={{ fontSize:13, fontWeight:600, color:"#0F172A" }}>Decision Log</span>
+                  <span style={{ fontSize:12, color:"#94A3B8", marginLeft:8 }}>{d.decisions.length} recorded</span>
+                </div>
+                {d.decisions.map((dec, i) => (
+                  <DecisionRow key={i} dec={dec} index={i} comments={comments} onCommentAdded={onCommentAdded} />
+                ))}
+                <div style={{ padding:"12px 18px", background:"#F8FAFC",
+                  borderTop:"1px solid #E2E8F0", fontSize:12, color:"#94A3B8" }}>
+                  💡 After each Cowork session, new decisions will be automatically logged here.
+                </div>
+              </div>
+            )}
+
+            {/* ── WEEKLY UPDATES — Executive Week-over-Week ── */}
+            {tab==="updates" && (() => {
+              const weeks = d.weeklyUpdates || [];
+              const latest = weeks[weeks.length - 1];
+              const prev   = weeks.length > 1 ? weeks[weeks.length - 2] : null;
+
+              function Delta({ value, suffix = "", invert = false }) {
+                if (value === 0 || value === null || value === undefined) return <span style={{ fontSize:12, color:"#94A3B8" }}>—</span>;
+                const positive = invert ? value < 0 : value > 0;
+                const color = positive ? "#059669" : value === 0 ? "#94A3B8" : "#DC2626";
+                const arrow = value > 0 ? "↑" : "↓";
+                return (
+                  <span style={{ fontSize:12, fontWeight:600, color }}>
+                    {arrow} {Math.abs(value)}{suffix}
+                  </span>
+                );
+              }
+
+              if (weeks.length === 0) return (
+                <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:10, padding:"48px 24px", textAlign:"center" }}>
+                  <div style={{ fontSize:32, marginBottom:10 }}>📊</div>
+                  <div style={{ fontSize:13, fontWeight:500, color:"#64748B", marginBottom:6 }}>First snapshot posts this Friday</div>
+                  <div style={{ fontSize:12, color:"#94A3B8" }}>Week-over-week progress will appear here automatically.</div>
+                </div>
+              );
+
+              const doneDelta     = prev ? latest.done - prev.done : null;
+              const pctDelta      = prev ? latest.pct - prev.pct : null;
+              const blockerDelta  = prev ? latest.blockers - prev.blockers : null;
+              const velocity      = latest.done; // tasks completed this week alone (cumulative done minus prev)
+              const weeklyDone    = prev ? latest.done - prev.done : latest.done;
+
+              return (
+                <div>
+                  {/* ── Header ── */}
+                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
+                    <div>
+                      <span style={{ fontSize:15, fontWeight:700, color:"#0F172A" }}>Week {latest.week}</span>
+                      <span style={{ fontSize:13, color:"#94A3B8", marginLeft:10 }}>{latest.dateRange}</span>
+                    </div>
+                    <span style={{ fontSize:11, color:"#94A3B8" }}>Updated every Friday</span>
+                  </div>
+
+                  {/* ── Velocity cards — current + delta ── */}
+                  <div style={{ display:"grid", gridTemplateColumns:"repeat(4, 1fr)", gap:12, marginBottom:20 }}>
+                    {[
+                      { label:"Overall Progress", value:`${latest.pct}%`, delta: pctDelta, suffix:"%", color:BRAND, bg:"#EFF6FF", border:"#BFDBFE" },
+                      { label:"Tasks Completed", value:latest.done, delta: doneDelta, suffix:"", color:"#059669", bg:"#F0FDF4", border:"#BBF7D0" },
+                      { label:"This Week", value:`+${weeklyDone}`, delta: null, suffix:"", color:"#7C3AED", bg:"#F5F3FF", border:"#DDD6FE" },
+                      { label:"Blockers", value:latest.blockers, delta: blockerDelta, suffix:"", color: latest.blockers > 0 ? "#DC2626" : "#059669", bg: latest.blockers > 0 ? "#FEF2F2" : "#F0FDF4", border: latest.blockers > 0 ? "#FECACA" : "#BBF7D0", invert: true },
+                    ].map(card => (
+                      <div key={card.label} style={{ background:card.bg, border:`1px solid ${card.border}`, borderRadius:10, padding:"16px 18px" }}>
+                        <div style={{ fontSize:24, fontWeight:700, color:card.color, lineHeight:1 }}>{card.value}</div>
+                        <div style={{ fontSize:11, color:"#94A3B8", marginTop:6, fontWeight:500 }}>{card.label}</div>
+                        {card.delta !== null && prev && (
+                          <div style={{ marginTop:6 }}>
+                            <Delta value={card.delta} suffix={card.suffix} invert={card.invert} />
+                            <span style={{ fontSize:11, color:"#94A3B8", marginLeft:4 }}>vs last week</span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* ── Progress bar — full width ── */}
+                  <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:10, padding:"16px 20px", marginBottom:20 }}>
+                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
+                      <span style={{ fontSize:12, fontWeight:600, color:"#0F172A" }}>Engagement Progress</span>
+                      <span style={{ fontSize:12, fontWeight:600, color:BRAND }}>{latest.pct}%</span>
+                    </div>
+                    <div style={{ height:8, background:"#E2E8F0", borderRadius:4, overflow:"hidden", position:"relative" }}>
+                      {prev && (
+                        <div style={{ position:"absolute", width:`${prev.pct}%`, height:"100%", background:BRAND, opacity:0.2, borderRadius:4 }} />
+                      )}
+                      <div style={{ position:"relative", width:`${latest.pct}%`, height:"100%", background:BRAND, borderRadius:4, transition:"width .6s ease" }} />
+                    </div>
+                    {prev && (
+                      <div style={{ display:"flex", gap:16, marginTop:8 }}>
+                        <span style={{ fontSize:11, color:"#94A3B8" }}>
+                          <span style={{ display:"inline-block", width:8, height:8, borderRadius:2, background:BRAND, opacity:0.2, marginRight:4, verticalAlign:"middle" }} />
+                          Last week: {prev.pct}%
+                        </span>
+                        <span style={{ fontSize:11, color:"#94A3B8" }}>
+                          <span style={{ display:"inline-block", width:8, height:8, borderRadius:2, background:BRAND, marginRight:4, verticalAlign:"middle" }} />
+                          This week: {latest.pct}%
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* ── Week-over-week timeline ── */}
+                  <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:10, overflow:"hidden", marginBottom:20 }}>
+                    <div style={{ padding:"14px 18px", borderBottom:"1px solid #F1F5F9" }}>
+                      <span style={{ fontSize:13, fontWeight:600, color:"#0F172A" }}>Week-over-Week</span>
+                      <span style={{ fontSize:12, color:"#94A3B8", marginLeft:8 }}>{weeks.length} weeks tracked</span>
+                    </div>
+                    <table style={{ width:"100%" }}>
+                      <thead>
+                        <tr style={{ background:"#F8FAFC" }}>
+                          {["Week","Date Range","Progress","Done","Blockers","Velocity",""].map(h => (
+                            <th key={h} style={{ padding:"9px 16px", textAlign:"left", fontSize:11,
+                              fontWeight:600, color:"#94A3B8", textTransform:"uppercase",
+                              letterSpacing:"0.06em", borderBottom:"1px solid #E2E8F0" }}>{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {weeks.map((w, idx) => {
+                          const pw = idx > 0 ? weeks[idx - 1] : null;
+                          const wkDone = pw ? w.done - pw.done : w.done;
+                          const wkPct  = pw ? w.pct - pw.pct : w.pct;
+                          const wkBlock = pw ? w.blockers - pw.blockers : null;
+                          const isLatest = idx === weeks.length - 1;
+                          return (
+                            <tr key={w.week} style={{ background: isLatest ? "#FAFBFF" : "white" }}>
+                              <td style={{ padding:"12px 16px", borderBottom:"1px solid #F1F5F9" }}>
+                                <span style={{ fontSize:13, fontWeight:isLatest ? 700 : 500, color:"#0F172A" }}>
+                                  Week {w.week}
+                                </span>
+                                {isLatest && <span style={{ fontSize:9, fontWeight:700, color:BRAND, marginLeft:6, textTransform:"uppercase", letterSpacing:"0.06em" }}>Current</span>}
+                              </td>
+                              <td style={{ padding:"12px 16px", borderBottom:"1px solid #F1F5F9", fontSize:12, color:"#64748B" }}>{w.dateRange}</td>
+                              <td style={{ padding:"12px 16px", borderBottom:"1px solid #F1F5F9" }}>
+                                <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                                  <div style={{ width:48, height:4, background:"#E2E8F0", borderRadius:2, overflow:"hidden" }}>
+                                    <div style={{ width:`${w.pct}%`, height:"100%", background:BRAND, borderRadius:2 }} />
+                                  </div>
+                                  <span style={{ fontSize:12, fontWeight:600, color:BRAND }}>{w.pct}%</span>
+                                  {pw && <Delta value={wkPct} suffix="%" />}
+                                </div>
+                              </td>
+                              <td style={{ padding:"12px 16px", borderBottom:"1px solid #F1F5F9" }}>
+                                <span style={{ fontSize:13, fontWeight:600, color:"#0F172A" }}>{w.done}</span>
+                                {pw && <span style={{ marginLeft:6 }}><Delta value={wkDone} /></span>}
+                              </td>
+                              <td style={{ padding:"12px 16px", borderBottom:"1px solid #F1F5F9" }}>
+                                {w.blockers > 0
+                                  ? <Badge color="#DC2626" bg="#FEE2E2">{w.blockers}</Badge>
+                                  : <span style={{ fontSize:12, color:"#059669", fontWeight:600 }}>0</span>}
+                                {wkBlock !== null && wkBlock !== 0 && <span style={{ marginLeft:6 }}><Delta value={wkBlock} invert={true} /></span>}
+                              </td>
+                              <td style={{ padding:"12px 16px", borderBottom:"1px solid #F1F5F9" }}>
+                                <span style={{ fontSize:13, fontWeight:600, color:"#7C3AED" }}>+{wkDone}</span>
+                                <span style={{ fontSize:11, color:"#94A3B8", marginLeft:4 }}>tasks</span>
+                              </td>
+                              <td style={{ padding:"12px 16px", borderBottom:"1px solid #F1F5F9" }}>
+                                {w.snapshotUrl && (
+                                  <button onClick={() => { setPreviewUrl(w.snapshotUrl); setPreviewTitle(`Week ${w.week} Report — ${w.dateRange}`); }} style={{
+                                    background:"none", border:"none", fontSize:11, color:BRAND,
+                                    textDecoration:"none", fontWeight:500, cursor:"pointer",
+                                    fontFamily:"inherit", padding:0 }}>
+                                    View report →
+                                  </button>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* ── Latest week highlights ── */}
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16 }}>
+                    {/* Wins */}
+                    <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:10, overflow:"hidden" }}>
+                      <div style={{ padding:"14px 18px", borderBottom:"1px solid #F1F5F9", display:"flex", alignItems:"center", gap:8 }}>
+                        <div style={{ width:6, height:6, borderRadius:"50%", background:"#059669" }} />
+                        <span style={{ fontSize:13, fontWeight:600, color:"#0F172A" }}>Key Wins — Week {latest.week}</span>
+                      </div>
+                      <div style={{ padding:"14px 18px" }}>
+                        {(latest.wins || []).slice(0, 4).map((win, wi) => (
+                          <div key={wi} style={{ fontSize:12, color:"#1E293B", marginBottom:8, display:"flex", gap:8, lineHeight:1.5 }}>
+                            <span style={{ color:"#059669", flexShrink:0, fontWeight:600 }}>✓</span>
+                            <span>{win}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Next up */}
+                    <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:10, overflow:"hidden" }}>
+                      <div style={{ padding:"14px 18px", borderBottom:"1px solid #F1F5F9", display:"flex", alignItems:"center", gap:8 }}>
+                        <div style={{ width:6, height:6, borderRadius:"50%", background:BRAND }} />
+                        <span style={{ fontSize:13, fontWeight:600, color:"#0F172A" }}>Up Next — Week {latest.week + 1}</span>
+                      </div>
+                      <div style={{ padding:"14px 18px" }}>
+                        {(latest.nextUp || []).map((next, ni) => (
+                          <div key={ni} style={{ fontSize:12, color:"#64748B", marginBottom:8, display:"flex", gap:8, lineHeight:1.5 }}>
+                            <span style={{ color:BRAND, flexShrink:0, fontWeight:600 }}>→</span>
+                            <span>{next}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* ── OPEN QUESTIONS ── */}
+            {tab==="questions" && (
+              <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:10, overflow:"hidden" }}>
+                <div style={{ padding:"14px 18px", borderBottom:"1px solid #F1F5F9" }}>
+                  <span style={{ fontSize:13, fontWeight:600, color:"#0F172A" }}>Open Questions</span>
+                  <span style={{ fontSize:12, color:"#94A3B8", marginLeft:8 }}>
+                    {d.openQuestions.length} need answers
+                  </span>
+                </div>
+                {d.openQuestions.map((item, i) => (
+                  <QuestionRow key={item.id || i} item={item} index={i} comments={comments} onCommentAdded={onCommentAdded} />
+                ))}
+              </div>
+            )}
+
+          </div>
+
+        </div>
+      );
+    }
+
+    // ── AUTH GATE ──
+    // Wraps the entire app in a Supabase auth check.
+    // Users must log in before seeing any dashboard content.
+    const supabase = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+
+    function LoginGate() {
+      const [session, setSession] = React.useState(null);
+      const [loading, setLoading] = React.useState(true);
+      const [email, setEmail] = React.useState("");
+      const [password, setPassword] = React.useState("");
+      const [error, setError] = React.useState("");
+      const [mode, setMode] = React.useState("login"); // "login" | "magic" | "magic-sent"
+      const [submitting, setSubmitting] = React.useState(false);
+
+      React.useEffect(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          setSession(session);
+          setLoading(false);
+        });
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+          setSession(session);
+        });
+        return () => subscription.unsubscribe();
+      }, []);
+
+      async function handleLogin(e) {
+        e.preventDefault();
+        setError("");
+        setSubmitting(true);
+        if (mode === "magic") {
+          const { error } = await supabase.auth.signInWithOtp({ email });
+          if (error) { setError(error.message); setSubmitting(false); }
+          else { setMode("magic-sent"); setSubmitting(false); }
+        } else {
+          const { error } = await supabase.auth.signInWithPassword({ email, password });
+          if (error) setError(error.message);
+          setSubmitting(false);
+        }
+      }
+
+      async function handleLogout() {
+        await supabase.auth.signOut();
+        setSession(null);
+      }
+
+      if (loading) {
+        return React.createElement("div", {
+          style: { display:"flex", alignItems:"center", justifyContent:"center",
+            minHeight:"100vh", background:"#1C1C2A", color:"#FBF7F2",
+            fontFamily:"Inter, system-ui, sans-serif" }
+        }, React.createElement("div", {
+          style: { textAlign:"center" }
+        },
+          React.createElement("div", {
+            style: { width:40, height:40, border:"3px solid #E07A2F33",
+              borderTopColor:"#E07A2F", borderRadius:"50%",
+              animation:"spin 0.8s linear infinite", margin:"0 auto 16px" }
+          }),
+          React.createElement("div", { style: { color:"#64748B", fontSize:14 } }, "Loading...")
+        ));
+      }
+
+      if (!session) {
+        // Login screen
+        return React.createElement("div", {
+          style: { display:"flex", alignItems:"center", justifyContent:"center",
+            minHeight:"100vh", background:"#1C1C2A",
+            fontFamily:"Inter, system-ui, sans-serif" }
+        },
+          React.createElement("div", {
+            style: { width:380, padding:"40px 36px", background:"#252536",
+              borderRadius:16, border:"1px solid rgba(255,255,255,0.08)",
+              boxShadow:"0 20px 60px rgba(0,0,0,0.4)" }
+          },
+            // Brand
+            React.createElement("div", { style: { textAlign:"center", marginBottom:32 } },
+              React.createElement("div", {
+                style: { width:48, height:48, background:"#E07A2F", borderRadius:12,
+                  display:"inline-flex", alignItems:"center", justifyContent:"center",
+                  marginBottom:12 }
+              }, React.createElement("span", {
+                style: { color:"white", fontWeight:800, fontSize:22 }
+              }, "V")),
+              React.createElement("h1", {
+                style: { color:"#FBF7F2", fontSize:22, fontWeight:700, marginBottom:4 }
+              }, "Velo Dashboard"),
+              React.createElement("p", {
+                style: { color:"#64748B", fontSize:13 }
+              }, "Sign in to view your project")
+            ),
+
+            // Form
+            React.createElement("form", { onSubmit: handleLogin },
+              // Email
+              React.createElement("div", { style: { marginBottom:14 } },
+                React.createElement("label", {
+                  style: { display:"block", fontSize:12, fontWeight:600,
+                    color:"#94A3B8", marginBottom:6, letterSpacing:"0.5px",
+                    textTransform:"uppercase" }
+                }, "Email"),
+                React.createElement("input", {
+                  type: "email", value: email, required: true,
+                  onChange: e => setEmail(e.target.value),
+                  placeholder: "you@company.com",
+                  style: { width:"100%", padding:"11px 14px", fontSize:14,
+                    background:"#1C1C2A", border:"1px solid rgba(255,255,255,0.12)",
+                    borderRadius:8, color:"#FBF7F2", outline:"none",
+                    fontFamily:"inherit" }
+                })
+              ),
+
+              // Password (only in login mode)
+              mode === "login" && React.createElement("div", { style: { marginBottom:14 } },
+                React.createElement("label", {
+                  style: { display:"block", fontSize:12, fontWeight:600,
+                    color:"#94A3B8", marginBottom:6, letterSpacing:"0.5px",
+                    textTransform:"uppercase" }
+                }, "Password"),
+                React.createElement("input", {
+                  type: "password", value: password, required: true,
+                  onChange: e => setPassword(e.target.value),
+                  placeholder: "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
+                  style: { width:"100%", padding:"11px 14px", fontSize:14,
+                    background:"#1C1C2A", border:"1px solid rgba(255,255,255,0.12)",
+                    borderRadius:8, color:"#FBF7F2", outline:"none",
+                    fontFamily:"inherit" }
+                })
+              ),
+
+              // Magic link sent message
+              mode === "magic-sent" && React.createElement("div", {
+                style: { padding:"14px 16px", background:"rgba(16,185,129,0.1)",
+                  border:"1px solid rgba(16,185,129,0.25)", borderRadius:8,
+                  marginBottom:14, color:"#34D399", fontSize:13, lineHeight:1.5 }
+              }, "Check your email for a magic link. Click it to sign in."),
+
+              // Error
+              error && React.createElement("div", {
+                style: { padding:"10px 14px", background:"rgba(220,38,38,0.1)",
+                  border:"1px solid rgba(220,38,38,0.25)", borderRadius:8,
+                  marginBottom:14, color:"#FCA5A5", fontSize:13 }
+              }, error),
+
+              // Submit
+              mode !== "magic-sent" && React.createElement("button", {
+                type: "submit", disabled: submitting,
+                style: { width:"100%", padding:"12px", fontSize:14, fontWeight:600,
+                  background:"#E07A2F", color:"white", border:"none", borderRadius:8,
+                  cursor: submitting ? "wait" : "pointer", fontFamily:"inherit",
+                  opacity: submitting ? 0.7 : 1, transition:"opacity .2s" }
+              }, submitting ? "Signing in..." : (mode === "magic" ? "Send Magic Link" : "Sign In")),
+
+              // Toggle mode
+              React.createElement("div", { style: { textAlign:"center", marginTop:16 } },
+                React.createElement("button", {
+                  type: "button",
+                  onClick: () => { setMode(mode === "login" ? "magic" : "login"); setError(""); },
+                  style: { background:"none", border:"none", color:"#64748B",
+                    fontSize:12, cursor:"pointer", fontFamily:"inherit",
+                    textDecoration:"underline" }
+                }, mode === "login" ? "Use magic link instead" : "Use password instead")
+              )
+            )
+          )
+        );
+      }
+
+      // Authenticated — render the dashboard with a logout button
+      window.__supabaseSession = session;
+      window.__supabaseLogout = handleLogout;
+      return React.createElement(App);
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(
+      React.createElement(LoginGate)
+    );
+  </script>
+  <style>
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</body>
+</html>
