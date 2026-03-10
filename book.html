@@ -796,6 +796,17 @@
 
         assets: [],
         feedbackResponses: {},
+
+        // Lead info embedded for local folder sync (avoids needing leads table access)
+        leadInfo: {
+          full_name: fd.full_name,
+          email: fd.email,
+          phone: fd.phone,
+          business_name: fd.business_name,
+          business_description: fd.business_description,
+          employee_count: fd.employee_count,
+          biggest_challenge: fd.biggest_challenge,
+        },
       };
     }
 
