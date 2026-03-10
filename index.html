@@ -175,6 +175,10 @@
       // Auto-populated every Friday by the weekly-snapshot scheduled task.
       // Each entry: { week, dateRange, pct, done, blockers, wins: [], nextUp: [], snapshotUrl }
       weeklyUpdates: [],
+
+      // ── NEW: Empty structures for future asset library & feedback tracking ──
+      assets: [],
+      feedbackResponses: {},
     };
   </script>
 
@@ -213,7 +217,21 @@
       medium:   { color: "#2563EB", bg: "#EFF6FF", label: "Medium" },
     };
 
-    const BRAND = "#E07A2F"; // Velo Amber — finalized Mar 6, 2026
+    const ASSET_STATUS = {
+      draft:             { label: "Draft",            color: "#64748B", bg: "#F1F5F9", dot: "#94A3B8" },
+      "in-review":       { label: "In Review",        color: "#2563EB", bg: "#DBEAFE", dot: "#2563EB" },
+      "revision-needed": { label: "Revision Needed",  color: "#D97706", bg: "#FEF3C7", dot: "#D97706" },
+      approved:          { label: "Approved",          color: "#059669", bg: "#DCFCE7", dot: "#059669" },
+    };
+
+    const FEEDBACK_STATUS = {
+      viewed:       { label: "Viewed",       color: "#64748B", bg: "#F1F5F9", icon: "👁" },
+      implementing: { label: "Implementing", color: "#2563EB", bg: "#DBEAFE", icon: "🔧" },
+      deferred:     { label: "Deferred to v2", color: "#D97706", bg: "#FEF3C7", icon: "📋" },
+      done:         { label: "Applied",      color: "#059669", bg: "#DCFCE7", icon: "✅" },
+    };
+
+    const BRAND = "#E07A2F"; // Velo Amber accent
 
     function formatDate(iso) {
       const d = new Date(iso);
@@ -241,7 +259,27 @@
       );
     }
 
-    function TaskTable({ tasks, comments = {}, onCommentAdded, viewedAssets = new Set(), onAssetViewed = () => {} }) {
+    function FeedbackResponseBanner({ feedbackKey, feedbackResponses }) {
+      const resp = feedbackResponses[feedbackKey];
+      if (!resp) return null;
+      const fs = FEEDBACK_STATUS[resp.status];
+      if (!fs) return null;
+      return (
+        <div style={{ background: fs.bg, border: `1px solid ${fs.color}22`, borderRadius: 6,
+          padding: "8px 12px", marginTop: 8, marginBottom: 4 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+            <span style={{ fontSize: 12 }}>{fs.icon}</span>
+            <Badge color={fs.color} bg={fs.bg}>{fs.label}</Badge>
+            <span style={{ fontSize: 11, color: "#94A3B8" }}>
+              {resp.respondedBy}, {resp.respondedAt}
+            </span>
+          </div>
+          <div style={{ fontSize: 12, color: "#374151", lineHeight: 1.5 }}>{resp.note}</div>
+        </div>
+      );
+    }
+
+    function TaskTable({ tasks, comments = {}, onCommentAdded, viewedAssets = new Set(), onAssetViewed = () => {}, feedbackResponses = {} }) {
       const [hoveredTask, setHoveredTask]   = useState(null);
       const [openPanel, setOpenPanel]       = useState(null);
       const [panelName, setPanelName]       = useState('');
@@ -249,6 +287,16 @@
       const [panelError, setPanelError]     = useState('');
       const [panelLoading, setPanelLoading] = useState(false);
       const [assetModal, setAssetModal]     = useState(null); // assetPath string or null
+      const [expandedComments, setExpandedComments] = useState(new Set()); // track which comment sections are expanded
+
+      function toggleCommentSection(key) {
+        setExpandedComments(prev => {
+          const next = new Set(prev);
+          if (next.has(key)) next.delete(key);
+          else next.add(key);
+          return next;
+        });
+      }
 
       function openAsset(assetPath) {
         setAssetModal(assetPath);
@@ -346,830 +394,771 @@
             </tr>
           </thead>
           <tbody>
-            {tasks.map(t => {
-              const s = STATUS[t.status]; const p = PRIORITY[t.priority];
-              const taskComments  = comments[`task-${t.id}`] || [];
-              const isPanelOpen   = openPanel === t.id;
-              const hasBelowContent = taskComments.length > 0 || isPanelOpen;
-              return (
-                <React.Fragment key={t.id}>
-                  {/* ── Task row ── */}
-                  <tr
-                    onMouseEnter={() => setHoveredTask(t.id)}
-                    onMouseLeave={() => setHoveredTask(null)}
-                    style={{ background: hoveredTask === t.id ? '#FAFBFF' : 'white' }}
-                  >
-                    <td style={{ padding:"11px 16px", borderBottom: hasBelowContent ? "none" : "1px solid #F1F5F9" }}>
-                      <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between" }}>
-                        <div style={{ display:"flex", alignItems:"flex-start", gap:9, flex:1 }}>
-                          <span style={{ display:"inline-block", width:7, height:7, borderRadius:"50%",
-                            background:s.dot, marginTop:4, flexShrink:0 }} />
-                          <div>
-                            <div style={{ fontSize:13, color:t.status==="done"?"#94A3B8":"#1E293B",
-                              textDecoration:t.status==="done"?"line-through":"none", lineHeight:1.5 }}>
-                              {t.text}
+            {(() => {
+              // Pre-process: collect groups so we can render them as clusters
+              const rendered = new Set();
+              const rows = [];
+
+              tasks.forEach((t, idx) => {
+                if (rendered.has(t.id)) return;
+
+                // ── Grouped tasks: render as a connected cluster ──
+                if (t.groupId) {
+                  const group = tasks.filter(g => g.groupId === t.groupId);
+                  group.forEach(g => rendered.add(g.id));
+                  const groupAsset = group.find(g => g.groupAsset)?.groupAsset;
+                  const groupLabel = group.find(g => g.groupLabel)?.groupLabel || "Shared deliverable";
+
+                  // Collect all comments for tasks in this group + group-level comments
+                  // Group comments stored as item_type='task', item_id='group:<groupId>' to satisfy DB constraint
+                  const groupComments = comments[`task-group:${t.groupId}`] || [];
+                  const allTaskComments = {};
+                  group.forEach(g => { allTaskComments[g.id] = comments[`task-${g.id}`] || []; });
+                  const isGroupPanelOpen = openPanel === `group-${t.groupId}`;
+
+                  rows.push(
+                    <React.Fragment key={`group-${t.groupId}`}>
+                      <tr>
+                        <td colSpan={3} style={{ padding:0, borderBottom:"1px solid #F1F5F9" }}>
+                          <div style={{ borderLeft:`3px solid ${BRAND}`, margin:"0 12px", padding:"14px 12px" }}>
+                            {/* Group label */}
+                            <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:10 }}>
+                              <span style={{ fontSize:10, fontWeight:700, color:BRAND,
+                                textTransform:"uppercase", letterSpacing:"0.08em" }}>
+                                {groupLabel}
+                              </span>
+                              <span style={{ fontSize:10, color:"#94A3B8" }}>
+                                {group.length} tasks delivered together
+                              </span>
                             </div>
-                            {t.assetPath && (
-                              <button onClick={() => openAsset(t.assetPath)} style={{
-                                marginTop:5, background:"none", border:`1px solid ${BRAND}`,
-                                borderRadius:5, padding:"2px 9px", fontSize:11, color:BRAND,
-                                cursor:"pointer", fontFamily:"inherit",
-                                display:"inline-flex", alignItems:"center", gap:5,
-                                textDecoration:"none" }}>
-                                {!viewedAssets.has(t.assetPath) && (
-                                  <span style={{ background:BRAND, color:"white", fontSize:9,
-                                    fontWeight:700, borderRadius:3, padding:"1px 5px",
-                                    letterSpacing:"0.06em", textTransform:"uppercase" }}>NEW</span>
+
+                            {/* Stacked task items — each with hover note */}
+                            {group.map((g, gi) => {
+                              const gs = STATUS[g.status]; const gp = PRIORITY[g.priority];
+                              const taskNotes = allTaskComments[g.id] || [];
+                              const isTaskPanelOpen = openPanel === g.id;
+                              return (
+                                <div key={g.id}>
+                                  <div
+                                    onMouseEnter={() => setHoveredTask(g.id)}
+                                    onMouseLeave={() => setHoveredTask(null)}
+                                    style={{
+                                      display:"flex", alignItems:"center", justifyContent:"space-between",
+                                      padding:"6px 0",
+                                      borderTop: gi > 0 ? "1px solid #F1F5F9" : "none",
+                                      background: hoveredTask === g.id ? "#FAFBFF" : "transparent",
+                                      borderRadius:4, margin:"0 -4px", padding:"6px 4px" }}>
+                                    <div style={{ display:"flex", alignItems:"center", gap:8, flex:1 }}>
+                                      <span style={{ display:"inline-block", width:7, height:7, borderRadius:"50%",
+                                        background:gs.dot, flexShrink:0 }} />
+                                      <span style={{ fontSize:13,
+                                        color: g.status==="done" ? "#94A3B8" : "#1E293B",
+                                        textDecoration: g.status==="done" ? "line-through" : "none",
+                                        lineHeight:1.5 }}>
+                                        {g.text}
+                                      </span>
+                                    </div>
+                                    <div style={{ display:"flex", gap:6, flexShrink:0, marginLeft:12, alignItems:"center" }}>
+                                      {hoveredTask === g.id && !isTaskPanelOpen && (
+                                        <button onClick={() => openComment(g.id)} style={{
+                                          background:"none", border:"1px solid #E2E8F0", borderRadius:4,
+                                          padding:"2px 8px", fontSize:11, color:"#64748B", cursor:"pointer",
+                                          display:"flex", alignItems:"center", gap:4, whiteSpace:"nowrap",
+                                          fontFamily:"inherit" }}>
+                                          💬 Note
+                                        </button>
+                                      )}
+                                      <Badge color={gp.color} bg={gp.bg}>{gp.label}</Badge>
+                                      <Badge color={gs.badgeText} bg={gs.badge}>{gs.label}</Badge>
+                                    </div>
+                                  </div>
+
+                                  {/* Per-task inline comment panel */}
+                                  {isTaskPanelOpen && (
+                                    <div style={{ padding:"8px 0 8px 15px" }}>
+                                      <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:8, padding:"12px 14px" }}>
+                                        <div style={{ fontSize:12, color:"#64748B", marginBottom:10 }}>
+                                          Note on: <strong style={{ color:"#374151" }}>"{g.text}"</strong>
+                                        </div>
+                                        <div style={{ display:"grid", gridTemplateColumns:"80px 1fr", gap:"8px 12px", alignItems:"center" }}>
+                                          <label style={{ fontSize:12, color:"#64748B", textAlign:"right" }}>Your name</label>
+                                          <input value={panelName} onChange={e => setPanelName(e.target.value)}
+                                            placeholder="e.g. Hayden" style={{ fontSize:13, padding:"6px 10px",
+                                            border:"1px solid #E2E8F0", borderRadius:6, outline:"none",
+                                            fontFamily:"inherit", color:"#1E293B" }} />
+                                          <label style={{ fontSize:12, color:"#64748B", textAlign:"right" }}>Note</label>
+                                          <textarea value={panelBody} onChange={e => setPanelBody(e.target.value)}
+                                            placeholder="Type your note here..." rows={2}
+                                            style={{ fontSize:13, padding:"6px 10px", border:"1px solid #E2E8F0",
+                                            borderRadius:6, outline:"none", fontFamily:"inherit",
+                                            resize:"vertical", color:"#1E293B" }} />
+                                        </div>
+                                        {panelError && <div style={{ fontSize:12, color:"#DC2626", marginTop:8 }}>⚠ {panelError}</div>}
+                                        <div style={{ display:"flex", justifyContent:"flex-end", gap:8, marginTop:10 }}>
+                                          <button onClick={closePanel} style={{ fontSize:12, padding:"6px 14px",
+                                            border:"1px solid #E2E8F0", borderRadius:6, background:"white",
+                                            color:"#64748B", cursor:"pointer", fontFamily:"inherit" }}>Cancel</button>
+                                          <button onClick={() => submitComment(g)} disabled={!canSend} style={{
+                                            fontSize:12, padding:"6px 14px", border:"none", borderRadius:6,
+                                            fontFamily:"inherit", fontWeight:600,
+                                            cursor: canSend ? "pointer" : "not-allowed",
+                                            background: canSend ? BRAND : "#E2E8F0",
+                                            color: canSend ? "white" : "#94A3B8" }}>
+                                            {panelLoading ? 'Sending...' : 'Send →'}
+                                          </button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {/* Per-task existing comments — only shown when task comments expanded */}
+                                  {expandedComments.has(`task-${g.id}`) && taskNotes.map((c, ci) => (
+                                    <div key={`tc-${ci}`} style={{ padding:"2px 0 2px 15px" }}>
+                                      <span style={{ fontSize:12, color:"#64748B" }}>
+                                        💬 <strong style={{ color:"#374151", fontWeight:600 }}>{c.commenter_name}</strong>
+                                        , {formatDate(c.created_at)} · "{c.body}"
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              );
+                            })}
+
+                            {/* Shared asset + group-level note — one for the whole group */}
+                            {(() => {
+                              const groupFeedbackKey = `task-group:${t.groupId}`;
+                              const totalGroupComments = groupComments.length + group.reduce((sum, g) => sum + (allTaskComments[g.id] || []).length, 0);
+                              const groupResp = feedbackResponses[groupFeedbackKey];
+                              const groupFs = groupResp ? FEEDBACK_STATUS[groupResp.status] : null;
+                              const isGroupExpanded = expandedComments.has(groupFeedbackKey);
+
+                              return (
+                                <>
+                                <div style={{ marginTop:10, paddingTop:10, borderTop:"1px solid #F1F5F9",
+                                  display:"flex", alignItems:"center", gap:10, flexWrap:"wrap" }}>
+                                  {groupAsset && (
+                                    <button onClick={() => openAsset(groupAsset)} style={{
+                                      background:"none", border:`1px solid ${BRAND}`,
+                                      borderRadius:5, padding:"4px 12px", fontSize:11, color:BRAND,
+                                      cursor:"pointer", fontFamily:"inherit",
+                                      display:"inline-flex", alignItems:"center", gap:6,
+                                      textDecoration:"none" }}>
+                                      {!viewedAssets.has(groupAsset) && (
+                                        <span style={{ background:BRAND, color:"white", fontSize:9,
+                                          fontWeight:700, borderRadius:3, padding:"1px 5px",
+                                          letterSpacing:"0.06em", textTransform:"uppercase" }}>NEW</span>
+                                      )}
+                                      View asset →
+                                    </button>
+                                  )}
+                                  {!isGroupPanelOpen && (
+                                    <button onClick={() => openComment(`group-${t.groupId}`)} style={{
+                                      background:"none", border:"1px solid #E2E8F0", borderRadius:5,
+                                      padding:"4px 12px", fontSize:11, color:"#64748B", cursor:"pointer",
+                                      display:"inline-flex", alignItems:"center", gap:5,
+                                      fontFamily:"inherit" }}>
+                                      💬 Note on deliverable
+                                    </button>
+                                  )}
+                                  {/* Collapsible feedback toggle */}
+                                  {totalGroupComments > 0 && (
+                                    <button onClick={() => toggleCommentSection(groupFeedbackKey)} style={{
+                                      background: isGroupExpanded ? "#F1F5F9" : "none",
+                                      border:"1px solid #E2E8F0", borderRadius:5,
+                                      padding:"4px 12px", fontSize:11, color:"#64748B", cursor:"pointer",
+                                      display:"inline-flex", alignItems:"center", gap:5,
+                                      fontFamily:"inherit" }}>
+                                      {isGroupExpanded ? "▾" : "▸"} {totalGroupComments} comment{totalGroupComments !== 1 ? "s" : ""}
+                                      {groupFs && (
+                                        <span style={{ fontSize:10, fontWeight:600, color: groupFs.color,
+                                          background: groupFs.bg, padding:"1px 6px", borderRadius:3, marginLeft:4 }}>
+                                          {groupFs.icon} {groupFs.label}
+                                        </span>
+                                      )}
+                                    </button>
+                                  )}
+                                  {/* Show status badge even if no toggle needed */}
+                                  {totalGroupComments === 0 && groupFs && (
+                                    <span style={{ fontSize:10, fontWeight:600, color: groupFs.color,
+                                      background: groupFs.bg, padding:"2px 8px", borderRadius:4,
+                                      display:"inline-flex", alignItems:"center", gap:4 }}>
+                                      {groupFs.icon} {groupFs.label}
+                                    </span>
+                                  )}
+                                </div>
+
+                                {/* Expanded comments section */}
+                                {isGroupExpanded && (
+                                  <div style={{ marginTop:8, padding:"10px 12px", background:"#FAFBFF",
+                                    borderRadius:8, border:"1px solid #E2E8F0" }}>
+                                    {/* Feedback response banner */}
+                                    <FeedbackResponseBanner feedbackKey={groupFeedbackKey} feedbackResponses={feedbackResponses} />
+
+                                    {/* Group-level comments */}
+                                    {groupComments.map((c, ci) => (
+                                      <div key={`gc-${ci}`} style={{ marginTop: 6, padding:"6px 0",
+                                        borderTop: ci > 0 ? "1px solid #F1F5F9" : "none" }}>
+                                        <span style={{ fontSize:12, color:"#64748B" }}>
+                                          💬 <strong style={{ color:"#374151", fontWeight:600 }}>{c.commenter_name}</strong>
+                                          , {formatDate(c.created_at)}
+                                        </span>
+                                        <div style={{ fontSize:12, color:"#1E293B", marginTop:2, lineHeight:1.5, paddingLeft:18 }}>
+                                          {c.body}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
                                 )}
-                                View asset →
-                              </button>
+                                </>
+                              );
+                            })()}
+
+                            {/* Group-level comment panel */}
+                            {isGroupPanelOpen && (
+                              <div style={{ marginTop:10 }}>
+                                <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:8, padding:"12px 14px" }}>
+                                  <div style={{ fontSize:12, color:"#64748B", marginBottom:10 }}>
+                                    Note on deliverable: <strong style={{ color:"#374151" }}>"{groupLabel}"</strong>
+                                  </div>
+                                  <div style={{ display:"grid", gridTemplateColumns:"80px 1fr", gap:"8px 12px", alignItems:"center" }}>
+                                    <label style={{ fontSize:12, color:"#64748B", textAlign:"right" }}>Your name</label>
+                                    <input value={panelName} onChange={e => setPanelName(e.target.value)}
+                                      placeholder="e.g. Hayden" style={{ fontSize:13, padding:"6px 10px",
+                                      border:"1px solid #E2E8F0", borderRadius:6, outline:"none",
+                                      fontFamily:"inherit", color:"#1E293B" }} />
+                                    <label style={{ fontSize:12, color:"#64748B", textAlign:"right" }}>Note</label>
+                                    <textarea value={panelBody} onChange={e => setPanelBody(e.target.value)}
+                                      placeholder="Overall feedback on this deliverable..." rows={2}
+                                      style={{ fontSize:13, padding:"6px 10px", border:"1px solid #E2E8F0",
+                                      borderRadius:6, outline:"none", fontFamily:"inherit",
+                                      resize:"vertical", color:"#1E293B" }} />
+                                  </div>
+                                  {panelError && <div style={{ fontSize:12, color:"#DC2626", marginTop:8 }}>⚠ {panelError}</div>}
+                                  <div style={{ display:"flex", justifyContent:"flex-end", gap:8, marginTop:10 }}>
+                                    <button onClick={closePanel} style={{ fontSize:12, padding:"6px 14px",
+                                      border:"1px solid #E2E8F0", borderRadius:6, background:"white",
+                                      color:"#64748B", cursor:"pointer", fontFamily:"inherit" }}>Cancel</button>
+                                    <button onClick={() => {
+                                      setPanelLoading(true); setPanelError('');
+                                      fetch(`${window.SUPABASE_URL}/rest/v1/comments`, {
+                                        method: 'POST',
+                                        headers: {
+                                          'apikey': window.SUPABASE_ANON_KEY,
+                                          'Authorization': `Bearer ${window.SUPABASE_ANON_KEY}`,
+                                          'Content-Type': 'application/json',
+                                          'Prefer': 'return=representation',
+                                        },
+                                        body: JSON.stringify({
+                                          project_slug: window.PROJECT_SLUG,
+                                          item_type: 'task',
+                                          item_id: `group:${t.groupId}`,
+                                          item_text: groupLabel,
+                                          commenter_name: panelName.trim(),
+                                          body: panelBody.trim(),
+                                        }),
+                                      })
+                                      .then(res => { if (!res.ok) throw new Error(`Error ${res.status}`); return res.json(); })
+                                      .then(([newComment]) => { onCommentAdded(newComment); closePanel(); })
+                                      .catch(() => { setPanelError('Something went wrong — please try again.'); })
+                                      .finally(() => setPanelLoading(false));
+                                    }} disabled={!canSend} style={{
+                                      fontSize:12, padding:"6px 14px", border:"none", borderRadius:6,
+                                      fontFamily:"inherit", fontWeight:600,
+                                      cursor: canSend ? "pointer" : "not-allowed",
+                                      background: canSend ? BRAND : "#E2E8F0",
+                                      color: canSend ? "white" : "#94A3B8" }}>
+                                      {panelLoading ? 'Sending...' : 'Send →'}
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
                             )}
-                            {t.blocker && <div style={{ fontSize:11, color:"#DC2626", marginTop:3 }}>⚠ {t.blocker}</div>}
                           </div>
-                        </div>
-                        {hoveredTask === t.id && !isPanelOpen && (
-                          <button onClick={() => openComment(t.id)} style={{
-                            background:"none", border:"1px solid #E2E8F0", borderRadius:4,
-                            padding:"2px 8px", fontSize:11, color:"#64748B", cursor:"pointer",
-                            display:"flex", alignItems:"center", gap:4, whiteSpace:"nowrap", flexShrink:0,
-                            fontFamily:"inherit" }}>
-                            💬 Note
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                    <td style={{ padding:"11px 16px", borderBottom: hasBelowContent ? "none" : "1px solid #F1F5F9", whiteSpace:"nowrap" }}>
-                      <Badge color={p.color} bg={p.bg}>{p.label}</Badge>
-                    </td>
-                    <td style={{ padding:"11px 16px", borderBottom: hasBelowContent ? "none" : "1px solid #F1F5F9", whiteSpace:"nowrap" }}>
-                      <Badge color={s.badgeText} bg={s.badge}>{s.label}</Badge>
-                    </td>
-                  </tr>
+                        </td>
+                      </tr>
+                    </React.Fragment>
+                  );
+                  return;
+                }
 
-                  {/* ── Inline comment panel ── */}
-                  {isPanelOpen && (
-                    <tr>
-                      <td colSpan={3} style={{
-                        padding:"0 16px 12px 44px",
-                        borderBottom: taskComments.length > 0 ? "none" : "1px solid #F1F5F9",
-                        background:"#F8FAFC" }}>
-                        <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:8, padding:"14px 16px" }}>
-                          <div style={{ fontSize:12, color:"#64748B", marginBottom:12 }}>
-                            Leave a note on: <strong style={{ color:"#374151" }}>"{t.text}"</strong>
+                // ── Regular (ungrouped) task ──
+                rendered.add(t.id);
+                const s = STATUS[t.status]; const p = PRIORITY[t.priority];
+                const taskComments  = comments[`task-${t.id}`] || [];
+                const assetKey = t.assetPath ? `task-asset:${t.id}` : null;
+                const assetComments = assetKey ? (comments[assetKey] || []) : [];
+                const isPanelOpen   = openPanel === t.id;
+                const isAssetPanelOpen = openPanel === `asset-${t.id}`;
+                const totalCommentCount = taskComments.length + assetComments.length;
+                const commentSectionKey = assetKey || `task-${t.id}`;
+                const isCommentsExpanded = expandedComments.has(commentSectionKey);
+                const assetResp = assetKey ? feedbackResponses[assetKey] : null;
+                const assetFs = assetResp ? FEEDBACK_STATUS[assetResp.status] : null;
+                const hasBelowContent = isCommentsExpanded || isPanelOpen || isAssetPanelOpen;
+
+                rows.push(
+                  <React.Fragment key={t.id}>
+                    <tr
+                      onMouseEnter={() => setHoveredTask(t.id)}
+                      onMouseLeave={() => setHoveredTask(null)}
+                      style={{ background: hoveredTask === t.id ? '#FAFBFF' : 'white' }}
+                    >
+                      <td style={{ padding:"11px 16px", borderBottom: hasBelowContent ? "none" : "1px solid #F1F5F9" }}>
+                        <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between" }}>
+                          <div style={{ display:"flex", alignItems:"flex-start", gap:9, flex:1 }}>
+                            <span style={{ display:"inline-block", width:7, height:7, borderRadius:"50%",
+                              background:s.dot, marginTop:4, flexShrink:0 }} />
+                            <div>
+                              <div style={{ fontSize:13, color:t.status==="done"?"#94A3B8":"#1E293B",
+                                textDecoration:t.status==="done"?"line-through":"none", lineHeight:1.5 }}>
+                                {t.text}
+                              </div>
+                              {t.assetPath && (
+                                <div style={{ display:"flex", alignItems:"center", gap:8, marginTop:5, flexWrap:"wrap" }}>
+                                  <button onClick={() => openAsset(t.assetPath)} style={{
+                                    background:"none", border:`1px solid ${BRAND}`,
+                                    borderRadius:5, padding:"2px 9px", fontSize:11, color:BRAND,
+                                    cursor:"pointer", fontFamily:"inherit",
+                                    display:"inline-flex", alignItems:"center", gap:5,
+                                    textDecoration:"none" }}>
+                                    {!viewedAssets.has(t.assetPath) && (
+                                      <span style={{ background:BRAND, color:"white", fontSize:9,
+                                        fontWeight:700, borderRadius:3, padding:"1px 5px",
+                                        letterSpacing:"0.06em", textTransform:"uppercase" }}>NEW</span>
+                                    )}
+                                    View asset →
+                                  </button>
+                                  {!isAssetPanelOpen && (
+                                    <button onClick={() => openComment(`asset-${t.id}`)} style={{
+                                      background:"none", border:"1px solid #E2E8F0", borderRadius:5,
+                                      padding:"2px 9px", fontSize:11, color:"#64748B", cursor:"pointer",
+                                      display:"inline-flex", alignItems:"center", gap:5,
+                                      fontFamily:"inherit" }}>
+                                      💬 Feedback
+                                    </button>
+                                  )}
+                                  {/* Collapsible feedback toggle */}
+                                  {totalCommentCount > 0 && (
+                                    <button onClick={() => toggleCommentSection(commentSectionKey)} style={{
+                                      background: isCommentsExpanded ? "#F1F5F9" : "none",
+                                      border:"1px solid #E2E8F0", borderRadius:5,
+                                      padding:"2px 9px", fontSize:11, color:"#64748B", cursor:"pointer",
+                                      display:"inline-flex", alignItems:"center", gap:5,
+                                      fontFamily:"inherit" }}>
+                                      {isCommentsExpanded ? "▾" : "▸"} {totalCommentCount} comment{totalCommentCount !== 1 ? "s" : ""}
+                                      {assetFs && (
+                                        <span style={{ fontSize:10, fontWeight:600, color: assetFs.color,
+                                          background: assetFs.bg, padding:"1px 6px", borderRadius:3, marginLeft:2 }}>
+                                          {assetFs.icon} {assetFs.label}
+                                        </span>
+                                      )}
+                                    </button>
+                                  )}
+                                  {totalCommentCount === 0 && assetFs && (
+                                    <span style={{ fontSize:10, fontWeight:600, color: assetFs.color,
+                                      background: assetFs.bg, padding:"2px 8px", borderRadius:4,
+                                      display:"inline-flex", alignItems:"center", gap:4 }}>
+                                      {assetFs.icon} {assetFs.label}
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+                              {t.blocker && <div style={{ fontSize:11, color:"#DC2626", marginTop:3 }}>⚠ {t.blocker}</div>}
+                            </div>
                           </div>
-                          <div style={{ display:"grid", gridTemplateColumns:"80px 1fr", gap:"8px 12px", alignItems:"center" }}>
-                            <label style={{ fontSize:12, color:"#64748B", textAlign:"right" }}>Your name</label>
-                            <input
-                              value={panelName}
-                              onChange={e => setPanelName(e.target.value)}
-                              placeholder="e.g. Hayden"
-                              style={{ fontSize:13, padding:"6px 10px", border:"1px solid #E2E8F0",
-                                borderRadius:6, outline:"none", fontFamily:"inherit", color:"#1E293B" }}
-                            />
-                            <label style={{ fontSize:12, color:"#64748B", textAlign:"right" }}>Note</label>
-                            <textarea
-                              value={panelBody}
-                              onChange={e => setPanelBody(e.target.value)}
-                              placeholder="Type your note here..."
-                              rows={2}
-                              style={{ fontSize:13, padding:"6px 10px", border:"1px solid #E2E8F0",
-                                borderRadius:6, outline:"none", fontFamily:"inherit", resize:"vertical", color:"#1E293B" }}
-                            />
-                          </div>
-                          {panelError && <div style={{ fontSize:12, color:"#DC2626", marginTop:8 }}>⚠ {panelError}</div>}
-                          <div style={{ display:"flex", justifyContent:"flex-end", gap:8, marginTop:12 }}>
-                            <button onClick={closePanel} style={{
-                              fontSize:12, padding:"6px 14px", border:"1px solid #E2E8F0",
-                              borderRadius:6, background:"white", color:"#64748B", cursor:"pointer", fontFamily:"inherit" }}>
-                              Cancel
+                          {hoveredTask === t.id && !isPanelOpen && !t.assetPath && (
+                            <button onClick={() => openComment(t.id)} style={{
+                              background:"none", border:"1px solid #E2E8F0", borderRadius:4,
+                              padding:"2px 8px", fontSize:11, color:"#64748B", cursor:"pointer",
+                              display:"flex", alignItems:"center", gap:4, whiteSpace:"nowrap", flexShrink:0,
+                              fontFamily:"inherit" }}>
+                              💬 Note
                             </button>
-                            <button onClick={() => submitComment(t)} disabled={!canSend} style={{
-                              fontSize:12, padding:"6px 14px", border:"none", borderRadius:6,
-                              fontFamily:"inherit", fontWeight:600,
-                              cursor: canSend ? "pointer" : "not-allowed",
-                              background: canSend ? BRAND : "#E2E8F0",
-                              color: canSend ? "white" : "#94A3B8" }}>
-                              {panelLoading ? 'Sending...' : 'Send →'}
+                          )}
+                          {hoveredTask === t.id && !isPanelOpen && t.assetPath && (
+                            <button onClick={() => openComment(t.id)} style={{
+                              background:"none", border:"1px solid #E2E8F0", borderRadius:4,
+                              padding:"2px 8px", fontSize:11, color:"#64748B", cursor:"pointer",
+                              display:"flex", alignItems:"center", gap:4, whiteSpace:"nowrap", flexShrink:0,
+                              fontFamily:"inherit" }}>
+                              💬 Note on task
                             </button>
-                          </div>
+                          )}
                         </div>
                       </td>
-                    </tr>
-                  )}
-
-                  {/* ── Existing comments ── */}
-                  {taskComments.map((c, ci) => (
-                    <tr key={`c-${ci}`}>
-                      <td colSpan={3} style={{
-                        padding: ci === taskComments.length - 1 ? "4px 16px 10px 44px" : "4px 16px 4px 44px",
-                        borderBottom: ci === taskComments.length - 1 ? "1px solid #F1F5F9" : "none",
-                        background:"#F8FAFC" }}>
-                        <span style={{ fontSize:12, color:"#64748B" }}>
-                          💬 <strong style={{ color:"#374151", fontWeight:600 }}>{c.commenter_name}</strong>
-                          , {formatDate(c.created_at)} · "{c.body}"
-                        </span>
+                      <td style={{ padding:"11px 16px", borderBottom: hasBelowContent ? "none" : "1px solid #F1F5F9", whiteSpace:"nowrap" }}>
+                        <Badge color={p.color} bg={p.bg}>{p.label}</Badge>
+                      </td>
+                      <td style={{ padding:"11px 16px", borderBottom: hasBelowContent ? "none" : "1px solid #F1F5F9", whiteSpace:"nowrap" }}>
+                        <Badge color={s.badgeText} bg={s.badge}>{s.label}</Badge>
                       </td>
                     </tr>
-                  ))}
-                </React.Fragment>
-              );
-            })}
+
+                    {/* Task-level comment panel */}
+                    {isPanelOpen && (
+                      <tr>
+                        <td colSpan={3} style={{
+                          padding:"0 16px 12px 44px",
+                          borderBottom: (taskComments.length > 0 || assetComments.length > 0) ? "none" : "1px solid #F1F5F9",
+                          background:"#F8FAFC" }}>
+                          <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:8, padding:"14px 16px" }}>
+                            <div style={{ fontSize:12, color:"#64748B", marginBottom:12 }}>
+                              Leave a note on: <strong style={{ color:"#374151" }}>"{t.text}"</strong>
+                            </div>
+                            <div style={{ display:"grid", gridTemplateColumns:"80px 1fr", gap:"8px 12px", alignItems:"center" }}>
+                              <label style={{ fontSize:12, color:"#64748B", textAlign:"right" }}>Your name</label>
+                              <input value={panelName} onChange={e => setPanelName(e.target.value)}
+                                placeholder="e.g. Hayden" style={{ fontSize:13, padding:"6px 10px",
+                                border:"1px solid #E2E8F0", borderRadius:6, outline:"none",
+                                fontFamily:"inherit", color:"#1E293B" }} />
+                              <label style={{ fontSize:12, color:"#64748B", textAlign:"right" }}>Note</label>
+                              <textarea value={panelBody} onChange={e => setPanelBody(e.target.value)}
+                                placeholder="Type your note here..." rows={2}
+                                style={{ fontSize:13, padding:"6px 10px", border:"1px solid #E2E8F0",
+                                borderRadius:6, outline:"none", fontFamily:"inherit",
+                                resize:"vertical", color:"#1E293B" }} />
+                            </div>
+                            {panelError && <div style={{ fontSize:12, color:"#DC2626", marginTop:8 }}>⚠ {panelError}</div>}
+                            <div style={{ display:"flex", justifyContent:"flex-end", gap:8, marginTop:10 }}>
+                              <button onClick={closePanel} style={{ fontSize:12, padding:"6px 14px",
+                                border:"1px solid #E2E8F0", borderRadius:6, background:"white",
+                                color:"#64748B", cursor:"pointer", fontFamily:"inherit" }}>Cancel</button>
+                              <button onClick={() => submitComment(t)} disabled={!canSend} style={{
+                                fontSize:12, padding:"6px 14px", border:"none", borderRadius:6,
+                                fontFamily:"inherit", fontWeight:600,
+                                cursor: canSend ? "pointer" : "not-allowed",
+                                background: canSend ? BRAND : "#E2E8F0",
+                                color: canSend ? "white" : "#94A3B8" }}>
+                                {panelLoading ? 'Sending...' : 'Send →'}
+                              </button>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+
+                    {/* Expanded comments section */}
+                    {isCommentsExpanded && (
+                      <tr>
+                        <td colSpan={3} style={{ padding:"0 16px 12px 44px", background:"#F8FAFC", borderBottom:"1px solid #F1F5F9" }}>
+                          <div style={{ background:"#FAFBFF", border:"1px solid #E2E8F0", borderRadius:8, padding:"12px 14px", marginTop:8 }}>
+                            {/* Feedback response banner */}
+                            <FeedbackResponseBanner feedbackKey={commentSectionKey} feedbackResponses={feedbackResponses} />
+
+                            {/* Task comments */}
+                            {taskComments.map((c, ci) => (
+                              <div key={`cc-${ci}`} style={{ marginTop: ci > 0 ? 8 : 0, paddingTop: ci > 0 ? 8 : 0, borderTop: ci > 0 ? "1px solid #F1F5F9" : "none" }}>
+                                <span style={{ fontSize:12, color:"#64748B" }}>
+                                  💬 <strong style={{ color:"#374151", fontWeight:600 }}>{c.commenter_name}</strong>
+                                  , {formatDate(c.created_at)}
+                                </span>
+                                <div style={{ fontSize:12, color:"#1E293B", marginTop:2, lineHeight:1.5, paddingLeft:18 }}>
+                                  {c.body}
+                                </div>
+                              </div>
+                            ))}
+
+                            {/* Asset comments (if applicable) */}
+                            {assetComments.map((c, ci) => (
+                              <div key={`ac-${ci}`} style={{ marginTop: 8, paddingTop: 8, borderTop:"1px solid #F1F5F9" }}>
+                                <span style={{ fontSize:12, color:"#64748B" }}>
+                                  💬 <strong style={{ color:"#374151", fontWeight:600 }}>{c.commenter_name}</strong>
+                                  , {formatDate(c.created_at)}
+                                </span>
+                                <div style={{ fontSize:12, color:"#1E293B", marginTop:2, lineHeight:1.5, paddingLeft:18 }}>
+                                  {c.body}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+
+                    {/* Asset feedback panel */}
+                    {isAssetPanelOpen && (
+                      <tr>
+                        <td colSpan={3} style={{
+                          padding:"0 16px 12px 44px",
+                          borderBottom: assetComments.length > 0 ? "none" : "1px solid #F1F5F9",
+                          background:"#F8FAFC" }}>
+                          <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:8, padding:"14px 16px" }}>
+                            <div style={{ fontSize:12, color:"#64748B", marginBottom:12 }}>
+                              Feedback on asset: <strong style={{ color:"#374151" }}>"{t.text}"</strong>
+                            </div>
+                            <div style={{ display:"grid", gridTemplateColumns:"80px 1fr", gap:"8px 12px", alignItems:"center" }}>
+                              <label style={{ fontSize:12, color:"#64748B", textAlign:"right" }}>Your name</label>
+                              <input value={panelName} onChange={e => setPanelName(e.target.value)}
+                                placeholder="e.g. Hayden" style={{ fontSize:13, padding:"6px 10px",
+                                border:"1px solid #E2E8F0", borderRadius:6, outline:"none",
+                                fontFamily:"inherit", color:"#1E293B" }} />
+                              <label style={{ fontSize:12, color:"#64748B", textAlign:"right" }}>Feedback</label>
+                              <textarea value={panelBody} onChange={e => setPanelBody(e.target.value)}
+                                placeholder="Type your feedback here..." rows={2}
+                                style={{ fontSize:13, padding:"6px 10px", border:"1px solid #E2E8F0",
+                                borderRadius:6, outline:"none", fontFamily:"inherit",
+                                resize:"vertical", color:"#1E293B" }} />
+                            </div>
+                            {panelError && <div style={{ fontSize:12, color:"#DC2626", marginTop:8 }}>⚠ {panelError}</div>}
+                            <div style={{ display:"flex", justifyContent:"flex-end", gap:8, marginTop:10 }}>
+                              <button onClick={closePanel} style={{ fontSize:12, padding:"6px 14px",
+                                border:"1px solid #E2E8F0", borderRadius:6, background:"white",
+                                color:"#64748B", cursor:"pointer", fontFamily:"inherit" }}>Cancel</button>
+                              <button onClick={() => {
+                                setPanelLoading(true); setPanelError('');
+                                fetch(`${window.SUPABASE_URL}/rest/v1/comments`, {
+                                  method: 'POST',
+                                  headers: {
+                                    'apikey': window.SUPABASE_ANON_KEY,
+                                    'Authorization': `Bearer ${window.SUPABASE_ANON_KEY}`,
+                                    'Content-Type': 'application/json',
+                                    'Prefer': 'return=representation',
+                                  },
+                                  body: JSON.stringify({
+                                    project_slug: window.PROJECT_SLUG,
+                                    item_type: 'task',
+                                    item_id: `asset:${t.id}`,
+                                    item_text: t.text,
+                                    commenter_name: panelName.trim(),
+                                    body: panelBody.trim(),
+                                  }),
+                                })
+                                .then(res => { if (!res.ok) throw new Error(`Error ${res.status}`); return res.json(); })
+                                .then(([newComment]) => { onCommentAdded(newComment); closePanel(); })
+                                .catch(() => { setPanelError('Something went wrong — please try again.'); })
+                                .finally(() => setPanelLoading(false));
+                              }} disabled={!canSend} style={{
+                                fontSize:12, padding:"6px 14px", border:"none", borderRadius:6,
+                                fontFamily:"inherit", fontWeight:600,
+                                cursor: canSend ? "pointer" : "not-allowed",
+                                background: canSend ? BRAND : "#E2E8F0",
+                                color: canSend ? "white" : "#94A3B8" }}>
+                                {panelLoading ? 'Sending...' : 'Send →'}
+                              </button>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              });
+              return rows;
+            })()}
           </tbody>
         </table>
         </>
       );
     }
 
-    const REACTIONS = [
-      { key:'agree',    emoji:'👍', label:'Agreed',   defaultBody:'Agreed'   },
-      { key:'question', emoji:'❓', label:'Question',  defaultBody:'Question' },
-      { key:'concern',  emoji:'⚠️', label:'Concern',  defaultBody:'Concern'  },
-    ];
-
-    function DecisionRow({ dec, index, comments, onCommentAdded }) {
-      const [selected, setSelected] = useState(null);
-      const [name, setName]         = useState('');
-      const [note, setNote]         = useState('');
-      const [error, setError]       = useState('');
-      const [loading, setLoading]   = useState(false);
-
-      const decComments = comments[`decision-${index}`] || [];
-      const counts = { agree:0, question:0, concern:0 };
-      decComments.forEach(c => { if (c.reaction) counts[c.reaction]++; });
-      const notes = decComments.filter(c => !REACTIONS.map(r=>r.defaultBody).includes(c.body));
-
-      function pickReaction(key) {
-        setSelected(key === selected ? null : key);
-        setName(''); setNote(''); setError('');
-      }
-
-      async function submitReaction() {
-        setLoading(true); setError('');
-        const r = REACTIONS.find(r => r.key === selected);
-        try {
-          const res = await fetch(`${window.SUPABASE_URL}/rest/v1/comments`, {
-            method: 'POST',
-            headers: {
-              'apikey': window.SUPABASE_ANON_KEY,
-              'Authorization': `Bearer ${window.SUPABASE_ANON_KEY}`,
-              'Content-Type': 'application/json',
-              'Prefer': 'return=representation',
-            },
-            body: JSON.stringify({
-              project_slug: window.PROJECT_SLUG,
-              item_type: 'decision',
-              item_id: String(index),
-              item_text: dec.title,
-              commenter_name: name.trim(),
-              body: note.trim() || r.defaultBody,
-              reaction: selected,
-            }),
-          });
-          if (!res.ok) throw new Error(`Error ${res.status}`);
-          const [newComment] = await res.json();
-          onCommentAdded(newComment);
-          setSelected(null); setName(''); setNote('');
-        } catch(e) {
-          setError('Something went wrong — please try again.');
-          console.error('Reaction submit failed:', e);
-        } finally {
-          setLoading(false);
-        }
-      }
-
-      const canConfirm = name.trim() && !loading;
-
-      return (
-        <div style={{ borderBottom:"1px solid #F1F5F9" }}>
-          <div style={{ display:"grid", gridTemplateColumns:"130px 1fr", padding:"16px 18px", gap:16 }}>
-            <span style={{ fontSize:12, color:"#94A3B8", paddingTop:1 }}>{dec.date}</span>
-            <div>
-              <div style={{ fontSize:13, fontWeight:600, color:"#0F172A", marginBottom:4 }}>{dec.title}</div>
-              <div style={{ fontSize:12, color:"#64748B", lineHeight:1.6, marginBottom:12 }}>{dec.detail}</div>
-
-              {/* Notes from reactions that included custom text */}
-              {notes.map((c, ci) => (
-                <div key={ci} style={{ fontSize:12, color:"#64748B", marginBottom:6 }}>
-                  {REACTIONS.find(r=>r.key===c.reaction)?.emoji || '💬'}{' '}
-                  <strong style={{ color:"#374151" }}>{c.commenter_name}</strong>
-                  , {formatDate(c.created_at)} · "{c.body}"
-                </div>
-              ))}
-
-              {/* Reaction buttons */}
-              <div style={{ display:"flex", gap:8, marginTop: notes.length ? 10 : 0 }}>
-                {REACTIONS.map(r => {
-                  const isActive = selected === r.key;
-                  return (
-                    <button key={r.key} onClick={() => pickReaction(r.key)} style={{
-                      fontSize:12, padding:"5px 12px", borderRadius:6, fontFamily:"inherit",
-                      border: isActive ? `1px solid ${BRAND}` : '1px solid #E2E8F0',
-                      background: isActive ? '#ECFDF5' : 'white',
-                      color: isActive ? BRAND : '#374151',
-                      fontWeight: isActive ? 600 : 400,
-                      cursor:"pointer", transition:"all .1s" }}>
-                      {r.emoji} {r.label}{counts[r.key] > 0 ? ` (${counts[r.key]})` : ''}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Confirm form — appears when a reaction is selected */}
-              {selected && (
-                <div style={{ marginTop:10, padding:"12px 14px", background:"#F8FAFC",
-                  borderRadius:8, border:"1px solid #E2E8F0" }}>
-                  <div style={{ fontSize:12, color:"#64748B", marginBottom:8 }}>
-                    {REACTIONS.find(r=>r.key===selected).emoji} {REACTIONS.find(r=>r.key===selected).label} — confirm your name and add an optional note
-                  </div>
-                  <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
-                    <input
-                      value={name}
-                      onChange={e => setName(e.target.value)}
-                      placeholder="Your name"
-                      style={{ fontSize:13, padding:"6px 10px", border:"1px solid #E2E8F0",
-                        borderRadius:6, outline:"none", fontFamily:"inherit", color:"#1E293B", width:160 }}
-                    />
-                    <input
-                      value={note}
-                      onChange={e => setNote(e.target.value)}
-                      placeholder="Add a note (optional)"
-                      style={{ fontSize:13, padding:"6px 10px", border:"1px solid #E2E8F0",
-                        borderRadius:6, outline:"none", fontFamily:"inherit", color:"#1E293B", flex:1, minWidth:160 }}
-                    />
-                  </div>
-                  {error && <div style={{ fontSize:12, color:"#DC2626", marginTop:6 }}>⚠ {error}</div>}
-                  <div style={{ display:"flex", gap:8, marginTop:8 }}>
-                    <button onClick={() => { setSelected(null); setName(''); setNote(''); }} style={{
-                      fontSize:12, padding:"5px 12px", border:"1px solid #E2E8F0",
-                      borderRadius:6, background:"white", color:"#64748B", cursor:"pointer", fontFamily:"inherit" }}>
-                      Cancel
-                    </button>
-                    <button onClick={submitReaction} disabled={!canConfirm} style={{
-                      fontSize:12, padding:"5px 12px", border:"none", borderRadius:6,
-                      fontFamily:"inherit", fontWeight:600,
-                      cursor: canConfirm ? "pointer" : "not-allowed",
-                      background: canConfirm ? BRAND : "#E2E8F0",
-                      color: canConfirm ? "white" : "#94A3B8" }}>
-                      {loading ? 'Submitting...' : 'Confirm →'}
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    function QuestionRow({ item, index, comments, onCommentAdded }) {
-      const [name, setName]       = useState('');
-      const [answer, setAnswer]   = useState('');
-      const [error, setError]     = useState('');
-      const [loading, setLoading] = useState(false);
-
-      const u = URGENCY[item.urgency];
-      const qKey = `question-${item.id || index}`;
-      const qComments = comments[qKey] || [];
-      const canSubmit = name.trim() && answer.trim() && !loading;
-
-      async function submitAnswer() {
-        setLoading(true); setError('');
-        try {
-          const res = await fetch(`${window.SUPABASE_URL}/rest/v1/comments`, {
-            method: 'POST',
-            headers: {
-              'apikey': window.SUPABASE_ANON_KEY,
-              'Authorization': `Bearer ${window.SUPABASE_ANON_KEY}`,
-              'Content-Type': 'application/json',
-              'Prefer': 'return=representation',
-            },
-            body: JSON.stringify({
-              project_slug: window.PROJECT_SLUG,
-              item_type: 'question',
-              item_id: item.id || String(index),
-              item_text: item.q,
-              commenter_name: name.trim(),
-              body: answer.trim(),
-            }),
-          });
-          if (!res.ok) throw new Error(`Error ${res.status}`);
-          const [newComment] = await res.json();
-          onCommentAdded(newComment);
-          setName(''); setAnswer('');
-        } catch(e) {
-          setError('Something went wrong — please try again.');
-          console.error('Answer submit failed:', e);
-        } finally {
-          setLoading(false);
-        }
-      }
-
-      return (
-        <div style={{ borderBottom:"1px solid #F1F5F9" }}>
-          <div style={{ display:"grid", gridTemplateColumns:"80px 1fr", padding:"16px 18px", gap:14, alignItems:"start" }}>
-            <Badge color={u.color} bg={u.bg}>{u.label}</Badge>
-            <div>
-              <div style={{ fontSize:13, color:"#0F172A", fontWeight:500, marginBottom:4 }}>{item.q}</div>
-              <div style={{ fontSize:12, color:"#64748B", lineHeight:1.5, marginBottom:12 }}>{item.note}</div>
-
-              {/* Existing answers */}
-              {qComments.map((c, ci) => (
-                <div key={ci} style={{ fontSize:12, marginBottom:10, padding:"10px 12px",
-                  background:"#F8FAFC", borderRadius:6, borderLeft:`2px solid ${BRAND}` }}>
-                  <span style={{ color:"#94A3B8" }}>
-                    <strong style={{ color:"#374151" }}>{c.commenter_name}</strong>, {formatDate(c.created_at)}
-                  </span>
-                  <div style={{ marginTop:4, color:"#1E293B", lineHeight:1.6, fontSize:13 }}>{c.body}</div>
-                </div>
-              ))}
-
-              {/* Answer form */}
-              <textarea
-                value={answer}
-                onChange={e => setAnswer(e.target.value)}
-                placeholder="Type your answer here..."
-                rows={2}
-                style={{ width:"100%", fontSize:13, padding:"8px 10px", border:"1px solid #E2E8F0",
-                  borderRadius:6, outline:"none", fontFamily:"inherit", resize:"vertical",
-                  color:"#1E293B", marginBottom:8, display:"block" }}
-              />
-              <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
-                <input
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  placeholder="Your name"
-                  style={{ fontSize:13, padding:"6px 10px", border:"1px solid #E2E8F0",
-                    borderRadius:6, outline:"none", fontFamily:"inherit", color:"#1E293B", width:160 }}
-                />
-                <button onClick={submitAnswer} disabled={!canSubmit} style={{
-                  fontSize:12, padding:"6px 16px", border:"none", borderRadius:6,
-                  fontFamily:"inherit", fontWeight:600,
-                  cursor: canSubmit ? "pointer" : "not-allowed",
-                  background: canSubmit ? BRAND : "#E2E8F0",
-                  color: canSubmit ? "white" : "#94A3B8" }}>
-                  {loading ? 'Submitting...' : 'Submit Answer →'}
-                </button>
-                {error && <span style={{ fontSize:12, color:"#DC2626" }}>⚠ {error}</span>}
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
     function App() {
-      const [sel, setSel]           = useState("strategy");
-      const [tab, setTab]           = useState("overview");
       const [comments, setComments] = useState({});
-
-      // Lifted from TaskTable so section headers can also read it
-      const [viewedAssets, setViewedAssets] = useState(() => {
-        try { return new Set(JSON.parse(localStorage.getItem('velo_viewed_assets_v1') || '[]')); }
-        catch { return new Set(); }
-      });
-      function onAssetViewed(assetPath) {
-        if (!viewedAssets.has(assetPath)) {
-          const updated = new Set([...viewedAssets, assetPath]);
-          setViewedAssets(updated);
-          localStorage.setItem('velo_viewed_assets_v1', JSON.stringify([...updated]));
-        }
-      }
-      // Returns true if a discipline has at least one unviewed asset
-      function discHasNew(disc) {
-        return disc.tasks.some(t => t.assetPath && !viewedAssets.has(t.assetPath));
-      }
+      const [activeTab, setActiveTab] = useState('overview');
+      const [viewedAssets, setViewedAssets] = useState(new Set());
 
       useEffect(() => {
-        async function fetchComments() {
-          try {
-            const res = await fetch(
-              `${window.SUPABASE_URL}/rest/v1/comments` +
-              `?project_slug=eq.${window.PROJECT_SLUG}&order=created_at.asc`,
-              { headers: {
-                  'apikey': window.SUPABASE_ANON_KEY,
-                  'Authorization': `Bearer ${window.SUPABASE_ANON_KEY}`,
-              }}
-            );
-            if (!res.ok) throw new Error(`Supabase error: ${res.status}`);
-            const data = await res.json();
-            const grouped = {};
-            data.forEach(c => {
-              const key = `${c.item_type}-${c.item_id}`;
-              if (!grouped[key]) grouped[key] = [];
-              grouped[key].push(c);
-            });
-            setComments(grouped);
-          } catch (e) {
-            console.error('Comments fetch failed:', e);
-          }
-        }
-        fetchComments();
+        const stored = localStorage.getItem('velo_viewed_assets_v1');
+        if (stored) setViewedAssets(new Set(JSON.parse(stored)));
       }, []);
 
-      function onCommentAdded(newComment) {
-        setComments(prev => {
-          const key = `${newComment.item_type}-${newComment.item_id}`;
-          return { ...prev, [key]: [...(prev[key] || []), newComment] };
-        });
+      function handleAssetViewed(assetPath) {
+        const next = new Set(viewedAssets);
+        next.add(assetPath);
+        setViewedAssets(next);
+        localStorage.setItem('velo_viewed_assets_v1', JSON.stringify([...next]));
       }
 
-      const selected  = d.disciplines.find(x => x.id === sel);
-      const total     = d.disciplines.reduce((a,disc) => a + disc.tasks.length, 0);
-      const done      = d.disciplines.reduce((a,disc) => a + disc.tasks.filter(t=>t.status==="done").length, 0);
-      const inProg    = d.disciplines.reduce((a,disc) => a + disc.tasks.filter(t=>t.status==="in-progress").length, 0);
-      const blocked   = d.disciplines.reduce((a,disc) => a + disc.tasks.filter(t=>t.status==="blocked").length, 0);
-      const pct       = total > 0 ? Math.round((done/total)*100) : 0;
+      const allTasks = d.disciplines.flatMap(disc => disc.tasks);
+      const activeTasks = allTasks.filter(t => t.status !== 'done');
+      const doneTasks = allTasks.filter(t => t.status === 'done');
+
+      // Build Supabase comments structure
+      const discHasNew = d.disciplines.map(disc => ({
+        disc,
+        hasComments: disc.tasks.some(t => comments[`task-${t.id}`]?.length > 0 || (t.groupId && comments[`task-group:${t.groupId}`]?.length > 0) || (t.assetPath && comments[`task-asset:${t.id}`]?.length > 0)),
+      }));
 
       return (
-        <div style={{ minHeight:"100vh", background:"#F8FAFC", fontFamily:"'Inter',system-ui,sans-serif" }}>
-
-          {/* ── TOP BAR ── */}
-          <div style={{ background:"white", borderBottom:"1px solid #E2E8F0", padding:"0 28px",
-            display:"flex", alignItems:"center", justifyContent:"space-between",
-            height:56, position:"sticky", top:0, zIndex:10 }}>
-            <div style={{ display:"flex", alignItems:"center", gap:20 }}>
-              <div style={{ display:"flex", alignItems:"center", gap:9 }}>
-                <div style={{ width:28, height:28, borderRadius:6, background:BRAND,
-                  display:"flex", alignItems:"center", justifyContent:"center" }}>
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <rect x="1" y="1" width="5" height="5" rx="1" fill="white" opacity=".9"/>
-                    <rect x="8" y="1" width="5" height="5" rx="1" fill="white" opacity=".6"/>
-                    <rect x="1" y="8" width="5" height="5" rx="1" fill="white" opacity=".6"/>
-                    <rect x="8" y="8" width="5" height="5" rx="1" fill="white" opacity=".9"/>
-                  </svg>
-                </div>
-                <span style={{ fontSize:14, fontWeight:700, color:"#0F172A" }}>{d.name}</span>
-              </div>
-              <span style={{ color:"#E2E8F0" }}>|</span>
-              <div style={{ display:"flex", gap:2 }}>
-                {[["overview","Overview"],["tasks","Tasks"],["decisions","Decisions"],["updates","Weekly Updates"],["questions","Open Questions"]].map(([id,label])=>(
-                  <button key={id} onClick={()=>setTab(id)} style={{
-                    background: tab===id?"#F1F5F9":"transparent", border:"none", cursor:"pointer",
-                    padding:"6px 12px", borderRadius:6, fontSize:13,
-                    fontWeight: tab===id?600:400,
-                    color: tab===id?"#0F172A":"#64748B", fontFamily:"inherit",
-                    display:"flex", alignItems:"center", gap:6 }}>
-                    {label}
-                    {id==="questions" && d.openQuestions.length > 0 && (
-                      <span style={{
-                        background: BRAND, color:"white",
-                        fontSize:10, fontWeight:700, borderRadius:10,
-                        padding:"1px 6px", lineHeight:"16px", minWidth:16,
-                        textAlign:"center" }}>
-                        {d.openQuestions.length}
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </div>
+        <div style={{ maxWidth:1200, margin:"0 auto", padding:"24px 20px" }}>
+          {/* ── Header ── */}
+          <div style={{ marginBottom:32 }}>
+            <h1 style={{ fontSize:28, fontWeight:700, marginBottom:8, color:"#1E293B" }}>{d.name}</h1>
+            <div style={{ display:"flex", alignItems:"center", gap:16, marginBottom:12, flexWrap:"wrap" }}>
+              <span style={{ fontSize:14, color:"#64748B" }}>{d.client}</span>
+              <span style={{ fontSize:12, color:"#94A3B8" }}>Last updated {d.lastUpdated}</span>
             </div>
-            <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-              <span style={{ fontSize:12, color:"#94A3B8" }}>Updated {d.lastUpdated}</span>
-              <div style={{ display:"flex", alignItems:"center", gap:6, background:"#F0FDF4",
-                border:"1px solid #BBF7D0", padding:"4px 10px", borderRadius:6 }}>
-                <div style={{ width:6, height:6, borderRadius:"50%", background:"#059669" }} />
-                <span style={{ fontSize:12, fontWeight:600, color:"#166534" }}>
-                  Phase {d.currentPhase+1}: {d.phases[d.currentPhase]}
-                </span>
+
+            {/* Phase + progress */}
+            <div style={{ marginBottom:16 }}>
+              <div style={{ fontSize:12, color:"#64748B", marginBottom:6 }}>
+                Phase {d.currentPhase + 1}: <strong style={{ color:"#1E293B" }}>{d.phases[d.currentPhase]}</strong>
               </div>
+              <ProgressBar done={d.summary.done} total={d.summary.total} color={BRAND} />
+            </div>
+
+            {/* Summary counts */}
+            <div style={{ display:"flex", gap:20, fontSize:13, flexWrap:"wrap" }}>
+              <div><strong style={{ color:BRAND }}>{d.summary.done}</strong> <span style={{ color:"#64748B" }}>Done</span></div>
+              <div><strong style={{ color:"#2563EB" }}>{d.summary.inProgress}</strong> <span style={{ color:"#64748B" }}>In Progress</span></div>
+              <div><strong style={{ color:"#DC2626" }}>{d.summary.blocked}</strong> <span style={{ color:"#64748B" }}>Blocked</span></div>
+              <div><strong style={{ color:"#9CA3AF" }}>{d.summary.todo}</strong> <span style={{ color:"#64748B" }}>To Do</span></div>
             </div>
           </div>
 
-          <div style={{ maxWidth:1100, margin:"0 auto", padding:"28px" }}>
+          {/* ── Tab navigation ── */}
+          <div style={{ display:"flex", gap:2, borderBottom:"1px solid #E2E8F0", marginBottom:24 }}>
+            {["overview", "tasks", "decisions", "weekly-updates", "open-questions"].map(tab => (
+              <button key={tab} onClick={() => setActiveTab(tab)} style={{
+                padding:"12px 16px", fontSize:13, fontWeight:500, color: activeTab === tab ? BRAND : "#64748B",
+                background:"none", border:"none", borderBottom: activeTab === tab ? `2px solid ${BRAND}` : "none",
+                cursor:"pointer", fontFamily:"inherit", textTransform:"capitalize" }}>
+                {tab === "weekly-updates" ? "Weekly Updates" : tab === "open-questions" ? "Open Questions" : tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </button>
+            ))}
+          </div>
 
-            {/* ── OVERVIEW ── */}
-            {tab==="overview" && <>
+          {/* ── Overview Tab ── */}
+          {activeTab === 'overview' && (
+            <div>
+              {discHasNew.map(({ disc }) => (
+                <div key={disc.id} style={{ marginBottom:32 }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:12 }}>
+                    <span style={{ display:"inline-block", width:12, height:12, borderRadius:"50%",
+                      background:disc.color, flexShrink:0 }} />
+                    <h2 style={{ fontSize:16, fontWeight:600, color:"#1E293B" }}>{disc.label}</h2>
+                    <span style={{ fontSize:12, color:"#94A3B8" }}>
+                      {disc.tasks.filter(t => t.status === 'done').length}/{disc.tasks.length}
+                    </span>
+                  </div>
+                  <TaskTable
+                    tasks={disc.tasks}
+                    comments={comments}
+                    onCommentAdded={(c) => {
+                      const key = c.item_id.startsWith('group:') ? `task-group:${c.item_id.replace('group:', '')}` : `task-${c.item_id}`;
+                      setComments(prev => ({ ...prev, [key]: [...(prev[key] || []), c] }));
+                    }}
+                    viewedAssets={viewedAssets}
+                    onAssetViewed={handleAssetViewed}
+                    feedbackResponses={d.feedbackResponses}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
 
-              {/* Phase bar */}
-              <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:10,
-                padding:"16px 20px", marginBottom:20,
-                display:"flex", alignItems:"center", gap:20 }}>
-                <span style={{ fontSize:11, fontWeight:600, color:"#64748B", whiteSpace:"nowrap" }}>ENGAGEMENT PHASE</span>
-                <div style={{ display:"flex", flex:1, gap:8 }}>
-                  {d.phases.map((p,i)=>(
-                    <div key={p} style={{ flex:1 }}>
-                      <div style={{ height:5, borderRadius:3,
-                        background: i<=d.currentPhase ? BRAND : "#E2E8F0",
-                        opacity: i<d.currentPhase?0.4:1 }} />
-                      <div style={{ fontSize:11, marginTop:5,
-                        color:i===d.currentPhase ? BRAND : "#94A3B8",
-                        fontWeight:i===d.currentPhase?600:400 }}>{p}</div>
+          {/* ── Tasks Tab: Split Active / Done ── */}
+          {activeTab === 'tasks' && (
+            <div>
+              <div style={{ marginBottom:32 }}>
+                <h2 style={{ fontSize:16, fontWeight:600, color:"#1E293B", marginBottom:12 }}>
+                  Active ({activeTasks.length})
+                </h2>
+                <TaskTable
+                  tasks={activeTasks}
+                  comments={comments}
+                  onCommentAdded={(c) => {
+                    const key = `task-${c.item_id}`;
+                    setComments(prev => ({ ...prev, [key]: [...(prev[key] || []), c] }));
+                  }}
+                  viewedAssets={viewedAssets}
+                  onAssetViewed={handleAssetViewed}
+                  feedbackResponses={d.feedbackResponses}
+                />
+              </div>
+
+              <div style={{ marginTop:32 }}>
+                <h2 style={{ fontSize:16, fontWeight:600, color:"#1E293B", marginBottom:12 }}>
+                  Completed ({doneTasks.length})
+                </h2>
+                <TaskTable
+                  tasks={doneTasks}
+                  comments={comments}
+                  onCommentAdded={(c) => {
+                    const key = `task-${c.item_id}`;
+                    setComments(prev => ({ ...prev, [key]: [...(prev[key] || []), c] }));
+                  }}
+                  viewedAssets={viewedAssets}
+                  onAssetViewed={handleAssetViewed}
+                  feedbackResponses={d.feedbackResponses}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* ── Decisions Tab ── */}
+          {activeTab === 'decisions' && (
+            <div style={{ display:"grid", gap:16 }}>
+              {d.decisions.map((dec, i) => (
+                <div key={i} style={{ border:"1px solid #E2E8F0", borderRadius:8, padding:16, background:"white" }}>
+                  <div style={{ display:"flex", alignItems:"flex-start", gap:12, marginBottom:8 }}>
+                    <span style={{ fontSize:11, color:"#94A3B8", minWidth:100, marginTop:2 }}>{dec.date}</span>
+                    <h3 style={{ fontSize:14, fontWeight:600, color:"#1E293B", flex:1 }}>{dec.title}</h3>
+                  </div>
+                  <p style={{ fontSize:13, color:"#374151", lineHeight:1.6, paddingLeft:112 }}>{dec.detail}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* ── Weekly Updates Tab ── */}
+          {activeTab === 'weekly-updates' && (
+            <div>
+              {d.weeklyUpdates && d.weeklyUpdates.length > 0 ? (
+                <div style={{ display:"grid", gap:16 }}>
+                  {d.weeklyUpdates.map((w, i) => (
+                    <div key={i} style={{ border:"1px solid #E2E8F0", borderRadius:8, padding:16, background:"white" }}>
+                      <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:12 }}>
+                        <span style={{ fontSize:12, fontWeight:600, color:BRAND }}>Week {w.week}</span>
+                        <span style={{ fontSize:12, color:"#94A3B8" }}>{w.dateRange}</span>
+                        <ProgressBar done={w.done} total={w.pct} color={BRAND} />
+                      </div>
+                      <div style={{ fontSize:13, color:"#374151", lineHeight:1.6 }}>
+                        <strong>Wins:</strong> {w.wins?.join(", ") || "—"}<br/>
+                        <strong>Next up:</strong> {w.nextUp?.join(", ") || "—"}<br/>
+                        {w.blockers && <><strong>Blockers:</strong> {w.blockers}</>}
+                      </div>
+                      {w.snapshotUrl && (
+                        <a href={w.snapshotUrl} target="_blank" style={{ fontSize:12, color:BRAND, textDecoration:"none", marginTop:8, display:"inline-block" }}>
+                          View full snapshot →
+                        </a>
+                      )}
                     </div>
                   ))}
                 </div>
-              </div>
-
-              {/* Stat cards */}
-              <div style={{ display:"grid", gridTemplateColumns:"repeat(5,1fr)", gap:12, marginBottom:20 }}>
-                {[
-                  { label:"Total Tasks",  value:total,     color:"#1E293B", bg:"white",   border:"#E2E8F0" },
-                  { label:"Done",         value:done,      color:"#059669", bg:"#F0FDF4", border:"#BBF7D0" },
-                  { label:"In Progress",  value:inProg,    color:"#2563EB", bg:"#EFF6FF", border:"#BFDBFE" },
-                  { label:"Blocked",      value:blocked,   color:"#DC2626", bg:"#FEF2F2", border:"#FECACA" },
-                  { label:"Overall",      value:`${pct}%`, color:"#7C3AED", bg:"#F5F3FF", border:"#DDD6FE" },
-                ].map(s=>(
-                  <div key={s.label} style={{ background:s.bg, border:`1px solid ${s.border}`,
-                    borderRadius:10, padding:"16px 18px" }}>
-                    <div style={{ fontSize:26, fontWeight:700, color:s.color, lineHeight:1 }}>{s.value}</div>
-                    <div style={{ fontSize:11, color:"#94A3B8", marginTop:5, fontWeight:500 }}>{s.label}</div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Disciplines table */}
-              <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:10,
-                overflow:"hidden", marginBottom:20 }}>
-                <div style={{ padding:"14px 18px", borderBottom:"1px solid #F1F5F9",
-                  display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-                  <span style={{ fontSize:13, fontWeight:600, color:"#0F172A" }}>Work Areas</span>
-                  <span style={{ fontSize:11, color:"#94A3B8" }}>Click a row to see tasks ↓</span>
-                </div>
-                <table>
-                  <thead>
-                    <tr style={{ background:"#F8FAFC" }}>
-                      {["Area","Progress","Tasks","Active","Blockers","Owner"].map(h=>(
-                        <th key={h} style={{ padding:"9px 16px", textAlign:"left", fontSize:11,
-                          fontWeight:600, color:"#94A3B8", textTransform:"uppercase",
-                          letterSpacing:"0.06em", borderBottom:"1px solid #E2E8F0" }}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {d.disciplines.map(disc=>{
-                      const dDone  = disc.tasks.filter(t=>t.status==="done").length;
-                      const dProg  = disc.tasks.filter(t=>t.status==="in-progress").length;
-                      const dBlock = disc.tasks.filter(t=>t.status==="blocked").length;
-                      const isSel  = sel===disc.id;
-                      return (
-                        <tr key={disc.id} onClick={()=>setSel(disc.id)} style={{
-                          cursor:"pointer", background:isSel?disc.lightColor:"white",
-                          borderLeft:`3px solid ${isSel?disc.color:"transparent"}`,
-                          transition:"background .15s" }}>
-                          <td style={{ padding:"12px 16px", borderBottom:"1px solid #F1F5F9" }}>
-                            <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                              <div style={{ width:28, height:28, borderRadius:6,
-                                background:disc.lightColor, border:`1px solid ${disc.borderColor}`,
-                                display:"flex", alignItems:"center", justifyContent:"center",
-                                fontSize:12, fontWeight:700, color:disc.color }}>
-                                {disc.label[0]}
-                              </div>
-                              <span style={{ fontSize:13, fontWeight:600, color:"#1E293B" }}>{disc.label}</span>
-                              {discHasNew(disc) && (
-                                <span style={{ background:BRAND, color:"white", fontSize:9,
-                                  fontWeight:700, borderRadius:3, padding:"1px 6px",
-                                  letterSpacing:"0.06em", textTransform:"uppercase" }}>NEW</span>
-                              )}
-                            </div>
-                          </td>
-                          <td style={{ padding:"12px 16px", borderBottom:"1px solid #F1F5F9", width:180 }}>
-                            <ProgressBar done={dDone} total={disc.tasks.length} color={disc.color} />
-                          </td>
-                          <td style={{ padding:"12px 16px", borderBottom:"1px solid #F1F5F9", textAlign:"center" }}>
-                            <span style={{ fontSize:13, fontWeight:600, color:"#1E293B" }}>{disc.tasks.length}</span>
-                          </td>
-                          <td style={{ padding:"12px 16px", borderBottom:"1px solid #F1F5F9" }}>
-                            {dProg>0 && <Badge color={STATUS["in-progress"].badgeText} bg={STATUS["in-progress"].badge}>{dProg} active</Badge>}
-                          </td>
-                          <td style={{ padding:"12px 16px", borderBottom:"1px solid #F1F5F9" }}>
-                            {dBlock>0
-                              ? <Badge color={STATUS.blocked.badgeText} bg={STATUS.blocked.badge}>{dBlock} blocked</Badge>
-                              : <span style={{ fontSize:11, color:"#CBD5E1" }}>—</span>}
-                          </td>
-                          <td style={{ padding:"12px 16px", borderBottom:"1px solid #F1F5F9" }}>
-                            <span style={{ fontSize:12, color:"#94A3B8" }}>{disc.owner}</span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Task detail */}
-              {selected && (
-                <div style={{ background:"white", border:`1px solid ${selected.borderColor}`,
-                  borderRadius:10, overflow:"hidden" }}>
-                  <div style={{ padding:"14px 18px", borderBottom:"1px solid #F1F5F9",
-                    background:selected.lightColor, display:"flex", alignItems:"center", gap:10 }}>
-                    <div style={{ width:28, height:28, borderRadius:6, background:"white",
-                      border:`1px solid ${selected.borderColor}`,
-                      display:"flex", alignItems:"center", justifyContent:"center",
-                      fontSize:12, fontWeight:700, color:selected.color }}>{selected.label[0]}</div>
-                    <span style={{ fontSize:13, fontWeight:600, color:"#0F172A" }}>{selected.label} Tasks</span>
-                    <span style={{ fontSize:11, color:"#94A3B8" }}>{selected.tasks.length} total</span>
-                  </div>
-                  <TaskTable tasks={selected.tasks} comments={comments} onCommentAdded={onCommentAdded} viewedAssets={viewedAssets} onAssetViewed={onAssetViewed} />
-                </div>
+              ) : (
+                <p style={{ color:"#94A3B8", fontSize:13 }}>No weekly updates yet. They'll appear here every Friday.</p>
               )}
+            </div>
+          )}
 
-              {/* ── Open Questions callout ── */}
-              {d.openQuestions.length > 0 && (
-                <div style={{ background:"#FFFBEB", border:`1px solid #FDE68A`,
-                  borderRadius:10, padding:"16px 20px", marginTop:16 }}>
-                  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12 }}>
-                    <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-                      <span style={{ fontSize:13, fontWeight:700, color:"#92400E" }}>
-                        ❓ {d.openQuestions.length} Open Question{d.openQuestions.length !== 1 ? "s" : ""} Need{d.openQuestions.length === 1 ? "s" : ""} Answering
-                      </span>
-                    </div>
-                    <button onClick={() => setTab("questions")} style={{
-                      background:BRAND, color:"white", border:"none", borderRadius:6,
-                      padding:"4px 12px", fontSize:12, fontWeight:600,
-                      cursor:"pointer", fontFamily:"inherit" }}>
-                      Answer →
-                    </button>
-                  </div>
+          {/* ── Open Questions Tab ── */}
+          {activeTab === 'open-questions' && (
+            <div>
+              {d.openQuestions && d.openQuestions.length > 0 ? (
+                <div style={{ display:"grid", gap:16 }}>
                   {d.openQuestions.map((q, i) => {
-                    const u = URGENCY[q.urgency];
+                    const u = URGENCY[q.urgency] || URGENCY.medium;
                     return (
-                      <div key={q.id || i} style={{
-                        display:"flex", alignItems:"flex-start", gap:10,
-                        padding:"8px 0",
-                        borderTop: i > 0 ? "1px solid #FDE68A" : "none" }}>
-                        <Badge color={u.color} bg={u.bg} style={{ flexShrink:0, marginTop:1 }}>{u.label}</Badge>
-                        <span style={{ fontSize:13, color:"#78350F" }}>{q.q}</span>
+                      <div key={i} style={{ border:`1px solid ${u.color}44`, borderLeft:`3px solid ${u.color}`, borderRadius:8, padding:16, background:u.bg }}>
+                        <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6 }}>
+                          <Badge color={u.color} bg={u.bg}>{u.label}</Badge>
+                        </div>
+                        <h3 style={{ fontSize:14, fontWeight:600, color:"#1E293B", marginBottom:6 }}>{q.question}</h3>
+                        {q.context && <p style={{ fontSize:13, color:"#374151", lineHeight:1.6 }}>{q.context}</p>}
                       </div>
                     );
                   })}
                 </div>
+              ) : (
+                <p style={{ color:"#94A3B8", fontSize:13 }}>No open questions right now.</p>
               )}
-            </>}
-
-            {/* ── TASKS ── */}
-            {tab==="tasks" && (
-              <div style={{ display:"grid", gridTemplateColumns:"200px 1fr", gap:16 }}>
-                <div style={{ background:"white", border:"1px solid #E2E8F0",
-                  borderRadius:10, overflow:"hidden", alignSelf:"start" }}>
-                  {d.disciplines.map(disc=>{
-                    const dDone = disc.tasks.filter(t=>t.status==="done").length;
-                    return (
-                      <div key={disc.id} onClick={()=>setSel(disc.id)} style={{
-                        padding:"10px 14px", cursor:"pointer",
-                        display:"flex", justifyContent:"space-between", alignItems:"center",
-                        background:sel===disc.id?disc.lightColor:"white",
-                        borderLeft:`3px solid ${sel===disc.id?disc.color:"transparent"}`,
-                        borderBottom:"1px solid #F1F5F9" }}>
-                        <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                          <span style={{ fontSize:13, fontWeight:sel===disc.id?600:400,
-                            color:sel===disc.id?disc.color:"#374151" }}>{disc.label}</span>
-                          {discHasNew(disc) && (
-                            <span style={{ background:BRAND, color:"white", fontSize:9,
-                              fontWeight:700, borderRadius:3, padding:"1px 5px",
-                              letterSpacing:"0.06em", textTransform:"uppercase" }}>NEW</span>
-                          )}
-                        </div>
-                        <span style={{ fontSize:11, color:"#94A3B8" }}>{dDone}/{disc.tasks.length}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-                {selected && (
-                  <div style={{ background:"white", border:"1px solid #E2E8F0",
-                    borderRadius:10, overflow:"hidden" }}>
-                    <div style={{ padding:"14px 18px", borderBottom:"1px solid #F1F5F9",
-                      background:selected.lightColor }}>
-                      <span style={{ fontSize:14, fontWeight:600, color:"#0F172A" }}>{selected.label}</span>
-                    </div>
-                    <TaskTable tasks={selected.tasks} comments={comments} onCommentAdded={onCommentAdded} viewedAssets={viewedAssets} onAssetViewed={onAssetViewed} />
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* ── DECISIONS ── */}
-            {tab==="decisions" && (
-              <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:10, overflow:"hidden" }}>
-                <div style={{ padding:"14px 18px", borderBottom:"1px solid #F1F5F9" }}>
-                  <span style={{ fontSize:13, fontWeight:600, color:"#0F172A" }}>Decision Log</span>
-                  <span style={{ fontSize:12, color:"#94A3B8", marginLeft:8 }}>{d.decisions.length} recorded</span>
-                </div>
-                {d.decisions.map((dec, i) => (
-                  <DecisionRow key={i} dec={dec} index={i} comments={comments} onCommentAdded={onCommentAdded} />
-                ))}
-                <div style={{ padding:"12px 18px", background:"#F8FAFC",
-                  borderTop:"1px solid #E2E8F0", fontSize:12, color:"#94A3B8" }}>
-                  💡 After each Cowork session, new decisions will be automatically logged here.
-                </div>
-              </div>
-            )}
-
-            {/* ── WEEKLY UPDATES ── */}
-            {tab==="updates" && (
-              <div>
-                <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:10,
-                  overflow:"hidden", marginBottom:16 }}>
-                  <div style={{ padding:"14px 18px", borderBottom:"1px solid #F1F5F9",
-                    display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-                    <div>
-                      <span style={{ fontSize:13, fontWeight:600, color:"#0F172A" }}>Weekly Snapshots</span>
-                      <span style={{ fontSize:12, color:"#94A3B8", marginLeft:8 }}>
-                        {d.weeklyUpdates.length} week{d.weeklyUpdates.length !== 1 ? "s" : ""} tracked
-                      </span>
-                    </div>
-                    <span style={{ fontSize:11, color:"#94A3B8" }}>Updated every Friday at 6:45am</span>
-                  </div>
-
-                  {d.weeklyUpdates.length === 0 ? (
-                    <div style={{ padding:"40px 24px", textAlign:"center", color:"#94A3B8" }}>
-                      <div style={{ fontSize:32, marginBottom:10 }}>📊</div>
-                      <div style={{ fontSize:13, fontWeight:500, color:"#64748B", marginBottom:6 }}>
-                        First snapshot posts this Friday
-                      </div>
-                      <div style={{ fontSize:12 }}>
-                        Weekly progress summaries will appear here automatically — week over week.
-                      </div>
-                    </div>
-                  ) : (
-                    d.weeklyUpdates.slice().reverse().map((w, i) => (
-                      <div key={i} style={{ display:"grid", gridTemplateColumns:"140px 1fr",
-                        padding:"18px 18px", borderBottom:"1px solid #F8FAFC", gap:16, alignItems:"start" }}>
-                        {/* Left — week label + date */}
-                        <div>
-                          <div style={{ fontSize:12, fontWeight:700, color:"#0F172A" }}>Week {w.week}</div>
-                          <div style={{ fontSize:11, color:"#94A3B8", marginTop:2 }}>{w.dateRange}</div>
-                          <div style={{ marginTop:10, display:"flex", alignItems:"center", gap:6 }}>
-                            <div style={{ width:48, height:4, background:"#E2E8F0", borderRadius:2, overflow:"hidden" }}>
-                              <div style={{ width:`${w.pct}%`, height:"100%", background:BRAND, borderRadius:2 }} />
-                            </div>
-                            <span style={{ fontSize:11, color:BRAND, fontWeight:600 }}>{w.pct}%</span>
-                          </div>
-                          <div style={{ marginTop:8, display:"flex", gap:8, flexWrap:"wrap" }}>
-                            <span style={{ fontSize:11, color:"#059669", fontWeight:600 }}>✓ {w.done} done</span>
-                            {w.blockers > 0 && (
-                              <span style={{ fontSize:11, color:"#DC2626", fontWeight:600 }}>⚠ {w.blockers} blocked</span>
-                            )}
-                          </div>
-                          {w.snapshotUrl && (
-                            <a href={w.snapshotUrl} target="_blank" rel="noreferrer" style={{
-                              display:"inline-block", marginTop:10, fontSize:11,
-                              color:BRAND, textDecoration:"none", fontWeight:500 }}>
-                              View full report →
-                            </a>
-                          )}
-                        </div>
-
-                        {/* Right — wins + next up */}
-                        <div>
-                          {w.wins && w.wins.length > 0 && (
-                            <div style={{ marginBottom:10 }}>
-                              <div style={{ fontSize:11, fontWeight:600, color:"#64748B",
-                                textTransform:"uppercase", letterSpacing:"0.05em", marginBottom:6 }}>
-                                This Week
-                              </div>
-                              {w.wins.map((win, wi) => (
-                                <div key={wi} style={{ fontSize:12, color:"#1E293B",
-                                  marginBottom:4, display:"flex", gap:6 }}>
-                                  <span style={{ color:"#059669", flexShrink:0 }}>✓</span>
-                                  <span>{win}</span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                          {w.nextUp && w.nextUp.length > 0 && (
-                            <div>
-                              <div style={{ fontSize:11, fontWeight:600, color:"#64748B",
-                                textTransform:"uppercase", letterSpacing:"0.05em", marginBottom:6 }}>
-                                Next Week
-                              </div>
-                              {w.nextUp.map((next, ni) => (
-                                <div key={ni} style={{ fontSize:12, color:"#64748B",
-                                  marginBottom:4, display:"flex", gap:6 }}>
-                                  <span style={{ color:"#94A3B8", flexShrink:0 }}>→</span>
-                                  <span>{next}</span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* ── OPEN QUESTIONS ── */}
-            {tab==="questions" && (
-              <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:10, overflow:"hidden" }}>
-                <div style={{ padding:"14px 18px", borderBottom:"1px solid #F1F5F9" }}>
-                  <span style={{ fontSize:13, fontWeight:600, color:"#0F172A" }}>Open Questions</span>
-                  <span style={{ fontSize:12, color:"#94A3B8", marginLeft:8 }}>
-                    {d.openQuestions.length} need answers
-                  </span>
-                </div>
-                {d.openQuestions.map((item, i) => (
-                  <QuestionRow key={item.id || i} item={item} index={i} comments={comments} onCommentAdded={onCommentAdded} />
-                ))}
-              </div>
-            )}
-
-          </div>
-
+            </div>
+          )}
         </div>
       );
     }
 
-    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    ReactDOM.render(<App />, document.getElementById('root'));
   </script>
 </body>
 </html>
