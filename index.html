@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Operative — Project Dashboard</title>
+  <title>Velo — Project Dashboard</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
@@ -332,7 +332,9 @@
   <script>
     window.SUPABASE_URL      = 'https://gzpuectetjatqbpcdgqt.supabase.co';
     window.SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6cHVlY3RldGphdHFicGNkZ3F0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MTc3MTMsImV4cCI6MjA4ODI5MzcxM30.KkIr6SSqQtO3aGDtCCxUIBOgbEgjtVeqExlW_Yv-QZ0';
-    window.PROJECT_SLUG      = 'operative'; // ← change this per client dashboard
+
+    // Multi-tenant routing: read project slug from URL (?p=slug), default to 'operative'
+    window.PROJECT_SLUG = new URLSearchParams(window.location.search).get('p') || 'operative';
   </script>
 
   <!-- ============================================================
@@ -2547,6 +2549,11 @@
       const [transition, setTransition] = React.useState(0);
       const prevSession = React.useRef(null);
 
+      // ── PROJECT ROUTING STATE (must be declared before any returns) ──
+      const [userProjects, setUserProjects] = React.useState(null);
+      const [projectsLoading, setProjectsLoading] = React.useState(true);
+      const [accessDenied, setAccessDenied] = React.useState(false);
+
       React.useEffect(() => {
         supabase.auth.getSession().then(({ data: { session: s } }) => {
           prevSession.current = s; // if already logged in, record it (no animation)
@@ -2568,6 +2575,39 @@
         });
         return () => subscription.unsubscribe();
       }, []);
+
+      // ── LOAD USER'S PROJECTS after auth ──
+      React.useEffect(() => {
+        if (!session) { setProjectsLoading(false); return; }
+        async function loadProjects() {
+          try {
+            const res = await fetch(
+              `${window.SUPABASE_URL}/rest/v1/project_members?user_id=eq.${session.user.id}&select=project_slug,role,projects(slug,name,client_name,status)`,
+              { headers: {
+                'apikey': window.SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${session.access_token}`,
+                'Accept': 'application/json'
+              }}
+            );
+            const data = await res.json();
+            setUserProjects(data || []);
+
+            // If URL has ?p= slug, verify access
+            const urlSlug = window.PROJECT_SLUG;
+            if (urlSlug && data && data.length > 0) {
+              const hasAccess = data.some(function(m) { return m.project_slug === urlSlug; });
+              if (!hasAccess) {
+                setAccessDenied(true);
+              }
+            }
+          } catch (err) {
+            console.error('Failed to load projects:', err);
+            setUserProjects([]);
+          }
+          setProjectsLoading(false);
+        }
+        loadProjects();
+      }, [session?.user?.id]);
 
       async function handleSubmit(e) {
         e.preventDefault();
@@ -2810,6 +2850,120 @@
       // Authenticated — render the dashboard
       window.__supabaseSession = session;
       window.__supabaseLogout = handleLogout;
+
+      // Still loading projects after auth
+      if (session && projectsLoading) {
+        return h("div", {
+          style: { display:"flex", alignItems:"center", justifyContent:"center",
+            minHeight:"100vh", background:"#1C1C2A", color:"#FBF7F2",
+            fontFamily:"Inter, system-ui, sans-serif" }
+        }, h("div", { style: { textAlign:"center" } },
+          h("div", {
+            style: { width:40, height:40, border:"3px solid #E07A2F33",
+              borderTopColor:"#E07A2F", borderRadius:"50%",
+              animation:"spin 0.8s linear infinite", margin:"0 auto 16px" }
+          }),
+          h("div", { style: { color:"#64748B", fontSize:14 } }, "Loading your projects...")
+        ));
+      }
+
+      // Access denied — user doesn't have this project
+      if (accessDenied) {
+        return h("div", {
+          style: { display:"flex", alignItems:"center", justifyContent:"center",
+            minHeight:"100vh", background:"#1C1C2A", fontFamily:"Inter, system-ui, sans-serif" }
+        }, h("div", {
+          style: { width:400, padding:"40px 36px", background:"#252536",
+            borderRadius:16, border:"1px solid rgba(255,255,255,0.08)",
+            boxShadow:"0 20px 60px rgba(0,0,0,0.4)", textAlign:"center" }
+        },
+          h("div", { style: { fontSize:48, marginBottom:16 } }, "\uD83D\uDD12"),
+          h("div", { style: { color:"#FBF7F2", fontSize:20, fontWeight:700, marginBottom:8 } },
+            "Access Denied"),
+          h("div", { style: { color:"#64748B", fontSize:14, marginBottom:24, lineHeight:1.6 } },
+            "You don't have access to this project. If you think this is an error, contact your project admin."),
+          h("button", {
+            onClick: handleLogout,
+            style: { padding:"10px 24px", fontSize:14, fontWeight:600,
+              background:"#E07A2F", color:"white", border:"none", borderRadius:8,
+              cursor:"pointer", fontFamily:"inherit" }
+          }, "Sign Out")
+        ));
+      }
+
+      // Admin with no specific project slug — show project picker
+      const isAdmin = userProjects && userProjects.some(m => m.role === 'admin');
+      const hasUrlSlug = new URLSearchParams(window.location.search).has('p');
+
+      if (isAdmin && !hasUrlSlug && userProjects && userProjects.length > 1) {
+        return h("div", {
+          style: { display:"flex", alignItems:"center", justifyContent:"center",
+            minHeight:"100vh", background:"#1C1C2A", fontFamily:"Inter, system-ui, sans-serif" }
+        }, h("div", {
+          style: { width:500, padding:"40px 36px", background:"#252536",
+            borderRadius:16, border:"1px solid rgba(255,255,255,0.08)",
+            boxShadow:"0 20px 60px rgba(0,0,0,0.4)" }
+        },
+          // Header
+          h("div", { style: { textAlign:"center", marginBottom:32 } },
+            h("div", {
+              style: { width:48, height:48, background:"#E07A2F", borderRadius:12,
+                display:"inline-flex", alignItems:"center", justifyContent:"center",
+                marginBottom:12 }
+            }, h("span", { style: { color:"white", fontWeight:800, fontSize:22 } }, "V")),
+            h("h1", { style: { color:"#FBF7F2", fontSize:22, fontWeight:700, marginBottom:4 } },
+              "Your Projects"),
+            h("p", { style: { color:"#64748B", fontSize:13 } },
+              "Select a project to view its dashboard")
+          ),
+
+          // Project list
+          h("div", { style: { display:"flex", flexDirection:"column", gap:12 } },
+            userProjects.map(function(m) {
+              const proj = m.projects;
+              if (!proj) return null;
+              const statusColors = { active: "#10B981", paused: "#F59E0B", completed: "#3B82F6", archived: "#64748B" };
+              return h("a", {
+                key: m.project_slug,
+                href: "?p=" + m.project_slug,
+                style: {
+                  display:"flex", alignItems:"center", justifyContent:"space-between",
+                  padding:"16px 20px", background:"rgba(255,255,255,0.04)",
+                  border:"1px solid rgba(255,255,255,0.08)", borderRadius:12,
+                  textDecoration:"none", cursor:"pointer",
+                  transition:"all 0.15s"
+                },
+                onMouseOver: function(e) { e.currentTarget.style.background = "rgba(224,122,47,0.08)"; e.currentTarget.style.borderColor = "rgba(224,122,47,0.3)"; },
+                onMouseOut: function(e) { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }
+              },
+                h("div", null,
+                  h("div", { style: { color:"#FBF7F2", fontSize:15, fontWeight:600, marginBottom:4 } }, proj.name),
+                  h("div", { style: { color:"#64748B", fontSize:12 } },
+                    proj.client_name || m.project_slug, " \u00B7 ", m.role)
+                ),
+                h("div", { style: { display:"flex", alignItems:"center", gap:8 } },
+                  h("span", {
+                    style: { display:"inline-block", width:8, height:8, borderRadius:"50%",
+                      background: statusColors[proj.status] || "#64748B" }
+                  }),
+                  h("span", { style: { color:"#94A3B8", fontSize:12, textTransform:"capitalize" } },
+                    proj.status || "active"),
+                  h("span", { style: { color:"#64748B", fontSize:16, marginLeft:8 } }, "\u2192")
+                )
+              );
+            })
+          ),
+
+          // Sign out link
+          h("div", { style: { textAlign:"center", marginTop:24 } },
+            h("button", {
+              onClick: handleLogout,
+              style: { background:"none", border:"none", color:"#64748B", fontSize:12,
+                cursor:"pointer", fontFamily:"inherit" }
+            }, "Sign out")
+          )
+        ));
+      }
 
       // Welcome transition overlay
       if (transition === 1 || transition === 2) {
