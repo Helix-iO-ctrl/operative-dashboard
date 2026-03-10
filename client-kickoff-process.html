@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Velo — Client Kickoff Process</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #1C1C2A;
+      color: #FBF7F2;
+      min-height: 100vh;
+      padding: 40px 20px 80px;
+    }
+
+    .container { max-width: 1100px; margin: 0 auto; }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+    .header .brand {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #E07A2F;
+      margin-bottom: 12px;
+    }
+    .header h1 {
+      font-size: 36px;
+      font-weight: 800;
+      color: #FBF7F2;
+      margin-bottom: 8px;
+    }
+    .header .subtitle {
+      font-size: 16px;
+      color: #94A3B8;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+
+    /* Timeline */
+    .timeline {
+      position: relative;
+      padding-left: 0;
+    }
+
+    /* Phase blocks */
+    .phase {
+      position: relative;
+      margin-bottom: 48px;
+    }
+    .phase:last-child { margin-bottom: 0; }
+
+    .phase-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .phase-number {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .phase-title-block {
+      flex: 1;
+    }
+    .phase-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    .phase-timing {
+      font-size: 13px;
+      color: #94A3B8;
+      font-weight: 500;
+    }
+
+    /* Phase colors */
+    .phase-0 .phase-number { background: #E07A2F; color: #1C1C2A; }
+    .phase-1 .phase-number { background: #2563EB; color: #fff; }
+    .phase-2 .phase-number { background: #16A34A; color: #fff; }
+    .phase-3 .phase-number { background: #9333EA; color: #fff; }
+
+    .phase-0 .phase-title { color: #E07A2F; }
+    .phase-1 .phase-title { color: #60A5FA; }
+    .phase-2 .phase-title { color: #4ADE80; }
+    .phase-3 .phase-title { color: #C084FC; }
+
+    /* Steps grid */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 14px;
+      margin-left: 64px;
+    }
+
+    .step {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 18px 20px;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .step:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.15);
+      transform: translateY(-2px);
+    }
+
+    .step-number {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      opacity: 0.5;
+    }
+    .step-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      line-height: 1.35;
+    }
+    .step-detail {
+      font-size: 13px;
+      color: #94A3B8;
+      line-height: 1.5;
+    }
+
+    .step-icon {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      font-size: 20px;
+      opacity: 0.7;
+    }
+
+    /* Owner badge */
+    .owner-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 100px;
+      margin-top: 10px;
+      background: rgba(255,255,255,0.08);
+      color: #94A3B8;
+    }
+
+    /* Connector arrows between phases */
+    .connector {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: -12px 0 -12px 64px;
+      padding: 8px 0;
+    }
+    .connector svg { opacity: 0.25; }
+
+    /* Outcome block */
+    .outcome {
+      margin-top: 48px;
+      margin-left: 64px;
+      background: linear-gradient(135deg, rgba(224,122,47,0.12), rgba(224,122,47,0.04));
+      border: 1px solid rgba(224,122,47,0.25);
+      border-radius: 16px;
+      padding: 28px 32px;
+    }
+    .outcome-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #E07A2F;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .outcome-items {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 10px;
+    }
+    .outcome-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 14px;
+      color: #CBD5E1;
+      line-height: 1.45;
+    }
+    .outcome-check {
+      color: #E07A2F;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* Repeat banner */
+    .repeat-banner {
+      margin-top: 40px;
+      text-align: center;
+      padding: 20px;
+      border: 1px dashed rgba(255,255,255,0.15);
+      border-radius: 12px;
+      color: #64748B;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .repeat-banner span { color: #E07A2F; font-weight: 700; }
+
+    /* Responsive */
+    @media (max-width: 680px) {
+      .steps { margin-left: 0; grid-template-columns: 1fr; }
+      .connector { margin-left: 0; }
+      .outcome { margin-left: 0; }
+      .header h1 { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="brand">Velo</div>
+      <h1>Client Kickoff Process</h1>
+      <div class="subtitle">The standardized workflow for taking a new client from "interested" to actively delivering results in under one week.</div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="timeline">
+
+      <!-- Phase 0 -->
+      <div class="phase phase-0">
+        <div class="phase-header">
+          <div class="phase-number">0</div>
+          <div class="phase-title-block">
+            <div class="phase-title">Pre-Kickoff</div>
+            <div class="phase-timing">15–30 minutes &middot; Before the discovery meeting</div>
+          </div>
+        </div>
+        <div class="steps">
+          <div class="step">
+            <div class="step-icon">📁</div>
+            <div class="step-number">Step 1</div>
+            <div class="step-title">Copy the client folder template</div>
+            <div class="step-detail">Duplicate the template folder and rename it for the new client. All skills, task files, and doc structures come pre-loaded.</div>
+            <div class="owner-badge">Hayden</div>
+          </div>
+          <div class="step">
+            <div class="step-icon">✏️</div>
+            <div class="step-number">Step 2</div>
+            <div class="step-title">Fill in CLAUDE.md basics</div>
+            <div class="step-detail">Client name, business type, team size, stage, and a one-sentence description of what they need help with.</div>
+            <div class="owner-badge">Hayden</div>
+          </div>
+          <div class="step">
+            <div class="step-icon">📅</div>
+            <div class="step-number">Step 3</div>
+            <div class="step-title">Schedule discovery meeting</div>
+            <div class="step-detail">45–60 min, video or in-person. Send the pre-call prep message so they come ready.</div>
+            <div class="owner-badge">Hayden</div>
+          </div>
+          <div class="step">
+            <div class="step-icon">💰</div>
+            <div class="step-number">Step 4</div>
+            <div class="step-title">Determine engagement type</div>
+            <div class="step-detail">Free founding (case study), Tier 1 advisory ($2k/mo), or Tier 2 embedded build ($3k–$15k project).</div>
+            <div class="owner-badge">Hayden</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Connector -->
+      <div class="connector">
+        <svg width="24" height="32" viewBox="0 0 24 32" fill="none"><path d="M12 0v28m0 0l-6-6m6 6l6-6" stroke="#FBF7F2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+
+      <!-- Phase 1 -->
+      <div class="phase phase-1">
+        <div class="phase-header">
+          <div class="phase-number">1</div>
+          <div class="phase-title-block">
+            <div class="phase-title">Discovery Meeting</div>
+            <div class="phase-timing">45–60 minutes &middot; Session 1 with the client</div>
+          </div>
+        </div>
+        <div class="steps">
+          <div class="step">
+            <div class="step-icon">🏢</div>
+            <div class="step-number">Block 1</div>
+            <div class="step-title">Business fundamentals</div>
+            <div class="step-detail">What they do, ideal customer, revenue model, revenue range. Get the baseline picture in 10 min.</div>
+            <div class="owner-badge">Hayden + Client</div>
+          </div>
+          <div class="step">
+            <div class="step-icon">🎯</div>
+            <div class="step-number">Block 2</div>
+            <div class="step-title">Goals & vision</div>
+            <div class="step-detail">What does success look like in 90 days? In 12 months? Define the target before building the plan.</div>
+            <div class="owner-badge">Hayden + Client</div>
+          </div>
+          <div class="step">
+            <div class="step-icon">🚧</div>
+            <div class="step-number">Block 3</div>
+            <div class="step-title">Constraints & pain points</div>
+            <div class="step-detail">Biggest blocker, what they've tried, what not to change. Understand the real problem.</div>
+            <div class="owner-badge">Hayden + Client</div>
+          </div>
+          <div class="step">
+            <div class="step-icon">🤝</div>
+            <div class="step-number">Block 4</div>
+            <div class="step-title">Resources & the pitch</div>
+            <div class="step-detail">Budget, team, time commitment. Then show the dashboard demo and explain how Velo works.</div>
+            <div class="owner-badge">Hayden + Client</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Connector -->
+      <div class="connector">
+        <svg width="24" height="32" viewBox="0 0 24 32" fill="none"><path d="M12 0v28m0 0l-6-6m6 6l6-6" stroke="#FBF7F2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+
+      <!-- Phase 2 -->
+      <div class="phase phase-2">
+        <div class="phase-header">
+          <div class="phase-number">2</div>
+          <div class="phase-title-block">
+            <div class="phase-title">Project Setup</div>
+            <div class="phase-timing">1–2 hours &middot; Within 24 hours of discovery</div>
+          </div>
+        </div>
+        <div class="steps">
+          <div class="step">
+            <div class="step-icon">🤖</div>
+            <div class="step-number">Step 1</div>
+            <div class="step-title">Cowork processes discovery</div>
+            <div class="step-detail">Paste notes into Cowork. It populates the business brief, assumptions, tasks across all disciplines, and dashboard data.</div>
+            <div class="owner-badge">Cowork (AI)</div>
+          </div>
+          <div class="step">
+            <div class="step-icon">📊</div>
+            <div class="step-number">Step 2</div>
+            <div class="step-title">Dashboard goes live</div>
+            <div class="step-detail">Create GitHub repo, push dashboard, get a live URL. Client can see real-time progress from day one.</div>
+            <div class="owner-badge">Cowork (AI)</div>
+          </div>
+          <div class="step">
+            <div class="step-icon">👋</div>
+            <div class="step-number">Step 3</div>
+            <div class="step-title">Send welcome message</div>
+            <div class="step-detail">Dashboard link, what to expect, weekly snapshot rhythm, and how decisions get flagged. Sets the tone.</div>
+            <div class="owner-badge">Hayden</div>
+          </div>
+          <div class="step">
+            <div class="step-icon">📝</div>
+            <div class="step-number">Step 4</div>
+            <div class="step-title">Case study agreement</div>
+            <div class="step-detail">For founding clients: send the agreement covering metrics sharing, testimonial, and referral terms.</div>
+            <div class="owner-badge">Hayden</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Connector -->
+      <div class="connector">
+        <svg width="24" height="32" viewBox="0 0 24 32" fill="none"><path d="M12 0v28m0 0l-6-6m6 6l6-6" stroke="#FBF7F2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+
+      <!-- Phase 3 -->
+      <div class="phase phase-3">
+        <div class="phase-header">
+          <div class="phase-number">3</div>
+          <div class="phase-title-block">
+            <div class="phase-title">First Delivery</div>
+            <div class="phase-timing">2–4 hours across sessions &middot; Within first week</div>
+          </div>
+        </div>
+        <div class="steps">
+          <div class="step">
+            <div class="step-icon">⚡</div>
+            <div class="step-number">Step 1</div>
+            <div class="step-title">Ship a quick win</div>
+            <div class="step-detail">Before Week 1 ends, deliver something tangible — a prototype, report, process map, or tool. Builds trust and momentum.</div>
+            <div class="owner-badge">Hayden + Cowork</div>
+          </div>
+          <div class="step">
+            <div class="step-icon">📋</div>
+            <div class="step-number">Step 2</div>
+            <div class="step-title">First weekly snapshot</div>
+            <div class="step-detail">Even after a few days, send the first one-page update. Establishes the weekly rhythm from the start.</div>
+            <div class="owner-badge">Cowork (AI)</div>
+          </div>
+          <div class="step">
+            <div class="step-icon">🔄</div>
+            <div class="step-number">Step 3</div>
+            <div class="step-title">Schedule weekly check-in</div>
+            <div class="step-detail">30 min, same time each week. Client reviews progress, gives feedback, and surfaces new priorities.</div>
+            <div class="owner-badge">Hayden</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /timeline -->
+
+    <!-- Outcome -->
+    <div class="outcome">
+      <div class="outcome-title">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 0l2.35 6.56H19.02l-5.39 3.92 2.06 6.34L10 12.9l-5.69 3.92 2.06-6.34L1 6.56h6.65L10 0z" fill="#E07A2F"/></svg>
+        After Week 1, the client has:
+      </div>
+      <div class="outcome-items">
+        <div class="outcome-item"><span class="outcome-check">&#10003;</span> A live dashboard with real-time progress</div>
+        <div class="outcome-item"><span class="outcome-check">&#10003;</span> A fully populated project folder with all docs</div>
+        <div class="outcome-item"><span class="outcome-check">&#10003;</span> At least one tangible deliverable shipped</div>
+        <div class="outcome-item"><span class="outcome-check">&#10003;</span> A weekly snapshot rhythm established</div>
+        <div class="outcome-item"><span class="outcome-check">&#10003;</span> A recurring 30-min check-in on the calendar</div>
+        <div class="outcome-item"><span class="outcome-check">&#10003;</span> Clear expectations for how the engagement works</div>
+      </div>
+    </div>
+
+    <!-- Repeat banner -->
+    <div class="repeat-banner">
+      <span>Repeat for every new client.</span> Copy the template folder, run the process, ship in a week.
+    </div>
+
+  </div>
+</body>
+</html>
