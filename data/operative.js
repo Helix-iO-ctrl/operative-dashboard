@@ -1,0 +1,297 @@
+    window.PROJECT_DATA = {
+      name: "Velo — AI Consulting OS",
+      client: "Hayden Barnes (Owner/CEO)",
+      lastUpdated: "Mar 10, 2026",
+      phases: ["Active Engagements", "Case Study Publish", "Paid Growth", "Scale & License"],
+      currentPhase: 0,
+
+      // ── SUMMARY (keep in sync with tasks below) ──
+      summary: { total: 49, done: 11, inProgress: 1, blocked: 0, todo: 37 },
+
+      // ── DISCIPLINES & TASKS ──
+      // status: "todo" | "in-progress" | "blocked" | "done"
+      // priority: "high" | "medium" | "low"
+      disciplines: [
+        {
+          id: "strategy", label: "Strategy",
+          color: "#2563EB", lightColor: "#EFF6FF", borderColor: "#BFDBFE",
+          owner: "Hayden",
+          tasks: [
+            { id: 1,  text: "Write Capabilities & Market Opportunity Report (Track A + B, competitive gap, funnel)", status: "done",    priority: "high" },
+            { id: 2,  text: "Write business brief: one-page positioning doc for internal reference",                 status: "todo",    priority: "high" },
+            { id: 3,  text: "Founding client offer terms finalized — contractor friend engaged free for case study + referrals",    status: "done",    priority: "high" },
+            { id: 4,  text: "Pricing committed — Two-tier model: Advisory Retainer ($2k/mo) + Embedded Build ($3k-$15k project)",      status: "done",    priority: "high" },
+            { id: 5,  text: "Identify 5 founding client outreach contacts — Jordan B. (logistics), Zak & Ciara B. (gym/PT), Gregg D. (real estate), Greta R. (SLP), Patrick (Ortho Clinic)", status: "done",    priority: "high" },
+            { id: 6,  text: "Track B (consultant license) — deprioritized. Revisit after Track A is validated and first case study is live.", status: "todo",    priority: "low" },
+            { id: 7,  text: "Define 'success' outcomes for each founding client engagement (outcomes doc)",          status: "todo",    priority: "medium" },
+            { id: 8,  text: "Validate Track B pricing — is $197/mo the right number for consultant license?",       status: "todo",    priority: "low" },
+            { id: 46, text: "Target geography defined — Salt Lake County & Utah County, open to remote beyond",      status: "done",    priority: "high" },
+            { id: 47, text: "Draft founding client case study agreement (what Hayden gets: numbers, testimonial, referrals)", status: "todo", priority: "medium" },
+          ],
+        },
+        {
+          id: "marketing", label: "Marketing",
+          color: "#DC2626", lightColor: "#FEF2F2", borderColor: "#FECACA",
+          owner: "Hayden",
+          tasks: [
+            { id: 9,  text: "Build consultant landing page (landing-consultants.html)",                              status: "done",    priority: "high" },
+            { id: 10, text: "Build small business landing page (landing-small-business.html)",                       status: "done",    priority: "high" },
+            { id: 11, text: "Build full marketing campaign brief (marketing-campaign-brief.html)",                   status: "done",    priority: "high" },
+            { id: 12, text: "Update LinkedIn headline and About section — reflect two-tier offer, Utah focus",      status: "todo",    priority: "high" },
+            { id: 13, text: "Record Loom demo video (2–3 min): dashboard + session workflow",      status: "todo",    priority: "medium" },
+            { id: 14, text: "Send warm network outreach to 10-15 personal contacts (outreach templates ready)", status: "todo", priority: "high" },
+            { id: 15, text: "Publish first LinkedIn post: 'Why I built Velo' or contractor project teaser",      status: "todo",    priority: "high" },
+            { id: 16, text: "Send 5 LinkedIn connection requests/day to local business owners (SL + Utah County)",        status: "todo",    priority: "high" },
+            { id: 48, text: "Join 2-3 local business Facebook groups (Utah County Business Network, etc.)",      status: "todo",    priority: "high" },
+            { id: 49, text: "Kick off contractor CRM project — discovery call, scope requirements, set timeline", status: "in-progress", priority: "high" },
+            { id: 17, text: "Set up email capture on landing pages — ConvertKit or Beehiiv free tier",               status: "todo",    priority: "medium" },
+            { id: 18, text: "Write 3-email welcome sequence (welcome → problem framing → solution intro)",           status: "todo",    priority: "medium" },
+            { id: 19, text: "Create public weekly snapshot example with dummy data (shareable in DMs)",              status: "todo",    priority: "medium" },
+            { id: 20, text: "LinkedIn post: 'The gap in business consulting that no one is filling' (Week 2)",       status: "todo",    priority: "medium" },
+            { id: 21, text: "LinkedIn post: income potential table for AI consultants (Week 2)",                      status: "todo",    priority: "medium" },
+            { id: 22, text: "LinkedIn post: 'What a live client dashboard looks like' with screenshot (Week 3)",     status: "todo",    priority: "medium" },
+            { id: 23, text: "Follow up on founding client outreach — book discovery calls",                          status: "todo",    priority: "high" },
+            { id: 24, text: "Write full case study from first founding client engagement",                           status: "todo",    priority: "high" },
+            { id: 25, text: "Launch LinkedIn Sales Navigator cold DM campaign (10–15 DMs/week)",                     status: "todo",    priority: "medium" },
+            { id: 26, text: "Launch LinkedIn Sponsored Post — small biz track (once case study exists)",             status: "todo",    priority: "medium" },
+            { id: 27, text: "Launch LinkedIn Sponsored Post — consultant track (once case study exists)",            status: "todo",    priority: "medium" },
+            { id: 28, text: "Pitch 3 podcast guest appearances (business ops / AI-in-business shows)",              status: "todo",    priority: "low" },
+          ],
+        },
+        {
+          id: "operations", label: "Operations",
+          color: "#059669", lightColor: "#ECFDF5", borderColor: "#A7F3D0",
+          owner: "Hayden",
+          tasks: [
+            { id: 29, text: "Purchase velo.io and deploy landing pages — domain available (~$35/yr), unblocks everything",          status: "todo", priority: "high" },
+            { id: 30, text: "Write founding client onboarding protocol: session 1 → dashboard live → first snapshot",status: "todo",    priority: "high" },
+            { id: 31, text: "Create case study agreement template (written exchange: free engagement ↔ case study)", status: "todo",    priority: "high" },
+            { id: 32, text: "Set up Calendly / Cal.com booking link and embed in both landing pages",                status: "todo",    priority: "high" },
+            { id: 33, text: "Create client proposal one-pager PDF (leave-behind after discovery call)",              status: "todo",    priority: "medium" },
+            { id: 34, text: "Define engagement kickoff checklist (actions in hours 0–48 after a client signs)",      status: "todo",    priority: "medium" },
+            { id: 35, text: "Set up first client project folder using AI-Business-OS-Template when founding client is confirmed",  status: "todo",    priority: "medium" },
+            { id: 36, text: "GitHub Pages set up for Velo internal dashboard (helix-io-ctrl/operative-dashboard)",   status: "done",    priority: "medium" },
+          ],
+        },
+        {
+          id: "creative", label: "Creative",
+          color: "#D97706", lightColor: "#FFFBEB", borderColor: "#FDE68A",
+          owner: "Hayden",
+          tasks: [
+            { id: 37, text: "Brand name finalized: Velo — single brand for both Track A (small biz advisory) and Track B (consultants)", status: "done", priority: "high" },
+            { id: 38, text: "Design LinkedIn banner for Velo brand — 'AI-Powered Business Advisor' positioning",     status: "todo",    priority: "high" },
+            { id: 39, text: "Design Velo logo / wordmark",                                                            status: "in-progress", priority: "high" },
+            { id: 40, text: "Write brand voice guide: tone, language rules, what we say / what we don't",            status: "todo",    priority: "low" },
+            { id: 41, text: "Velo brand color palette selected",   status: "done",    priority: "low",
+              assetPath: "docs/creative/velo-color-palette.html" },
+          ],
+        },
+        {
+          id: "data", label: "Data & Analytics",
+          color: "#0891B2", lightColor: "#ECFEFF", borderColor: "#A5F3FC",
+          owner: "Hayden",
+          tasks: [
+            { id: 42, text: "Set up outreach pipeline tracker (spreadsheet: contact, date, status, notes)",          status: "todo",    priority: "high" },
+            { id: 43, text: "Define weekly metrics to track: discovery calls, call→client conversion, MRR",          status: "todo",    priority: "medium" },
+            { id: 44, text: "Install Plausible or Google Analytics on both landing pages",                            status: "todo",    priority: "medium" },
+            { id: 45, text: "Set up KPI dashboard (simple spreadsheet): MRR, active clients, pipeline, calls/week", status: "todo",    priority: "medium" },
+          ],
+        },
+      ],
+
+      // ── DECISIONS ──
+      decisions: [
+        { date: "Mar 10, 2026", title: "Two-tier offer model replaces three-tier concept",
+          detail: "Tier 1: AI Advisory Retainer ($2k/mo or $6k/90-day sprint). Tier 2: Embedded AI Systems Build ($3k-$15k project-based). The project template becomes a free lead magnet, not a paid tier. Future 'school' / educational product may be explored separately." },
+        { date: "Mar 10, 2026", title: "Contractor friend engaged as first founding client (free for case study)",
+          detail: "Building: custom CRM from text messages, Google Calendar integration, alert system, dashboard. In exchange: case study with real revenue numbers, video testimonial, warm introductions to 3-5 other business owners. If paid, this project would be priced at $5,000." },
+        { date: "Mar 10, 2026", title: "Target geography: Salt Lake County & Utah County",
+          detail: "Primary target market for local lead generation. Open to remote clients beyond that area. Local focus is for building social proof and referral network." },
+        { date: "Mar 10, 2026", title: "Offer structure, lead gen plan, and outreach templates documented",
+          detail: "Three key docs created: docs/strategy/offer-structure.md (pricing guide), docs/marketing/local-lead-gen-plan.md (5-channel local strategy), docs/marketing/outreach-templates.md (warm, LinkedIn, cold email templates)." },
+        { date: "Mar 6, 2026", title: "Velo brand color palette selected — Amber (#E07A2F) as primary",
+          detail: "Cowork selected the palette based on brief: approachable, not another AI brand, different. Primary: Velo Amber #E07A2F. Dark: Deep Night #1C1C2A. Background: Warm White #FBF7F2. Accent: Burnt Amber #C45C25. Neutral: Slate #6B6878. Asset: docs/creative/velo-color-palette.html" },
+        { date: "Mar 6, 2026", title: "Brand name finalized: Velo — one brand for both tracks",
+          detail: "Velo is the business name for all markets — Track A (small biz advisory) and Track B (consultants). The previous two-brand idea (Operative + Velo) is retired. Domain: velo.io. Brand design work begins now." },
+        { date: "Mar 6, 2026", title: "Domain: velo.io selected — purchase is the next action",
+          detail: "velo.io is available (~$35/yr). All .com options are taken. Purchasing velo.io unblocks landing page deployment, LinkedIn profile update, and brand design work." },
+        { date: "Mar 6, 2026", title: "Folder structure stays as-is — no renaming needed",
+          detail: "Hayden will use the Operative subfolder for Velo/Operative work and the Helix folder for Helix client work. No folder rename required." },
+        { date: "Mar 6, 2026", title: "Track B (consultant licensing) deprioritized — focus 100% on Track A first",
+          detail: "Hayden confirmed he wants to test, refine, and validate the advisory product before selling it to other consultants. Track B will be revisited once Track A is proven and the first case study is published." },
+        { date: "Mar 6, 2026", title: "GitHub hosting: using Helix-iO-ctrl for now, org account later",
+          detail: "Since Velo is a personal project at this stage, the existing Helix GitHub account is sufficient. When the first paying client signs, a separate GitHub org will be created for clean branding." },
+        { date: "Mar 6, 2026", title: "Founding client outreach targets identified",
+          detail: "4 of 5 warm contacts confirmed: Jordan B. (logistics company), Zak & Ciara B. (gym + personal training), Gregg D. (real estate), Greta R. (SLP). 5th contact TBD." },
+        { date: "Mar 6, 2026", title: "Operative gets its own subfolder — clean separation from Helix client project",
+          detail: "Operative lives at /Consulting OS Discovery/Operative/. Helix files in the parent folder are not touched. Clean project isolation." },
+        { date: "Mar 6, 2026", title: "Operative is a live case study for the AI Business OS template",
+          detail: "Running Hayden's own business through the system is the best proof of concept. Generates real dashboard screenshots, session outputs, and weekly snapshots to use as sales materials." },
+        { date: "Mar 6, 2026", title: "Founding client strategy: free or discounted in exchange for case study",
+          detail: "First 2–3 clients offered at free (full case study + testimonial + recording) or $500 discovery + $1,000/month. No hard sell or paid ads until proof exists." },
+        { date: "Mar 6, 2026", title: "Marketing strategy: case-study-first, then paid",
+          detail: "No paid ads until first case study is published. Phase 1: LinkedIn organic + warm direct outreach. Phase 2 (Month 3–4): light paid spend ($300–500). Phase 3 (Month 5+): scale." },
+        { date: "Mar 6, 2026", title: "Business model confirmed: Track A ($2k/mo advisory) + Track B ($197/mo license — deprioritized)",
+          detail: "Track A: $2,000/month retainer or $6,000/90-day engagement or $500 paid discovery. Track B: $197/month or $1,497/year consultant license — on hold until Track A is validated." },
+        { date: "Mar 6, 2026", title: "Full 12-week marketing campaign brief completed",
+          detail: "Three budget tiers: Bootstrap ($30/mo), Scrappy ($450/mo, recommended), Growth ($2,000–2,800/mo). Content calendar, channel strategy, KPIs, and risk mitigations all documented." },
+        { date: "Mar 7, 2026", title: "5th founding client outreach contact confirmed: Patrick (Ortho Clinic)",
+          detail: "Full outreach list now complete: Jordan B. (logistics), Zak & Ciara B. (gym/PT), Gregg D. (real estate), Greta R. (SLP), Patrick (Ortho Clinic). All 5 warm contacts confirmed. Outreach can begin." },
+        { date: "Mar 7, 2026", title: "Next work priority: Velo logo / wordmark (Option A)",
+          detail: "Hayden selected Option A from the priority question — Velo logo/wordmark is the next creative asset. Color palette is already set (Velo Amber #E07A2F), so this is the logical next step before LinkedIn banner or outreach launch." },
+      ],
+
+      // ── OPEN QUESTIONS ──
+      // urgency: "critical" | "high" | "medium"
+      openQuestions: [
+        { id: "q1", q: "How should the client kickoff process be standardized across all 4 active projects?",
+          urgency: "high", note: "Running 4 projects in parallel with no repeatable process. Need a template folder structure, kickoff checklist, and dashboard setup protocol so each new client gets the same quality experience." },
+        { id: "q2", q: "What scope and timeline for Zak & Ciara's gym automation project?",
+          urgency: "high", note: "They're on board but haven't had the discovery meeting yet. Need to schedule, define scope (what automations?), and set expectations for deliverables and timeline." },
+        { id: "q3", q: "Is velo.io still the domain target, or should we consider alternatives?",
+          urgency: "high", note: "Domain purchase is a blocker for deploying landing pages and establishing the brand online. Need to confirm and buy." },
+        { id: "q4", q: "What feedback loop should the Greta SLP Assistant tool have to improve progress report quality?",
+          urgency: "medium", note: "Lightweight tool is already built. Next step is a feedback mechanism so Greta can rate outputs and the tool improves over time." },
+        { id: "q5", q: "How should each client engagement map to Velo's pricing tiers (advisory retainer vs. embedded build vs. free founding)?",
+          urgency: "medium", note: "4 projects are running but not all have clear commercial terms. Need to decide which are free case studies, which become paying clients, and when to have that conversation." },
+        { id: "q6", q: "When should Jordan be pulled into an active engagement?",
+          urgency: "low", note: "Largest company in the pipeline (multi-million $/yr). Waiting until current projects are stable and there's bandwidth. Could be a Tier 1 retainer client." },
+      ],
+
+      // ── WEEKLY UPDATES ──
+      // Auto-populated every Friday by the weekly-snapshot scheduled task.
+      // Each entry: { week, dateRange, pct, done, blockers, wins: [], nextUp: [], snapshotUrl }
+      weeklyUpdates: [],
+
+      // ── ASSET LIBRARY ──
+      // Central catalog of all deliverables. Each asset can have multiple versions.
+      // status options: "draft" | "in-review" | "revision-needed" | "approved"
+      assets: [
+        {
+          id: "color-palette",
+          title: "Velo Brand Color Palette",
+          discipline: "creative",
+          description: "Primary brand colors: Velo Amber, Deep Night, Warm White, Burnt Amber, Slate.",
+          status: "approved",
+          versions: [
+            {
+              version: 1,
+              date: "Mar 6, 2026",
+              url: "https://helix-io-ctrl.github.io/operative-dashboard/docs/creative/velo-color-palette.html",
+              note: "Palette selected. Primary: Velo Amber #E07A2F. Approved by Hayden.",
+              status: "approved",
+            },
+          ],
+        },
+        {
+          id: "landing-small-biz",
+          title: "Small Business Landing Page",
+          discipline: "marketing",
+          description: "Landing page targeting small business owners for Track A advisory services.",
+          status: "approved",
+          versions: [
+            {
+              version: 1,
+              date: "Mar 6, 2026",
+              url: "https://helix-io-ctrl.github.io/operative-dashboard/landing-small-business.html",
+              note: "Initial version with two-tier pricing, testimonial placeholders, and booking CTA.",
+              status: "approved",
+            },
+          ],
+        },
+        {
+          id: "landing-consultants",
+          title: "Consultant Landing Page",
+          discipline: "marketing",
+          description: "Landing page for Track B — consultant licensing program (deprioritized).",
+          status: "approved",
+          versions: [
+            {
+              version: 1,
+              date: "Mar 6, 2026",
+              url: "https://helix-io-ctrl.github.io/operative-dashboard/landing-consultants.html",
+              note: "Initial version. Track B is deprioritized — page built but not actively marketed.",
+              status: "approved",
+            },
+          ],
+        },
+        {
+          id: "campaign-brief",
+          title: "Marketing Campaign Brief",
+          discipline: "marketing",
+          description: "12-week campaign plan with 3 budget tiers, channel strategy, content calendar, and KPIs.",
+          status: "approved",
+          versions: [
+            {
+              version: 1,
+              date: "Mar 6, 2026",
+              url: "https://helix-io-ctrl.github.io/operative-dashboard/marketing-campaign-brief.html",
+              note: "Complete brief: Bootstrap ($30/mo), Scrappy ($450/mo), Growth ($2k+/mo) tiers.",
+              status: "approved",
+            },
+          ],
+        },
+        {
+          id: "capabilities-report",
+          title: "Capabilities & Market Report",
+          discipline: "strategy",
+          description: "Full competitive landscape analysis, market opportunity sizing, and positioning framework.",
+          status: "approved",
+          versions: [
+            {
+              version: 1,
+              date: "Mar 6, 2026",
+              url: "https://helix-io-ctrl.github.io/operative-dashboard/AI-Business-OS%20%E2%80%94%20Capabilities%20%26%20Market%20Report.html",
+              note: "Comprehensive report covering 7 competitor platforms, market gaps, and Velo's differentiation.",
+              status: "approved",
+            },
+          ],
+        },
+        {
+          id: "kickoff-protocol",
+          title: "Client Kickoff Protocol (SOP)",
+          discipline: "operations",
+          description: "Step-by-step process for taking a new client from interested to actively delivering. Covers pre-kickoff, discovery, setup, and first delivery.",
+          status: "approved",
+          versions: [
+            {
+              version: 1,
+              date: "Mar 10, 2026",
+              note: "Complete SOP with checklist. Covers Phase 0 (pre-kickoff) through Phase 3 (first delivery in Week 1).",
+              status: "approved",
+            },
+          ],
+        },
+        {
+          id: "discovery-agenda",
+          title: "Discovery Call Agenda",
+          discipline: "operations",
+          description: "Structured agenda for client discovery meetings. Includes pre-call prep message, 7-section call guide, and post-call notes template.",
+          status: "approved",
+          versions: [
+            {
+              version: 1,
+              date: "Mar 10, 2026",
+              note: "Full agenda covering intros, business fundamentals, goals, constraints, resources, the pitch, and next steps.",
+              status: "approved",
+            },
+          ],
+        },
+        {
+          id: "client-folder-template",
+          title: "Client Project Folder Template",
+          discipline: "operations",
+          description: "Reusable starter folder for each new client engagement. Contains CLAUDE.md, COWORK.md, all skill files, task files, and doc templates.",
+          status: "approved",
+          versions: [
+            {
+              version: 1,
+              date: "Mar 10, 2026",
+              note: "Complete template with 9 skills, 6 task files, strategy doc templates, decision log, and README.",
+              status: "approved",
+            },
+          ],
+        },
+      ],
+      feedbackResponses: {},
+    };
