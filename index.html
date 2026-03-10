@@ -2578,7 +2578,7 @@
 
       // ── LOAD USER'S PROJECTS after auth ──
       React.useEffect(() => {
-        if (!session) { setProjectsLoading(false); return; }
+        if (!session) return;
         async function loadProjects() {
           try {
             const res = await fetch(
@@ -2851,8 +2851,8 @@
       window.__supabaseSession = session;
       window.__supabaseLogout = handleLogout;
 
-      // Still loading projects after auth
-      if (session && projectsLoading) {
+      // Still loading projects after auth (or projects not yet fetched)
+      if (session && (projectsLoading || userProjects === null)) {
         return h("div", {
           style: { display:"flex", alignItems:"center", justifyContent:"center",
             minHeight:"100vh", background:"#1C1C2A", color:"#FBF7F2",
@@ -2892,7 +2892,7 @@
       }
 
       // Admin with no specific project slug — show project picker
-      const isAdmin = userProjects && userProjects.some(m => m.role === 'admin');
+      const isAdmin = Array.isArray(userProjects) && userProjects.some(function(m) { return m.role === 'admin'; });
       const hasUrlSlug = new URLSearchParams(window.location.search).has('p');
 
       if (isAdmin && !hasUrlSlug && userProjects && userProjects.length > 1) {
