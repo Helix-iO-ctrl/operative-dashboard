@@ -2543,9 +2543,13 @@
       // "login" | "signup" | "magic" | "magic-sent" | "signup-success"
       const [mode, setMode] = React.useState("login");
       const [submitting, setSubmitting] = React.useState(false);
+      // Transition state: "none" | "welcome" | "reveal"
+      const [transition, setTransition] = React.useState("none");
+      const [wasLoggedOut, setWasLoggedOut] = React.useState(true); // track if user just logged in
 
       React.useEffect(() => {
         supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session) setWasLoggedOut(false); // already logged in, skip animation
           setSession(session);
           setLoading(false);
         });
@@ -2554,6 +2558,17 @@
         });
         return () => subscription.unsubscribe();
       }, []);
+
+      // Trigger welcome animation when session first appears after login
+      React.useEffect(() => {
+        if (session && wasLoggedOut) {
+          setWasLoggedOut(false);
+          setTransition("welcome");
+          const t1 = setTimeout(() => setTransition("reveal"), 1600);
+          const t2 = setTimeout(() => setTransition("none"), 2400);
+          return () => { clearTimeout(t1); clearTimeout(t2); };
+        }
+      }, [session, wasLoggedOut]);
 
       async function handleSubmit(e) {
         e.preventDefault();
@@ -2796,6 +2811,71 @@
       // Authenticated — render the dashboard
       window.__supabaseSession = session;
       window.__supabaseLogout = handleLogout;
+
+      // Welcome transition overlay
+      if (transition === "welcome" || transition === "reveal") {
+        const isRevealing = transition === "reveal";
+        return h("div", { style: { position:"relative", minHeight:"100vh" } },
+          // Dashboard renders underneath (invisible at first, then fades in)
+          h("div", {
+            style: { opacity: isRevealing ? 1 : 0, transition:"opacity 0.8s ease-out" }
+          }, h(App)),
+
+          // Welcome overlay
+          h("div", {
+            style: {
+              position:"fixed", top:0, left:0, right:0, bottom:0, zIndex:9999,
+              display:"flex", alignItems:"center", justifyContent:"center",
+              flexDirection:"column", background:"#1C1C2A",
+              opacity: isRevealing ? 0 : 1,
+              transition:"opacity 0.8s ease-out",
+              pointerEvents: isRevealing ? "none" : "auto"
+            }
+          },
+            // Animated logo
+            h("div", {
+              style: {
+                width:72, height:72, background:"#E07A2F", borderRadius:18,
+                display:"flex", alignItems:"center", justifyContent:"center",
+                marginBottom:20, animation:"welcomePulse 1.2s ease-in-out",
+                boxShadow:"0 0 60px rgba(224,122,47,0.4)"
+              }
+            }, h("span", {
+              style: { color:"white", fontWeight:800, fontSize:34 }
+            }, "V")),
+
+            // Welcome text
+            h("div", {
+              style: {
+                color:"#FBF7F2", fontSize:24, fontWeight:700,
+                fontFamily:"Inter, system-ui, sans-serif",
+                animation:"welcomeFadeUp 0.8s ease-out",
+                marginBottom:6
+              }
+            }, "Welcome back"),
+
+            // Email subtitle
+            h("div", {
+              style: {
+                color:"#64748B", fontSize:14,
+                fontFamily:"Inter, system-ui, sans-serif",
+                animation:"welcomeFadeUp 0.8s ease-out 0.15s both"
+              }
+            }, session.user?.email || ""),
+
+            // Animated line
+            h("div", {
+              style: {
+                width:200, height:2, marginTop:28,
+                background:"linear-gradient(90deg, transparent, #E07A2F, transparent)",
+                animation:"welcomeLine 1.4s ease-in-out",
+                borderRadius:1
+              }
+            })
+          )
+        );
+      }
+
       return h(App);
     }
 
@@ -2806,6 +2886,21 @@
   <style>
     @keyframes spin {
       to { transform: rotate(360deg); }
+    }
+    @keyframes welcomePulse {
+      0% { transform: scale(0.3) rotate(-10deg); opacity: 0; }
+      50% { transform: scale(1.15) rotate(2deg); opacity: 1; }
+      70% { transform: scale(0.95) rotate(-1deg); }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+    @keyframes welcomeFadeUp {
+      0% { opacity: 0; transform: translateY(16px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes welcomeLine {
+      0% { width: 0; opacity: 0; }
+      30% { opacity: 1; }
+      100% { width: 200px; opacity: 1; }
     }
   </style>
 </body>
