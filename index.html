@@ -2537,8 +2537,11 @@
       const [loading, setLoading] = React.useState(true);
       const [email, setEmail] = React.useState("");
       const [password, setPassword] = React.useState("");
+      const [confirmPassword, setConfirmPassword] = React.useState("");
       const [error, setError] = React.useState("");
-      const [mode, setMode] = React.useState("login"); // "login" | "magic" | "magic-sent"
+      const [success, setSuccess] = React.useState("");
+      // "login" | "signup" | "magic" | "magic-sent" | "signup-success"
+      const [mode, setMode] = React.useState("login");
       const [submitting, setSubmitting] = React.useState(false);
 
       React.useEffect(() => {
@@ -2552,17 +2555,41 @@
         return () => subscription.unsubscribe();
       }, []);
 
-      async function handleLogin(e) {
+      async function handleSubmit(e) {
         e.preventDefault();
         setError("");
+        setSuccess("");
         setSubmitting(true);
-        if (mode === "magic") {
+
+        if (mode === "signup") {
+          if (password !== confirmPassword) {
+            setError("Passwords do not match.");
+            setSubmitting(false);
+            return;
+          }
+          if (password.length < 6) {
+            setError("Password must be at least 6 characters.");
+            setSubmitting(false);
+            return;
+          }
+          const { error } = await supabase.auth.signUp({ email, password });
+          if (error) { setError(error.message); }
+          else { setMode("signup-success"); }
+          setSubmitting(false);
+        } else if (mode === "magic") {
           const { error } = await supabase.auth.signInWithOtp({ email });
-          if (error) { setError(error.message); setSubmitting(false); }
-          else { setMode("magic-sent"); setSubmitting(false); }
+          if (error) { setError(error.message); }
+          else { setMode("magic-sent"); }
+          setSubmitting(false);
         } else {
           const { error } = await supabase.auth.signInWithPassword({ email, password });
-          if (error) setError(error.message);
+          if (error) {
+            if (error.message === "Email not confirmed") {
+              setError("Please verify your email before signing in. Check your inbox for the confirmation link.");
+            } else {
+              setError(error.message);
+            }
+          }
           setSubmitting(false);
         }
       }
@@ -2572,132 +2599,204 @@
         setSession(null);
       }
 
+      function switchMode(newMode) {
+        setMode(newMode);
+        setError("");
+        setSuccess("");
+        setPassword("");
+        setConfirmPassword("");
+      }
+
+      // Helpers for createElement
+      const h = React.createElement;
+
+      const inputStyle = { width:"100%", padding:"11px 14px", fontSize:14,
+        background:"#1C1C2A", border:"1px solid rgba(255,255,255,0.12)",
+        borderRadius:8, color:"#FBF7F2", outline:"none", fontFamily:"inherit" };
+      const labelStyle = { display:"block", fontSize:12, fontWeight:600,
+        color:"#94A3B8", marginBottom:6, letterSpacing:"0.5px", textTransform:"uppercase" };
+      const linkBtnStyle = { background:"none", border:"none", color:"#E07A2F",
+        fontSize:12, cursor:"pointer", fontFamily:"inherit", fontWeight:600 };
+
       if (loading) {
-        return React.createElement("div", {
+        return h("div", {
           style: { display:"flex", alignItems:"center", justifyContent:"center",
             minHeight:"100vh", background:"#1C1C2A", color:"#FBF7F2",
             fontFamily:"Inter, system-ui, sans-serif" }
-        }, React.createElement("div", {
-          style: { textAlign:"center" }
-        },
-          React.createElement("div", {
+        }, h("div", { style: { textAlign:"center" } },
+          h("div", {
             style: { width:40, height:40, border:"3px solid #E07A2F33",
               borderTopColor:"#E07A2F", borderRadius:"50%",
               animation:"spin 0.8s linear infinite", margin:"0 auto 16px" }
           }),
-          React.createElement("div", { style: { color:"#64748B", fontSize:14 } }, "Loading...")
+          h("div", { style: { color:"#64748B", fontSize:14 } }, "Loading...")
         ));
       }
 
       if (!session) {
-        // Login screen
-        return React.createElement("div", {
+        const isSignup = mode === "signup";
+        const isMagic = mode === "magic";
+        const isMagicSent = mode === "magic-sent";
+        const isSignupSuccess = mode === "signup-success";
+
+        const subtitles = {
+          login: "Sign in to view your project",
+          signup: "Create your account to get started",
+          magic: "We'll email you a sign-in link",
+          "magic-sent": "Check your email",
+          "signup-success": "Almost there!"
+        };
+
+        return h("div", {
           style: { display:"flex", alignItems:"center", justifyContent:"center",
-            minHeight:"100vh", background:"#1C1C2A",
-            fontFamily:"Inter, system-ui, sans-serif" }
+            minHeight:"100vh", background:"#1C1C2A", fontFamily:"Inter, system-ui, sans-serif" }
         },
-          React.createElement("div", {
-            style: { width:380, padding:"40px 36px", background:"#252536",
+          h("div", {
+            style: { width:400, padding:"40px 36px", background:"#252536",
               borderRadius:16, border:"1px solid rgba(255,255,255,0.08)",
               boxShadow:"0 20px 60px rgba(0,0,0,0.4)" }
           },
-            // Brand
-            React.createElement("div", { style: { textAlign:"center", marginBottom:32 } },
-              React.createElement("div", {
+            // Brand header
+            h("div", { style: { textAlign:"center", marginBottom:28 } },
+              h("div", {
                 style: { width:48, height:48, background:"#E07A2F", borderRadius:12,
                   display:"inline-flex", alignItems:"center", justifyContent:"center",
                   marginBottom:12 }
-              }, React.createElement("span", {
-                style: { color:"white", fontWeight:800, fontSize:22 }
-              }, "V")),
-              React.createElement("h1", {
-                style: { color:"#FBF7F2", fontSize:22, fontWeight:700, marginBottom:4 }
-              }, "Velo Dashboard"),
-              React.createElement("p", {
-                style: { color:"#64748B", fontSize:13 }
-              }, "Sign in to view your project")
+              }, h("span", { style: { color:"white", fontWeight:800, fontSize:22 } }, "V")),
+              h("h1", { style: { color:"#FBF7F2", fontSize:22, fontWeight:700, marginBottom:4 } },
+                "Velo Dashboard"),
+              h("p", { style: { color:"#64748B", fontSize:13 } }, subtitles[mode] || "")
             ),
 
-            // Form
-            React.createElement("form", { onSubmit: handleLogin },
-              // Email
-              React.createElement("div", { style: { marginBottom:14 } },
-                React.createElement("label", {
-                  style: { display:"block", fontSize:12, fontWeight:600,
-                    color:"#94A3B8", marginBottom:6, letterSpacing:"0.5px",
-                    textTransform:"uppercase" }
-                }, "Email"),
-                React.createElement("input", {
-                  type: "email", value: email, required: true,
+            // Signup success screen
+            isSignupSuccess && h("div", null,
+              h("div", {
+                style: { padding:"18px 20px", background:"rgba(16,185,129,0.1)",
+                  border:"1px solid rgba(16,185,129,0.25)", borderRadius:10,
+                  marginBottom:20, textAlign:"center" }
+              },
+                h("div", { style: { fontSize:32, marginBottom:8 } }, "\u2709\uFE0F"),
+                h("div", { style: { color:"#34D399", fontSize:15, fontWeight:600, marginBottom:6 } },
+                  "Verification email sent!"),
+                h("div", { style: { color:"#94A3B8", fontSize:13, lineHeight:1.6 } },
+                  "We sent a confirmation link to ", h("strong", { style: { color:"#FBF7F2" } }, email),
+                  ". Click the link in your email to verify your account, then come back here to sign in.")
+              ),
+              h("button", {
+                onClick: () => switchMode("login"),
+                style: { width:"100%", padding:"12px", fontSize:14, fontWeight:600,
+                  background:"#E07A2F", color:"white", border:"none", borderRadius:8,
+                  cursor:"pointer", fontFamily:"inherit" }
+              }, "Back to Sign In")
+            ),
+
+            // Magic link sent screen
+            isMagicSent && h("div", null,
+              h("div", {
+                style: { padding:"18px 20px", background:"rgba(16,185,129,0.1)",
+                  border:"1px solid rgba(16,185,129,0.25)", borderRadius:10,
+                  marginBottom:20, textAlign:"center" }
+              },
+                h("div", { style: { fontSize:32, marginBottom:8 } }, "\u2728"),
+                h("div", { style: { color:"#34D399", fontSize:15, fontWeight:600, marginBottom:6 } },
+                  "Magic link sent!"),
+                h("div", { style: { color:"#94A3B8", fontSize:13, lineHeight:1.6 } },
+                  "Check your inbox at ", h("strong", { style: { color:"#FBF7F2" } }, email),
+                  ". Click the link to sign in instantly.")
+              ),
+              h("button", {
+                onClick: () => switchMode("login"),
+                style: { width:"100%", padding:"12px", fontSize:14, fontWeight:600,
+                  background:"transparent", color:"#94A3B8", border:"1px solid rgba(255,255,255,0.12)",
+                  borderRadius:8, cursor:"pointer", fontFamily:"inherit" }
+              }, "Back to Sign In")
+            ),
+
+            // Login / Signup / Magic form
+            !isSignupSuccess && !isMagicSent && h("form", { onSubmit: handleSubmit },
+              // Email field
+              h("div", { style: { marginBottom:14 } },
+                h("label", { style: labelStyle }, "Email"),
+                h("input", {
+                  type:"email", value:email, required:true,
                   onChange: e => setEmail(e.target.value),
-                  placeholder: "you@company.com",
-                  style: { width:"100%", padding:"11px 14px", fontSize:14,
-                    background:"#1C1C2A", border:"1px solid rgba(255,255,255,0.12)",
-                    borderRadius:8, color:"#FBF7F2", outline:"none",
-                    fontFamily:"inherit" }
+                  placeholder:"you@company.com", style: inputStyle
                 })
               ),
 
-              // Password (only in login mode)
-              mode === "login" && React.createElement("div", { style: { marginBottom:14 } },
-                React.createElement("label", {
-                  style: { display:"block", fontSize:12, fontWeight:600,
-                    color:"#94A3B8", marginBottom:6, letterSpacing:"0.5px",
-                    textTransform:"uppercase" }
-                }, "Password"),
-                React.createElement("input", {
-                  type: "password", value: password, required: true,
+              // Password field (login & signup only)
+              !isMagic && h("div", { style: { marginBottom:14 } },
+                h("label", { style: labelStyle }, "Password"),
+                h("input", {
+                  type:"password", value:password, required:true,
                   onChange: e => setPassword(e.target.value),
-                  placeholder: "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
-                  style: { width:"100%", padding:"11px 14px", fontSize:14,
-                    background:"#1C1C2A", border:"1px solid rgba(255,255,255,0.12)",
-                    borderRadius:8, color:"#FBF7F2", outline:"none",
-                    fontFamily:"inherit" }
+                  placeholder:"\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
+                  minLength: isSignup ? 6 : undefined,
+                  style: inputStyle
                 })
               ),
 
-              // Magic link sent message
-              mode === "magic-sent" && React.createElement("div", {
-                style: { padding:"14px 16px", background:"rgba(16,185,129,0.1)",
-                  border:"1px solid rgba(16,185,129,0.25)", borderRadius:8,
-                  marginBottom:14, color:"#34D399", fontSize:13, lineHeight:1.5 }
-              }, "Check your email for a magic link. Click it to sign in."),
+              // Confirm password (signup only)
+              isSignup && h("div", { style: { marginBottom:14 } },
+                h("label", { style: labelStyle }, "Confirm Password"),
+                h("input", {
+                  type:"password", value:confirmPassword, required:true,
+                  onChange: e => setConfirmPassword(e.target.value),
+                  placeholder:"\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
+                  style: inputStyle
+                })
+              ),
 
-              // Error
-              error && React.createElement("div", {
+              // Error message
+              error && h("div", {
                 style: { padding:"10px 14px", background:"rgba(220,38,38,0.1)",
                   border:"1px solid rgba(220,38,38,0.25)", borderRadius:8,
                   marginBottom:14, color:"#FCA5A5", fontSize:13 }
               }, error),
 
-              // Submit
-              mode !== "magic-sent" && React.createElement("button", {
-                type: "submit", disabled: submitting,
+              // Submit button
+              h("button", {
+                type:"submit", disabled:submitting,
                 style: { width:"100%", padding:"12px", fontSize:14, fontWeight:600,
                   background:"#E07A2F", color:"white", border:"none", borderRadius:8,
-                  cursor: submitting ? "wait" : "pointer", fontFamily:"inherit",
-                  opacity: submitting ? 0.7 : 1, transition:"opacity .2s" }
-              }, submitting ? "Signing in..." : (mode === "magic" ? "Send Magic Link" : "Sign In")),
+                  cursor:submitting?"wait":"pointer", fontFamily:"inherit",
+                  opacity:submitting?0.7:1, transition:"opacity .2s", marginBottom:16 }
+              }, submitting
+                ? (isSignup ? "Creating Account..." : isMagic ? "Sending..." : "Signing In...")
+                : (isSignup ? "Create Account" : isMagic ? "Send Magic Link" : "Sign In")),
 
-              // Toggle mode
-              React.createElement("div", { style: { textAlign:"center", marginTop:16 } },
-                React.createElement("button", {
-                  type: "button",
-                  onClick: () => { setMode(mode === "login" ? "magic" : "login"); setError(""); },
-                  style: { background:"none", border:"none", color:"#64748B",
-                    fontSize:12, cursor:"pointer", fontFamily:"inherit",
-                    textDecoration:"underline" }
-                }, mode === "login" ? "Use magic link instead" : "Use password instead")
+              // Divider
+              h("div", { style: { display:"flex", alignItems:"center", gap:12, marginBottom:16 } },
+                h("div", { style: { flex:1, height:1, background:"rgba(255,255,255,0.08)" } }),
+                h("span", { style: { color:"#475569", fontSize:11, textTransform:"uppercase",
+                  letterSpacing:"0.5px" } }, "or"),
+                h("div", { style: { flex:1, height:1, background:"rgba(255,255,255,0.08)" } })
+              ),
+
+              // Mode toggles
+              h("div", { style: { display:"flex", flexDirection:"column", alignItems:"center", gap:8 } },
+                mode === "login" && h("button", {
+                  type:"button", onClick: () => switchMode("signup"), style: linkBtnStyle
+                }, "Create a new account"),
+                mode === "login" && h("button", {
+                  type:"button", onClick: () => switchMode("magic"), style: {...linkBtnStyle, color:"#64748B"}
+                }, "Sign in with magic link"),
+                mode === "signup" && h("button", {
+                  type:"button", onClick: () => switchMode("login"), style: linkBtnStyle
+                }, "Already have an account? Sign in"),
+                mode === "magic" && h("button", {
+                  type:"button", onClick: () => switchMode("login"), style: linkBtnStyle
+                }, "Sign in with password instead")
               )
             )
           )
         );
       }
 
-      // Authenticated — render the dashboard with a logout button
+      // Authenticated — render the dashboard
       window.__supabaseSession = session;
       window.__supabaseLogout = handleLogout;
-      return React.createElement(App);
+      return h(App);
     }
 
     ReactDOM.createRoot(document.getElementById("root")).render(
