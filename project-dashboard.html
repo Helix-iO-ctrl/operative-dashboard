@@ -35,7 +35,7 @@
     window.PROJECT_DATA = null;
   </script>
 
-  <!-- Dynamic project data loader — loads data/{slug}.js synchronously -->
+  <!-- Dynamic project data loader — loads data/{slug}.js synchronously (for existing projects) -->
   <script>document.write('<scr'+'ipt src="data/'+window.PROJECT_SLUG+'.js"><\/scr'+'ipt>');</script>
 
   <!-- ============================================================
@@ -43,7 +43,8 @@
     ============================================================ -->
   <script type="text/babel">
     const { useState, useEffect } = React;
-    const d = window.PROJECT_DATA;
+    // d is initially from static file; App component will try Supabase fallback if null
+    let d = window.PROJECT_DATA;
 
     const STATUS = {
       done:          { label: "Done",        dot: "#059669", badge: "#DCFCE7", badgeText: "#166534" },
@@ -1266,7 +1267,33 @@
     }
 
     function App() {
-      const [sel, setSel]           = useState("strategy");
+      // ── Dynamic data loading: try Supabase if static file was null ──
+      const [dynamicData, setDynamicData] = useState(window.PROJECT_DATA);
+      const [dataLoading, setDataLoading] = useState(!window.PROJECT_DATA);
+
+      useEffect(() => {
+        if (window.PROJECT_DATA) return; // Static file already loaded
+        // Fetch from Supabase
+        fetch(
+          window.SUPABASE_URL + '/rest/v1/projects?slug=eq.' + encodeURIComponent(window.PROJECT_SLUG) + '&select=dashboard_data',
+          { headers: { 'apikey': window.SUPABASE_ANON_KEY, 'Accept': 'application/json' } }
+        )
+        .then(res => res.json())
+        .then(rows => {
+          if (rows && rows.length > 0 && rows[0].dashboard_data) {
+            window.PROJECT_DATA = rows[0].dashboard_data;
+            d = rows[0].dashboard_data;
+            setDynamicData(rows[0].dashboard_data);
+          }
+          setDataLoading(false);
+        })
+        .catch(err => { console.error('Supabase fetch error:', err); setDataLoading(false); });
+      }, []);
+
+      // Use dynamicData (which updates from Supabase) instead of global d for rendering
+      const projectData = dynamicData || d;
+
+      const [sel, setSel]           = useState(projectData && projectData.disciplines && projectData.disciplines[0] ? projectData.disciplines[0].id : "strategy");
       const [tab, setTab]           = useState("overview");
       const [comments, setComments] = useState({});
       const [previewUrl, setPreviewUrl]     = useState(null);
@@ -1332,8 +1359,21 @@
         });
       }
 
-      // ── EMPTY STATE: no data file for this project yet ──
-      if (!d) {
+      // ── LOADING STATE: waiting for Supabase data ──
+      if (dataLoading) {
+        return (
+          <div style={{ minHeight:"100vh", background:"#F8FAFC", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Inter',system-ui,sans-serif" }}>
+            <div style={{ textAlign:"center" }}>
+              <div style={{ width:40, height:40, border:"3px solid #E5E7EB", borderTopColor:"#E07A2F", borderRadius:"50%", animation:"spin 0.8s linear infinite", margin:"0 auto 16px" }}></div>
+              <p style={{ color:"#64748B", fontSize:14 }}>Loading dashboard...</p>
+            </div>
+            <style>{"@keyframes spin { to { transform: rotate(360deg); } }"}</style>
+          </div>
+        );
+      }
+
+      // ── EMPTY STATE: no data from static file OR Supabase ──
+      if (!projectData) {
         const slug = window.PROJECT_SLUG;
         return (
           <div style={{ minHeight:"100vh", background:"#1C1C2A", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Inter',system-ui,sans-serif" }}>
@@ -1351,6 +1391,9 @@
           </div>
         );
       }
+
+      // Reassign d so all existing references below work with dynamic data
+      d = projectData;
 
       const selected  = d.disciplines.find(x => x.id === sel);
       const total     = d.disciplines.reduce((a,disc) => a + disc.tasks.length, 0);
