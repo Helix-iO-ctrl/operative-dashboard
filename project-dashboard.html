@@ -1,4 +1,4 @@
-<!DOCTYPE html>   
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -28,15 +28,15 @@
     window.SUPABASE_URL      = 'https://gzpuectetjatqbpcdgqt.supabase.co';
     window.SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6cHVlY3RldGphdHFicGNkZ3F0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MTc3MTMsImV4cCI6MjA4ODI5MzcxM30.KkIr6SSqQtO3aGDtCCxUIBOgbEgjtVeqExlW_Yv-QZ0';
 
-    // Multi-tenant routing: read project slug from URL (?p=slug), default to 'operative'
-    window.PROJECT_SLUG = new URLSearchParams(window.location.search).get('p') || '';
+    // Multi-tenant routing: read project slug from URL (?p=slug), default to 'velo'
+    window.PROJECT_SLUG = new URLSearchParams(window.location.search).get('p') || 'velo';
 
     // Will be overwritten by data/{slug}.js if it exists
     window.PROJECT_DATA = null;
   </script>
 
   <!-- Dynamic project data loader — loads data/{slug}.js synchronously (for existing projects) -->
-  <script>if(window.PROJECT_SLUG){document.write('<scr'+'ipt src="data/'+window.PROJECT_SLUG+'.js"><\/scr'+'ipt>');</script>
+  <script>document.write('<scr'+'ipt src="data/'+window.PROJECT_SLUG+'.js"><\/scr'+'ipt>');</script>
 
   <!-- ============================================================
     🔧 APP CODE — no need to edit below this line
@@ -181,9 +181,6 @@
           if (!res.ok) throw new Error(`Error ${res.status}`);
           const [newComment] = await res.json();
           onCommentAdded(newComment);
-          // Auto-expand comment section so user sees their comment immediately
-          const sectionKey = `task-${t.id}`;
-          setExpandedComments(prev => new Set([...prev, sectionKey]));
           closePanel();
         } catch(e) {
           setPanelError('Something went wrong — please try again.');
@@ -199,39 +196,7 @@
         <>
         {/* ── Asset preview modal ── */}
         {assetModal && (
-          <div onClick={() => setAssetModal(null)} style={{
-            position:"fixed", inset:0, background:"rgba(15,23,42,0.65)",
-            zIndex:9999, display:"flex", alignItems:"center", justifyContent:"center",
-            padding:24 }}>
-            <div onClick={e => e.stopPropagation()} style={{
-              background:"white", borderRadius:14, width:"90vw", height:"86vh",
-              maxWidth:1100, display:"flex", flexDirection:"column", overflow:"hidden",
-              boxShadow:"0 32px 80px rgba(0,0,0,0.35)" }}>
-              {/* Modal header */}
-              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between",
-                padding:"12px 20px", borderBottom:"1px solid #E2E8F0", flexShrink:0 }}>
-                <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                  <div style={{ width:8, height:8, borderRadius:"50%", background:BRAND }} />
-                  <span style={{ fontSize:13, fontWeight:600, color:"#1E293B" }}>Asset Preview</span>
-                  <span style={{ fontSize:11, color:"#94A3B8", fontFamily:"'SF Mono',monospace" }}>
-                    {assetModal}
-                  </span>
-                </div>
-                <button onClick={() => setAssetModal(null)} style={{
-                  background:"#F1F5F9", border:"none", borderRadius:6,
-                  width:28, height:28, fontSize:14, cursor:"pointer",
-                  color:"#64748B", display:"flex", alignItems:"center", justifyContent:"center",
-                  fontFamily:"inherit", lineHeight:1 }}>✕</button>
-              </div>
-              {/* iframe — no download controls */}
-              <iframe
-                src={assetModal}
-                title="Asset Preview"
-                sandbox="allow-scripts allow-same-origin"
-                style={{ flex:1, border:"none", width:"100%", display:"block" }}
-              />
-            </div>
-          </div>
+          <PreviewModal url={assetModal} title="Asset Preview" onClose={() => setAssetModal(null)} />
         )}
         <table>
           <thead>
@@ -614,42 +579,6 @@
                                 </div>
                               )}
                               {t.blocker && <div style={{ fontSize:11, color:"#DC2626", marginTop:3 }}>⚠ {t.blocker}</div>}
-                            {/* AI-generated deliverable indicator */}
-                            {t.deliverable && (
-                              <div style={{ marginTop:6, display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
-                                <span style={{ display:"inline-flex", alignItems:"center", gap:5, fontSize:12, fontWeight:600,
-                                  color:"#166534", background:"#DCFCE7", padding:"3px 10px", borderRadius:6 }}>
-                                  <span style={{fontSize:14}}>{"\u2726"}</span> {t.deliverable}
-                                  <span style={{ fontSize:10, fontWeight:500, color:"#15803D",
-                                    background:"#BBF7D0", padding:"1px 6px", borderRadius:3, marginLeft:2 }}>
-                                    {(t.deliverableType||"").toUpperCase()}
-                                  </span>
-                                </span>
-                                <span style={{ fontSize:11, color:BRAND, fontWeight:600 }}>Ready for review</span>
-                              </div>
-                            )}
-                            {/* Inline comment display for regular (non-asset) tasks */}
-                            {!t.assetPath && taskComments.length > 0 && (
-                              <div style={{ marginTop:6 }}>
-                                <button onClick={() => toggleCommentSection(`task-${t.id}`)} style={{
-                                  background: isCommentsExpanded ? "#F1F5F9" : "none",
-                                  border:"1px solid #E2E8F0", borderRadius:5,
-                                  padding:"2px 9px", fontSize:11, color:"#64748B", cursor:"pointer",
-                                  display:"inline-flex", alignItems:"center", gap:5,
-                                  fontFamily:"inherit" }}>
-                                  {isCommentsExpanded ? "▾" : "▸"} {taskComments.length} comment{taskComments.length !== 1 ? "s" : ""}
-                                </button>
-                                {isCommentsExpanded && (
-                                  <div style={{ marginTop:6, paddingLeft:8, borderLeft:"2px solid #E2E8F0" }}>
-                                    {taskComments.map(c => (
-                                      <div key={c.id} style={{ fontSize:12, color:"#334155", marginBottom:4 }}>
-                                        <strong>{c.author_name}</strong>: {c.body}
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            )}
                             </div>
                           </div>
                           {hoveredTask === t.id && !isPanelOpen && !t.assetPath && (
@@ -770,7 +699,7 @@
                                   }),
                                 })
                                 .then(res => { if (!res.ok) throw new Error(`Error ${res.status}`); return res.json(); })
-                                .then(([nc]) => { onCommentAdded(nc); setExpandedComments(prev => new Set([...prev, `task-asset:${t.id}`])); closePanel(); })
+                                .then(([nc]) => { onCommentAdded(nc); closePanel(); })
                                 .catch(() => { setPanelError('Something went wrong — please try again.'); })
                                 .finally(() => setPanelLoading(false));
                               }} disabled={!canSend} style={{
@@ -1031,13 +960,7 @@
           <div style={{ display:"grid", gridTemplateColumns:"80px 1fr", padding:"16px 18px", gap:14, alignItems:"start" }}>
             <Badge color={u.color} bg={u.bg}>{u.label}</Badge>
             <div>
-              <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
-                        <div style={{ fontSize:13, color:"#0F172A", fontWeight:500 }}>{item.q}</div>
-                        {(item.status === "answered" || item.status === "resolved") && (
-                          <span style={{ fontSize:10, fontWeight:600, color:"#166534",
-                            background:"#DCFCE7", padding:"2px 8px", borderRadius:4, flexShrink:0 }}>✅ Resolved</span>
-                        )}
-                      </div>
+              <div style={{ fontSize:13, color:"#0F172A", fontWeight:500, marginBottom:4 }}>{item.q}</div>
               <div style={{ fontSize:12, color:"#64748B", lineHeight:1.5, marginBottom:12 }}>{item.note}</div>
 
               {/* Existing answers */}
@@ -1270,6 +1193,23 @@
     }
 
     function PreviewModal({ url, title, onClose }) {
+      const [htmlContent, setHtmlContent] = useState(null);
+      const [loading, setLoading] = useState(true);
+      const [error, setError] = useState(null);
+
+      useEffect(() => {
+        if (!url) return;
+        setLoading(true);
+        setError(null);
+        fetch(url)
+          .then(r => {
+            if (!r.ok) throw new Error(`Failed to load (${r.status})`);
+            return r.text();
+          })
+          .then(html => { setHtmlContent(html); setLoading(false); })
+          .catch(e => { setError(e.message); setLoading(false); });
+      }, [url]);
+
       if (!url) return null;
       return (
         <div onClick={onClose} style={{
@@ -1300,12 +1240,22 @@
                   fontFamily:"inherit", lineHeight:1 }}>✕</button>
               </div>
             </div>
-            <iframe
-              src={url}
-              title={title || "Preview"}
-              sandbox="allow-scripts allow-same-origin"
-              style={{ flex:1, border:"none", width:"100%", display:"block" }}
-            />
+            {loading ? (
+              <div style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", color:"#94A3B8", fontSize:13 }}>
+                Loading preview…
+              </div>
+            ) : error ? (
+              <div style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", color:"#DC2626", fontSize:13 }}>
+                ⚠ {error}
+              </div>
+            ) : (
+              <iframe
+                srcDoc={htmlContent}
+                title={title || "Preview"}
+                sandbox="allow-scripts"
+                style={{ flex:1, border:"none", width:"100%", display:"block" }}
+              />
+            )}
           </div>
         </div>
       );
@@ -1345,6 +1295,7 @@
       const [previewTitle, setPreviewTitle] = useState("");
       const [assetFeedbackOpen, setAssetFeedbackOpen] = useState(false);
       const [assetLibExpanded, setAssetLibExpanded] = useState(null); // asset id for expanded version history
+      const [assetLibDiscGroups, setAssetLibDiscGroups] = useState({}); // { discId: bool } — discipline collapse state
       const [assetPreview, setAssetPreview]         = useState(null); // { url, title }
       const [showDone, setShowDone]                 = useState(false); // collapse done tasks on overview
       const [taskFilter, setTaskFilter]              = useState(null); // null = all, "done" | "in-progress" | "blocked" | "todo"
@@ -1485,16 +1436,15 @@
                     color: tab===id?"#0F172A":"#64748B", fontFamily:"inherit",
                     display:"flex", alignItems:"center", gap:6 }}>
                     {label}
-                    {id==="questions" && (() => {
-                      const openCount = (d.openQuestions || []).filter(q => q.status !== "answered" && q.status !== "resolved").length;
-                      return openCount > 0 ? (
-                        <span style={{
-                          background:"#EF4444", color:"white", fontSize:10, fontWeight:700,
-                          borderRadius:10, padding:"1px 7px", marginLeft:6,
-                          lineHeight:"18px", minWidth:18, textAlign:"center",
-                          display:"inline-block" }}>{openCount}</span>
-                      ) : null;
-                    })()}
+                    {id==="questions" && d.openQuestions.length > 0 && (
+                      <span style={{
+                        background: BRAND, color:"white",
+                        fontSize:10, fontWeight:700, borderRadius:10,
+                        padding:"1px 6px", lineHeight:"16px", minWidth:16,
+                        textAlign:"center" }}>
+                        {d.openQuestions.length}
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>
@@ -1717,183 +1667,211 @@
               <div style={{ display:"grid", gridTemplateColumns: ((d.openQuestions || []).length > 0 && (d.assets || []).length > 0) ? "1fr 1fr" : "1fr", gap:16, marginTop:16 }}>
 
               {/* Open Questions — left column */}
-              {(() => {
-                const openQs = (d.openQuestions || []).filter(q => q.status !== "answered" && q.status !== "resolved");
-                const answeredQs = (d.openQuestions || []).filter(q => q.status === "answered" || q.status === "resolved");
-                if (d.openQuestions.length === 0) return null;
-                return (
-                  <div style={{ background: openQs.length > 0 ? "#FFFBEB" : "#F0FDF4", border: openQs.length > 0 ? "1px solid #FDE68A" : "1px solid #BBF7D0", borderRadius:10,
-                    padding:"14px 18px", alignSelf:"start" }}>
-                    <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
-                      <span style={{ fontSize:13, fontWeight:700, color: openQs.length > 0 ? "#92400E" : "#166534" }}>
-                        {openQs.length > 0 ? `❓ ${openQs.length} Open Question${openQs.length !== 1 ? "s" : ""}` : "✅ All Questions Resolved"}
-                      </span>
-                      <button onClick={() => setTab("questions")} style={{
-                        background:BRAND, color:"white", border:"none", borderRadius:6,
-                        padding:"4px 10px", fontSize:11, fontWeight:600,
-                        cursor:"pointer", fontFamily:"inherit" }}>
-                        {openQs.length > 0 ? "Answer →" : "View →"}
-                      </button>
-                    </div>
-                    {openQs.map((q, i) => {
-                      const u = URGENCY[q.urgency];
-                      return (
-                        <div key={q.id || i} style={{
-                          display:"flex", alignItems:"flex-start", gap:8,
-                          padding:"7px 0",
-                          borderTop: i > 0 ? "1px solid #FDE68A" : "none" }}>
-                          <Badge color={u.color} bg={u.bg}>{u.label}</Badge>
-                          <span style={{ fontSize:12, color:"#78350F", lineHeight:1.5 }}>{q.q}</span>
-                        </div>
-                      );
-                    })}
-                    {answeredQs.length > 0 && openQs.length > 0 && (
-                      <div style={{ fontSize:11, color:"#64748B", marginTop:6, paddingTop:6, borderTop:"1px solid #FDE68A" }}>
-                        ✅ {answeredQs.length} resolved
-                      </div>
-                    )}
+              {d.openQuestions.length > 0 && (
+                <div style={{ background:"#FFFBEB", border:"1px solid #FDE68A", borderRadius:10,
+                  padding:"14px 18px", alignSelf:"start" }}>
+                  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
+                    <span style={{ fontSize:13, fontWeight:700, color:"#92400E" }}>
+                      ❓ {d.openQuestions.length} Open Question{d.openQuestions.length !== 1 ? "s" : ""}
+                    </span>
+                    <button onClick={() => setTab("questions")} style={{
+                      background:BRAND, color:"white", border:"none", borderRadius:6,
+                      padding:"4px 10px", fontSize:11, fontWeight:600,
+                      cursor:"pointer", fontFamily:"inherit" }}>
+                      Answer →
+                    </button>
                   </div>
-                );
-              })()}
-
-              {/* Asset Library — right column */}
-              {(d.assets || []).length > 0 && (
-                <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:10,
-                  overflow:"hidden", alignSelf:"start" }}>
-                  <div style={{ padding:"14px 18px", borderBottom:"1px solid #F1F5F9",
-                    display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-                    <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-                      <span style={{ fontSize:13, fontWeight:600, color:"#0F172A" }}>Asset Library</span>
-                      <span style={{ fontSize:11, color:"#94A3B8" }}>{d.assets.length} deliverable{d.assets.length !== 1 ? "s" : ""}</span>
-                    </div>
-                    <span style={{ fontSize:11, color:"#94A3B8" }}>Click to preview · expand for version history</span>
-                  </div>
-
-                  {d.assets.map(asset => {
-                    const disc = d.disciplines.find(di => di.id === asset.discipline);
-                    const as = ASSET_STATUS[asset.status] || ASSET_STATUS.draft;
-                    const latestVersion = asset.versions[asset.versions.length - 1];
-                    const isExpanded = assetLibExpanded === asset.id;
-                    const latestUrl = latestVersion ? latestVersion.url : null;
-                    const isNewAsset = latestUrl && !viewedAssets.has(latestUrl);
-
+                  {d.openQuestions.map((q, i) => {
+                    const u = URGENCY[q.urgency];
                     return (
-                      <div key={asset.id} style={{ borderBottom:"1px solid #F1F5F9" }}>
-                        {/* Asset card */}
-                        <div style={{ padding:"14px 18px", display:"flex", alignItems:"center", gap:14 }}>
-                          {/* Discipline icon */}
-                          {disc && (
-                            <div style={{ width:36, height:36, borderRadius:8,
-                              background: disc.lightColor, border:`1px solid ${disc.borderColor}`,
-                              display:"flex", alignItems:"center", justifyContent:"center",
-                              fontSize:14, fontWeight:700, color: disc.color, flexShrink:0 }}>
-                              {disc.label[0]}
-                            </div>
-                          )}
-
-                          {/* Title + description */}
-                          <div style={{ flex:1, minWidth:0 }}>
-                            <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
-                              <span style={{ fontSize:13, fontWeight:600, color:"#0F172A" }}>{asset.title}</span>
-                              {isNewAsset && (
-                                <span style={{ background:BRAND, color:"white", fontSize:9,
-                                  fontWeight:700, borderRadius:3, padding:"1px 5px",
-                                  letterSpacing:"0.06em", textTransform:"uppercase" }}>NEW</span>
-                              )}
-                              <Badge color={as.color} bg={as.bg}>{as.label}</Badge>
-                            </div>
-                            <div style={{ fontSize:12, color:"#64748B", marginTop:2 }}>{asset.description}</div>
-                            {latestVersion && (
-                              <div style={{ fontSize:11, color:"#94A3B8", marginTop:3 }}>
-                                v{latestVersion.version} · {latestVersion.date}
-                                {asset.versions.length > 1 && ` · ${asset.versions.length} versions`}
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Action buttons */}
-                          <div style={{ display:"flex", gap:8, flexShrink:0 }}>
-                            {asset.versions.length > 0 && (
-                              <button onClick={() => setAssetLibExpanded(isExpanded ? null : asset.id)} style={{
-                                background:"none", border:"1px solid #E2E8F0", borderRadius:6,
-                                padding:"6px 12px", fontSize:11, color:"#64748B", cursor:"pointer",
-                                display:"flex", alignItems:"center", gap:4,
-                                fontFamily:"inherit" }}>
-                                {isExpanded ? "▾" : "▸"} {asset.versions.length === 1 ? "Details" : `${asset.versions.length} versions`}
-                              </button>
-                            )}
-                            {latestUrl && (
-                              <button onClick={() => { setAssetPreview({ url: latestUrl, title: asset.title }); onAssetViewed(latestUrl); }} style={{
-                                background:BRAND, border:"none", borderRadius:6,
-                                padding:"6px 14px", fontSize:11, color:"white", cursor:"pointer",
-                                fontWeight:600, fontFamily:"inherit",
-                                display:"flex", alignItems:"center", gap:5 }}>
-                                View →
-                              </button>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Expanded version history */}
-                        {isExpanded && (
-                          <div style={{ padding:"0 18px 14px 68px" }}>
-                            {asset.versions.slice().reverse().map((v, vi) => {
-                              const vs = ASSET_STATUS[v.status] || ASSET_STATUS.draft;
-                              const isCurrent = vi === 0;
-                              return (
-                                <div key={v.version} style={{
-                                  display:"flex", alignItems:"flex-start", gap:12,
-                                  padding:"10px 0",
-                                  borderTop: vi > 0 ? "1px solid #F1F5F9" : "none" }}>
-                                  {/* Version timeline dot */}
-                                  <div style={{ display:"flex", flexDirection:"column", alignItems:"center", flexShrink:0, paddingTop:2 }}>
-                                    <div style={{ width:10, height:10, borderRadius:"50%",
-                                      background: isCurrent ? vs.dot : "#E2E8F0",
-                                      border: isCurrent ? "none" : "2px solid #E2E8F0" }} />
-                                    {vi < asset.versions.length - 1 && (
-                                      <div style={{ width:2, height:24, background:"#E2E8F0", marginTop:4 }} />
-                                    )}
-                                  </div>
-
-                                  {/* Version content */}
-                                  <div style={{ flex:1, minWidth:0 }}>
-                                    <div style={{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
-                                      <span style={{ fontSize:12, fontWeight:600, color: isCurrent ? "#0F172A" : "#94A3B8" }}>
-                                        v{v.version}
-                                      </span>
-                                      <span style={{ fontSize:11, color:"#94A3B8" }}>{v.date}</span>
-                                      <Badge color={vs.color} bg={vs.bg}>{vs.label}</Badge>
-                                      {isCurrent && (
-                                        <span style={{ fontSize:10, color:BRAND, fontWeight:600 }}>LATEST</span>
-                                      )}
-                                    </div>
-                                    {v.note && (
-                                      <div style={{ fontSize:12, color:"#64748B", marginTop:4, lineHeight:1.5 }}>
-                                        {v.note}
-                                      </div>
-                                    )}
-                                  </div>
-
-                                  {/* View this version */}
-                                  {v.url && (
-                                    <button onClick={() => { setAssetPreview({ url: v.url, title: `${asset.title} v${v.version}` }); onAssetViewed(v.url); }} style={{
-                                      background:"none", border:`1px solid ${isCurrent ? BRAND : "#E2E8F0"}`,
-                                      borderRadius:5, padding:"3px 10px", fontSize:11,
-                                      color: isCurrent ? BRAND : "#94A3B8", cursor:"pointer",
-                                      fontFamily:"inherit", flexShrink:0 }}>
-                                      View →
-                                    </button>
-                                  )}
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
+                      <div key={q.id || i} style={{
+                        display:"flex", alignItems:"flex-start", gap:8,
+                        padding:"7px 0",
+                        borderTop: i > 0 ? "1px solid #FDE68A" : "none" }}>
+                        <Badge color={u.color} bg={u.bg}>{u.label}</Badge>
+                        <span style={{ fontSize:12, color:"#78350F", lineHeight:1.5 }}>{q.q}</span>
                       </div>
                     );
                   })}
                 </div>
               )}
+
+              {/* Asset Library — right column, grouped by discipline */}
+              {(d.assets || []).length > 0 && (() => {
+                // Group assets by discipline
+                const byDisc = {};
+                d.assets.forEach(asset => {
+                  const key = asset.discipline || '_other';
+                  if (!byDisc[key]) byDisc[key] = [];
+                  byDisc[key].push(asset);
+                });
+                // Order discipline groups by the discipline order in d.disciplines
+                const discOrder = d.disciplines.map(di => di.id);
+                const sortedKeys = Object.keys(byDisc).sort((a, b) => {
+                  const ai = discOrder.indexOf(a); const bi = discOrder.indexOf(b);
+                  return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+                });
+                // Count new assets
+                const newCount = d.assets.filter(a => {
+                  const lv = a.versions[a.versions.length - 1];
+                  return lv && lv.url && !viewedAssets.has(lv.url);
+                }).length;
+
+                return (
+                  <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:10,
+                    overflow:"hidden", alignSelf:"start" }}>
+                    {/* Header */}
+                    <div style={{ padding:"14px 18px", borderBottom:"1px solid #F1F5F9",
+                      display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                      <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                        <span style={{ fontSize:13, fontWeight:600, color:"#0F172A" }}>Asset Library</span>
+                        <span style={{ fontSize:11, color:"#94A3B8" }}>
+                          {d.assets.length} deliverable{d.assets.length !== 1 ? "s" : ""}
+                        </span>
+                        {newCount > 0 && (
+                          <span style={{ background:BRAND, color:"white", fontSize:9,
+                            fontWeight:700, borderRadius:3, padding:"1px 5px",
+                            letterSpacing:"0.06em", textTransform:"uppercase" }}>{newCount} NEW</span>
+                        )}
+                      </div>
+                      <span style={{ fontSize:11, color:"#94A3B8" }}>Grouped by discipline</span>
+                    </div>
+
+                    {/* Discipline groups */}
+                    {sortedKeys.map(discId => {
+                      const disc = d.disciplines.find(di => di.id === discId);
+                      const groupAssets = byDisc[discId];
+                      const isGroupOpen = (assetLibDiscGroups || {})[discId] !== false; // default open
+                      const groupNewCount = groupAssets.filter(a => {
+                        const lv = a.versions[a.versions.length - 1];
+                        return lv && lv.url && !viewedAssets.has(lv.url);
+                      }).length;
+
+                      return (
+                        <div key={discId}>
+                          {/* Discipline group header — clickable to toggle */}
+                          <button onClick={() => {
+                            setAssetLibDiscGroups(prev => ({
+                              ...prev,
+                              [discId]: prev[discId] === false ? true : false
+                            }));
+                          }} style={{
+                            width:"100%", padding:"10px 18px", background:"#F8FAFC",
+                            border:"none", borderBottom:"1px solid #F1F5F9",
+                            cursor:"pointer", fontFamily:"inherit", textAlign:"left",
+                            display:"flex", alignItems:"center", gap:10 }}>
+                            <span style={{ fontSize:11, color:"#64748B" }}>{isGroupOpen ? "▾" : "▸"}</span>
+                            {disc && (
+                              <div style={{ width:22, height:22, borderRadius:5,
+                                background: disc.lightColor, border:`1px solid ${disc.borderColor}`,
+                                display:"flex", alignItems:"center", justifyContent:"center",
+                                fontSize:10, fontWeight:700, color: disc.color, flexShrink:0 }}>
+                                {disc.label[0]}
+                              </div>
+                            )}
+                            <span style={{ fontSize:12, fontWeight:600, color:"#374151" }}>
+                              {disc ? disc.label : discId}
+                            </span>
+                            <span style={{ fontSize:11, color:"#94A3B8" }}>
+                              {groupAssets.length} asset{groupAssets.length !== 1 ? "s" : ""}
+                            </span>
+                            {groupNewCount > 0 && (
+                              <span style={{ background:BRAND, color:"white", fontSize:8,
+                                fontWeight:700, borderRadius:3, padding:"1px 4px",
+                                letterSpacing:"0.06em", textTransform:"uppercase" }}>{groupNewCount} NEW</span>
+                            )}
+                          </button>
+
+                          {/* Assets in this group */}
+                          {isGroupOpen && groupAssets.map(asset => {
+                            const as = ASSET_STATUS[asset.status] || ASSET_STATUS.draft;
+                            const latestVersion = asset.versions[asset.versions.length - 1];
+                            const isExpanded = assetLibExpanded === asset.id;
+                            const latestUrl = latestVersion ? latestVersion.url : null;
+                            const isNewAsset = latestUrl && !viewedAssets.has(latestUrl);
+
+                            return (
+                              <div key={asset.id} style={{ borderBottom:"1px solid #F1F5F9" }}>
+                                <div style={{ padding:"10px 18px 10px 50px", display:"flex", alignItems:"center", gap:12 }}>
+                                  <div style={{ flex:1, minWidth:0 }}>
+                                    <div style={{ display:"flex", alignItems:"center", gap:6, flexWrap:"wrap" }}>
+                                      <span style={{ fontSize:12, fontWeight:600, color:"#0F172A" }}>{asset.title}</span>
+                                      {isNewAsset && (
+                                        <span style={{ background:BRAND, color:"white", fontSize:8,
+                                          fontWeight:700, borderRadius:3, padding:"1px 4px",
+                                          letterSpacing:"0.06em", textTransform:"uppercase" }}>NEW</span>
+                                      )}
+                                      <Badge color={as.color} bg={as.bg}>{as.label}</Badge>
+                                    </div>
+                                    {latestVersion && (
+                                      <div style={{ fontSize:11, color:"#94A3B8", marginTop:2 }}>
+                                        v{latestVersion.version} · {latestVersion.date}
+                                        {asset.versions.length > 1 && ` · ${asset.versions.length} versions`}
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div style={{ display:"flex", gap:6, flexShrink:0 }}>
+                                    {asset.versions.length > 1 && (
+                                      <button onClick={() => setAssetLibExpanded(isExpanded ? null : asset.id)} style={{
+                                        background:"none", border:"1px solid #E2E8F0", borderRadius:5,
+                                        padding:"4px 10px", fontSize:10, color:"#64748B", cursor:"pointer",
+                                        fontFamily:"inherit" }}>
+                                        {isExpanded ? "▾" : "▸"} {asset.versions.length}v
+                                      </button>
+                                    )}
+                                    {latestUrl && (
+                                      <button onClick={() => { setAssetPreview({ url: latestUrl, title: asset.title }); onAssetViewed(latestUrl); }} style={{
+                                        background:BRAND, border:"none", borderRadius:5,
+                                        padding:"4px 12px", fontSize:10, color:"white", cursor:"pointer",
+                                        fontWeight:600, fontFamily:"inherit" }}>
+                                        View →
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* Expanded version history */}
+                                {isExpanded && (
+                                  <div style={{ padding:"0 18px 10px 62px" }}>
+                                    {asset.versions.slice().reverse().map((v, vi) => {
+                                      const vs = ASSET_STATUS[v.status] || ASSET_STATUS.draft;
+                                      const isCurrent = vi === 0;
+                                      return (
+                                        <div key={v.version} style={{
+                                          display:"flex", alignItems:"center", gap:8,
+                                          padding:"6px 0",
+                                          borderTop: vi > 0 ? "1px solid #F1F5F9" : "none" }}>
+                                          <div style={{ width:8, height:8, borderRadius:"50%",
+                                            background: isCurrent ? vs.dot : "#E2E8F0", flexShrink:0 }} />
+                                          <span style={{ fontSize:11, fontWeight:600, color: isCurrent ? "#0F172A" : "#94A3B8" }}>
+                                            v{v.version}
+                                          </span>
+                                          <span style={{ fontSize:10, color:"#94A3B8" }}>{v.date}</span>
+                                          <Badge color={vs.color} bg={vs.bg}>{vs.label}</Badge>
+                                          {isCurrent && <span style={{ fontSize:9, color:BRAND, fontWeight:600 }}>LATEST</span>}
+                                          {v.url && (
+                                            <button onClick={() => { setAssetPreview({ url: v.url, title: `${asset.title} v${v.version}` }); onAssetViewed(v.url); }} style={{
+                                              background:"none", border:`1px solid ${isCurrent ? BRAND : "#E2E8F0"}`,
+                                              borderRadius:4, padding:"2px 8px", fontSize:10, marginLeft:"auto",
+                                              color: isCurrent ? BRAND : "#94A3B8", cursor:"pointer",
+                                              fontFamily:"inherit", flexShrink:0 }}>
+                                              View →
+                                            </button>
+                                          )}
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
 
               </div>{/* close two-column grid */}
 
@@ -2329,47 +2307,19 @@
             })()}
 
             {/* ── OPEN QUESTIONS ── */}
-            {tab==="questions" && (() => {
-                const openQs = (d.openQuestions || []).filter(q => q.status !== "answered" && q.status !== "resolved");
-                const resolvedQs = (d.openQuestions || []).filter(q => q.status === "answered" || q.status === "resolved");
-                return (
-                  <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:10, overflow:"hidden" }}>
-                    {/* Open Questions Section */}
-                    {openQs.length > 0 && (
-                      <>
-                        <div style={{ padding:"14px 18px 8px", borderBottom: resolvedQs.length > 0 ? "none" : "none" }}>
-                          <span style={{ fontSize:13, fontWeight:700, color:"#92400E" }}>
-                            ❓ {openQs.length} Open Question{openQs.length !== 1 ? "s" : ""}
-                          </span>
-                        </div>
-                        {openQs.map((q, i) => (
-                          <QuestionRow key={q.id || i} item={q} index={i} comments={comments} onCommentAdded={onCommentAdded} />
-                        ))}
-                      </>
-                    )}
-                    {openQs.length === 0 && (
-                      <div style={{ padding:"20px 18px", textAlign:"center", color:"#166534", fontSize:13, fontWeight:600 }}>
-                        ✅ All Questions Resolved
-                      </div>
-                    )}
-                    {/* Resolved Questions Section */}
-                    {resolvedQs.length > 0 && (
-                      <>
-                        <div style={{ padding:"14px 18px 8px", borderTop:"1px solid #E2E8F0" }}>
-                          <span style={{ fontSize:13, fontWeight:600, color:"#166534" }}>
-                            ✅ {resolvedQs.length} Resolved
-                          </span>
-                        </div>
-                        {resolvedQs.map((q, i) => (
-                          <div key={q.id || i} style={{ opacity:0.7 }}>
-                            <QuestionRow item={q} index={i} comments={comments} onCommentAdded={onCommentAdded} />
-                          </div>
-                        ))}
-                      </>
-                    )}
-                  </div>
-                );
-              })()}
+            {tab==="questions" && (
+              <div style={{ background:"white", border:"1px solid #E2E8F0", borderRadius:10, overflow:"hidden" }}>
+                <div style={{ padding:"14px 18px", borderBottom:"1px solid #F1F5F9" }}>
+                  <span style={{ fontSize:13, fontWeight:600, color:"#0F172A" }}>Open Questions</span>
+                  <span style={{ fontSize:12, color:"#94A3B8", marginLeft:8 }}>
+                    {d.openQuestions.length} need answers
+                  </span>
+                </div>
+                {d.openQuestions.map((item, i) => (
+                  <QuestionRow key={item.id || i} item={item} index={i} comments={comments} onCommentAdded={onCommentAdded} />
+                ))}
+              </div>
+            )}
 
           </div>
 
