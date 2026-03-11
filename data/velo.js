@@ -188,7 +188,7 @@
             {
               version: 1,
               date: "Mar 6, 2026",
-              url: "https://gzpuectetjatqbpcdgqt.supabase.co/functions/v1/serve-asset?path=velo/deliverables/velo-color-palette.html",
+              url: "https://helix-io-ctrl.github.io/operative-dashboard/docs/creative/velo-color-palette.html",
               note: "Palette selected. Primary: Velo Amber #E07A2F. Approved by Hayden.",
               status: "approved",
             },
@@ -204,8 +204,7 @@
             {
               version: 1,
               date: "Mar 9, 2026",
-              url: "https://gzpuectetjatqbpcdgqt.supabase.co/functions/v1/serve-asset?path=velo/deliverables/velo-logo-concepts.html",
-              note: "Initial concepts: Speed Mark, Intelligence Node, Trust Shield, Minimal V. Awaiting Hayden's pick.",
+              note: "Initial concepts: Speed Mark, Intelligence Node, Trust Shield, Minimal V. Awaiting Hayden's pick. HTML file not yet created.",
               status: "in-review",
             },
           ],
@@ -220,7 +219,7 @@
             {
               version: 1,
               date: "Mar 6, 2026",
-              url: "https://gzpuectetjatqbpcdgqt.supabase.co/functions/v1/serve-asset?path=velo/deliverables/landing-small-business.html",
+              url: "https://helix-io-ctrl.github.io/operative-dashboard/landing-small-business.html",
               note: "Initial version with two-tier pricing, testimonial placeholders, and booking CTA. Actual source file restored.",
               status: "approved",
             },
@@ -236,7 +235,7 @@
             {
               version: 1,
               date: "Mar 6, 2026",
-              url: "https://gzpuectetjatqbpcdgqt.supabase.co/functions/v1/serve-asset?path=velo/deliverables/landing-consultants.html",
+              url: "https://helix-io-ctrl.github.io/operative-dashboard/landing-consultants.html",
               note: "Initial version. Track B is deprioritized — page built but not actively marketed.",
               status: "approved",
             },
@@ -252,7 +251,7 @@
             {
               version: 1,
               date: "Mar 6, 2026",
-              url: "https://gzpuectetjatqbpcdgqt.supabase.co/functions/v1/serve-asset?path=velo/deliverables/marketing-campaign-brief.html",
+              url: "https://helix-io-ctrl.github.io/operative-dashboard/marketing-campaign-brief.html",
               note: "Complete brief: Bootstrap ($30/mo), Scrappy ($450/mo), Growth ($2k+/mo) tiers.",
               status: "approved",
             },
@@ -274,7 +273,7 @@
             {
               version: 2,
               date: "Mar 11, 2026",
-              url: "https://gzpuectetjatqbpcdgqt.supabase.co/functions/v1/serve-asset?path=velo/deliverables/capabilities-market-report.html",
+              url: "https://helix-io-ctrl.github.io/operative-dashboard/capabilities-market-report.html",
               note: "Updated: reflects 4 active clients, two-tier offer, automated onboarding pipeline, geographic focus. New capabilities added (automated prospect onboarding, dashboard as sales tool).",
               status: "approved",
             },
@@ -290,7 +289,7 @@
             {
               version: 1,
               date: "Mar 10, 2026",
-              url: "https://gzpuectetjatqbpcdgqt.supabase.co/functions/v1/serve-asset?path=velo/deliverables/velo-client-kickoff-process.html",
+              url: "https://helix-io-ctrl.github.io/operative-dashboard/client-kickoff-process.html",
               note: "Complete SOP with checklist. Covers Phase 0 (pre-kickoff) through Phase 3 (first delivery in Week 1).",
               status: "approved",
             },
@@ -306,7 +305,7 @@
             {
               version: 1,
               date: "Mar 10, 2026",
-              url: "https://gzpuectetjatqbpcdgqt.supabase.co/functions/v1/serve-asset?path=velo/deliverables/velo-lead-to-discovery-flow.html",
+              url: "https://helix-io-ctrl.github.io/operative-dashboard/lead-to-discovery-flow.html",
               note: "Full agenda covering intros, business fundamentals, goals, constraints, resources, the pitch, and next steps.",
               status: "approved",
             },
