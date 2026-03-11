@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Operative — Your AI-Powered Business Advisor</title>
+  <style>
+    :root {
+      --bg: #fafaf8;
+      --bg2: #f3f3ef;
+      --bg3: #ececea;
+      --bg-dark: #111110;
+      --border: #e2e2de;
+      --border-dark: #2a2a28;
+      --accent: #1a6b3c;
+      --accent-light: #22863a;
+      --accent-bg: rgba(26,107,60,0.08);
+      --accent-border: rgba(26,107,60,0.25);
+      --text: #1a1a18;
+      --text-muted: #6b6b68;
+      --text-light: #9b9b98;
+      --amber: #d97706;
+      --amber-bg: rgba(217,119,6,0.1);
+      --red: #dc2626;
+      --green: #16a34a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 48px;
+      background: rgba(250,250,248,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .logo { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; color: var(--text); text-decoration: none; }
+    .logo span { color: var(--accent); }
+    .nav-links { display: flex; align-items: center; gap: 32px; }
+    .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 500; }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-cta {
+      background: var(--accent); color: #fff; border: none; padding: 11px 22px;
+      border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer;
+      text-decoration: none; transition: background 0.2s, transform 0.15s;
+    }
+    .nav-cta:hover { background: var(--accent-light); transform: translateY(-1px); }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 160px 24px 100px;
+      max-width: 1100px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+    }
+    @media(max-width:800px){ .hero { grid-template-columns: 1fr; padding: 140px 24px 80px; } }
+
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--accent-bg); border: 1px solid var(--accent-border);
+      color: var(--accent); font-size: 0.8rem; font-weight: 700;
+      padding: 6px 14px; border-radius: 999px; margin-bottom: 24px;
+      letter-spacing: 0.04em;
+    }
+    h1 {
+      font-size: clamp(2.2rem, 4vw, 3.4rem);
+      font-weight: 800; letter-spacing: -0.03em; line-height: 1.1;
+      margin-bottom: 22px;
+    }
+    h1 .hl { color: var(--accent); }
+    .hero-sub {
+      font-size: 1.1rem; color: var(--text-muted);
+      margin-bottom: 36px; line-height: 1.75; max-width: 480px;
+    }
+    .hero-cta-group { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--accent); color: #fff;
+      padding: 14px 28px; border-radius: 10px;
+      font-size: 1rem; font-weight: 700; cursor: pointer;
+      text-decoration: none; border: none;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-primary:hover { background: var(--accent-light); transform: translateY(-2px); }
+    .btn-secondary {
+      background: transparent; color: var(--text-muted);
+      padding: 14px 28px; border-radius: 10px;
+      font-size: 1rem; font-weight: 600; cursor: pointer;
+      text-decoration: none; border: 1px solid var(--border);
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+    .hero-trust {
+      display: flex; align-items: center; gap: 12px;
+      margin-top: 24px;
+    }
+    .trust-avatars { display: flex; }
+    .trust-avatars span {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--bg3); border: 2px solid #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; margin-left: -8px;
+    }
+    .trust-avatars span:first-child { margin-left: 0; }
+    .trust-text { font-size: 0.82rem; color: var(--text-muted); }
+    .trust-text strong { color: var(--text); }
+
+    /* Hero visual */
+    .hero-visual {
+      background: var(--bg-dark); border-radius: 20px;
+      overflow: hidden; box-shadow: 0 24px 64px rgba(0,0,0,0.15);
+    }
+    .hv-topbar {
+      background: #1c1c1a; padding: 12px 18px;
+      display: flex; align-items: center; gap: 12px;
+      border-bottom: 1px solid #2a2a28;
+    }
+    .hv-dots { display: flex; gap: 6px; }
+    .hv-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .hv-dot.red { background: #ff5f56; }
+    .hv-dot.yellow { background: #ffbd2e; }
+    .hv-dot.green { background: #27c93f; }
+    .hv-title { font-size: 0.75rem; color: #888; font-weight: 500; margin-left: 8px; }
+    .hv-body { padding: 24px; }
+    .hv-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #666; margin-bottom: 8px; }
+    .hv-client { font-size: 1rem; font-weight: 700; color: #f0f0ee; margin-bottom: 20px; }
+    .hv-progress-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .hv-progress-label { font-size: 0.78rem; color: #888; }
+    .hv-progress-val { font-size: 0.78rem; color: #27c93f; font-weight: 600; }
+    .hv-bar { height: 6px; background: #2a2a28; border-radius: 999px; margin-bottom: 18px; }
+    .hv-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #1a6b3c, #27c93f); }
+    .hv-tasks { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
+    .hv-task { background: #1c1c1a; border: 1px solid #2a2a28; border-radius: 8px; padding: 10px 14px; display: flex; align-items: center; gap: 10px; }
+    .hv-task-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .hv-task-dot.done { background: #27c93f; }
+    .hv-task-dot.active { background: #ffbd2e; }
+    .hv-task-dot.pending { background: #444; }
+    .hv-task-text { font-size: 0.78rem; color: #aaa; }
+    .hv-task-text.done { color: #666; text-decoration: line-through; }
+    .hv-divider { border: none; border-top: 1px solid #2a2a28; margin: 20px 0; }
+    .hv-stat-row { display: flex; gap: 16px; }
+    .hv-stat { flex: 1; background: #1c1c1a; border: 1px solid #2a2a28; border-radius: 8px; padding: 12px; text-align: center; }
+    .hv-stat-num { font-size: 1.3rem; font-weight: 800; color: #f0f0ee; }
+    .hv-stat-lbl { font-size: 0.68rem; color: #666; margin-top: 2px; }
+    .hv-snapshot {
+      margin-top: 16px; background: #1c1c1a; border: 1px solid #2a2a28;
+      border-radius: 8px; padding: 12px 14px;
+    }
+    .hv-snap-title { font-size: 0.72rem; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+    .hv-snap-row { font-size: 0.75rem; color: #aaa; padding: 3px 0; border-bottom: 1px solid #2a2a28; }
+    .hv-snap-row:last-child { border-bottom: none; }
+    .hv-snap-row span { color: #27c93f; font-weight: 600; float: right; }
+
+    /* ── VS ── */
+    .vs-section { padding: 100px 24px; max-width: 1100px; margin: 0 auto; }
+    .vs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 48px; }
+    @media(max-width:700px){ .vs-grid { grid-template-columns: 1fr; } }
+    .vs-card { border-radius: 16px; padding: 32px; }
+    .vs-card.bad { background: #fff5f5; border: 1px solid #fecaca; }
+    .vs-card.good { background: #f0fdf4; border: 1px solid #bbf7d0; }
+    .vs-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 20px; }
+    .vs-card.bad h3 { color: var(--red); }
+    .vs-card.good h3 { color: var(--green); }
+    .vs-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .vs-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 0.92rem; line-height: 1.5; }
+    .vs-icon { flex-shrink: 0; margin-top: 2px; font-size: 0.85rem; }
+
+    /* ── SECTION BASE ── */
+    section { padding: 100px 24px; max-width: 1100px; margin: 0 auto; }
+    .section-label {
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 14px;
+    }
+    h2 {
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 800; letter-spacing: -0.03em; line-height: 1.2; margin-bottom: 18px;
+    }
+    .section-sub {
+      font-size: 1.05rem; color: var(--text-muted);
+      max-width: 560px; margin-bottom: 56px; line-height: 1.75;
+    }
+
+    /* ── WHAT YOU GET ── */
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+    .feature-card {
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 16px; padding: 30px;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+    }
+    .feature-card:hover { border-color: var(--accent); box-shadow: 0 4px 20px rgba(26,107,60,0.1); transform: translateY(-3px); }
+    .feature-icon {
+      width: 42px; height: 42px;
+      background: var(--accent-bg); border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; margin-bottom: 16px;
+    }
+    .feature-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 10px; }
+    .feature-card p { font-size: 0.88rem; color: var(--text-muted); line-height: 1.65; }
+
+    /* ── PRICE ── */
+    .pricing-section { background: var(--bg2); padding: 20px 0; }
+    .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+    .price-card {
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 20px; padding: 36px;
+    }
+    .price-card.featured {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent), 0 8px 32px rgba(26,107,60,0.12);
+      position: relative;
+    }
+    .price-badge {
+      position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+      background: var(--accent); color: #fff;
+      font-size: 0.72rem; font-weight: 700; padding: 4px 14px; border-radius: 999px;
+      letter-spacing: 0.05em; text-transform: uppercase; white-space: nowrap;
+    }
+    .price-name { font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
+    .price-amount { font-size: 2.8rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 4px; }
+    .price-amount span { font-size: 1rem; font-weight: 500; color: var(--text-muted); }
+    .price-desc { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 28px; line-height: 1.6; }
+    .price-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+    .price-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 0.88rem; }
+    .check-icon { color: var(--green); font-weight: 800; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── PROCESS ── */
+    .process-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0; position: relative; }
+    .process-step {
+      padding: 32px 28px; text-align: center;
+      border-right: 1px solid var(--border);
+      position: relative;
+    }
+    .process-step:last-child { border-right: none; }
+    @media(max-width:700px){ .process-step { border-right: none; border-bottom: 1px solid var(--border); } }
+    .ps-num {
+      width: 40px; height: 40px;
+      background: var(--accent-bg); border: 1px solid var(--accent-border);
+      border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; font-weight: 800; color: var(--accent);
+      margin: 0 auto 16px;
+    }
+    .process-step h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 8px; }
+    .process-step p { font-size: 0.82rem; color: var(--text-muted); line-height: 1.6; }
+
+    /* ── COMPARISON TABLE ── */
+    .compare-wrap { overflow-x: auto; }
+    .compare-table { width: 100%; border-collapse: collapse; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    .compare-table th {
+      background: var(--bg3); padding: 14px 20px;
+      font-size: 0.82rem; font-weight: 700; text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .compare-table th.feature-col { text-align: left; }
+    .compare-table th.us { background: #f0fdf4; color: var(--green); }
+    .compare-table td {
+      padding: 14px 20px; font-size: 0.88rem;
+      border-bottom: 1px solid var(--border); text-align: center;
+    }
+    .compare-table td.feature-col { text-align: left; font-weight: 500; }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table .check-cell { color: var(--green); font-size: 1rem; font-weight: 700; }
+    .compare-table .cross-cell { color: #ccc; }
+    .compare-table .partial-cell { color: var(--amber); font-size: 0.78rem; }
+    .compare-table .price-cell { font-weight: 700; }
+    .compare-table .price-cell.bad { color: var(--red); }
+    .compare-table .price-cell.good { color: var(--green); }
+    .compare-table tr.highlight td { background: #f7fef9; }
+
+    /* ── TESTIMONIAL ── */
+    .testimonial-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+    .testi-card {
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 16px; padding: 28px;
+    }
+    .testi-stars { color: #f59e0b; font-size: 0.9rem; margin-bottom: 14px; letter-spacing: 2px; }
+    .testi-text { font-size: 0.95rem; color: var(--text); line-height: 1.7; margin-bottom: 20px; font-style: italic; }
+    .testi-author { display: flex; align-items: center; gap: 12px; }
+    .testi-avatar { width: 38px; height: 38px; background: var(--bg3); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); }
+    .testi-name { font-size: 0.88rem; font-weight: 700; }
+    .testi-role { font-size: 0.78rem; color: var(--text-muted); }
+
+    /* ── FAQ ── */
+    .faq-list { display: flex; flex-direction: column; gap: 2px; }
+    .faq-item { background: #fff; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .faq-q { padding: 20px 24px; font-weight: 600; font-size: 0.98rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+    .faq-q:hover { color: var(--accent); }
+    .faq-q .arrow { font-size: 1.2rem; color: var(--text-muted); transition: transform 0.2s; }
+    .faq-a { padding: 0 24px 20px; color: var(--text-muted); font-size: 0.92rem; line-height: 1.7; display: none; }
+    .faq-item.open .faq-a { display: block; }
+    .faq-item.open .arrow { transform: rotate(45deg); }
+
+    /* ── CTA ── */
+    .cta-section {
+      background: var(--bg-dark); color: #f0f0ee;
+      padding: 120px 24px; text-align: center;
+    }
+    .cta-section h2 { color: #f0f0ee; max-width: 640px; margin: 0 auto 18px; }
+    .cta-section p { color: #888; font-size: 1.05rem; max-width: 480px; margin: 0 auto 40px; line-height: 1.7; }
+    .cta-section .btn-primary { background: var(--accent); font-size: 1.05rem; padding: 16px 36px; }
+    .cta-section .btn-primary:hover { background: var(--accent-light); }
+    .cta-guarantee { margin-top: 24px; font-size: 0.82rem; color: #666; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--bg-dark);
+      border-top: 1px solid var(--border-dark);
+      padding: 28px 48px;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;
+    }
+    footer .logo-f { font-size: 1rem; font-weight: 700; color: #666; }
+    footer .logo-f span { color: var(--accent); }
+    footer p { font-size: 0.82rem; color: #555; }
+    footer a { color: #555; text-decoration: none; font-size: 0.82rem; }
+    footer a:hover { color: var(--accent); }
+
+    @media(max-width:768px){
+      nav { padding: 16px 20px; }
+      .nav-links { display: none; }
+      section { padding: 72px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo">Operative<span>.</span></a>
+  <div class="nav-links">
+    <a href="#how-it-works">How It Works</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <a href="#book-call" class="nav-cta">Book a Free Call →</a>
+</nav>
+
+<!-- HERO -->
+<div style="max-width:100%; background: var(--bg);">
+  <div class="hero">
+    <div>
+      <div class="hero-eyebrow">🤝 AI-Powered Business Advisory</div>
+      <h1>
+        A Real Business Advisor —<br/>
+        at a Price That<br/>
+        <span class="hl">Actually Makes Sense.</span>
+      </h1>
+      <p class="hero-sub">
+        Most small businesses can't afford a consultant. The ones they can afford send slide decks and disappear.
+        Operative gives you a dedicated, AI-powered business advisor — with a live dashboard, weekly reports,
+        and full strategic coverage — for a fraction of the cost.
+      </p>
+      <div class="hero-cta-group">
+        <a href="#book-call" class="btn-primary">Book a Free Discovery Call</a>
+        <a href="#how-it-works" class="btn-secondary">See How It Works ↓</a>
+      </div>
+      <div class="hero-trust">
+        <div class="trust-avatars">
+          <span>JK</span><span>ML</span><span>ST</span><span>+</span>
+        </div>
+        <div class="trust-text"><strong>Small business owners</strong> getting unstuck with AI-powered advisory</div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hv-topbar">
+        <div class="hv-dots">
+          <div class="hv-dot red"></div>
+          <div class="hv-dot yellow"></div>
+          <div class="hv-dot green"></div>
+        </div>
+        <span class="hv-title">Your Live Business Dashboard</span>
+      </div>
+      <div class="hv-body">
+        <div class="hv-label">Active Engagement</div>
+        <div class="hv-client">⚡ Meridian Marketing Studio</div>
+        <div class="hv-progress-row">
+          <span class="hv-progress-label">Phase 2 of 3 — Operations</span>
+          <span class="hv-progress-val">67% complete</span>
+        </div>
+        <div class="hv-bar"><div class="hv-bar-fill" style="width:67%;"></div></div>
+        <div class="hv-tasks">
+          <div class="hv-task">
+            <div class="hv-task-dot done"></div>
+            <span class="hv-task-text done">Client onboarding process mapped</span>
+          </div>
+          <div class="hv-task">
+            <div class="hv-task-dot done"></div>
+            <span class="hv-task-text done">Pricing strategy finalized</span>
+          </div>
+          <div class="hv-task">
+            <div class="hv-task-dot active"></div>
+            <span class="hv-task-text">Referral program design — in progress</span>
+          </div>
+          <div class="hv-task">
+            <div class="hv-task-dot pending"></div>
+            <span class="hv-task-text">Q2 marketing calendar</span>
+          </div>
+        </div>
+        <hr class="hv-divider"/>
+        <div class="hv-stat-row">
+          <div class="hv-stat">
+            <div class="hv-stat-num" style="color:#27c93f;">14</div>
+            <div class="hv-stat-lbl">Tasks done</div>
+          </div>
+          <div class="hv-stat">
+            <div class="hv-stat-num" style="color:#ffbd2e;">3</div>
+            <div class="hv-stat-lbl">In progress</div>
+          </div>
+          <div class="hv-stat">
+            <div class="hv-stat-num" style="color:#888;">5</div>
+            <div class="hv-stat-lbl">Upcoming</div>
+          </div>
+        </div>
+        <div class="hv-snapshot">
+          <div class="hv-snap-title">📋 This Week's Snapshot</div>
+          <div class="hv-snap-row">Onboarding doc delivered <span>✓ Done</span></div>
+          <div class="hv-snap-row">Referral framework drafted <span>✓ Done</span></div>
+          <div class="hv-snap-row">Pricing model revised <span>✓ Done</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- VS SECTION -->
+<div style="background: var(--bg2); padding: 20px 0;">
+  <section class="vs-section">
+    <div class="section-label">The Problem</div>
+    <h2>Most Business Advice<br/>Doesn't Actually Help You Operate</h2>
+    <p class="section-sub">
+      You've either paid too much for too little — or been sold a course that taught you a concept but left you to figure out the execution.
+    </p>
+    <div class="vs-grid">
+      <div class="vs-card bad">
+        <h3>❌ What You've Dealt With</h3>
+        <ul class="vs-list">
+          <li><span class="vs-icon">💸</span> Traditional consultants charge $10k–$25k for a project. Slide decks delivered. Then they leave.</li>
+          <li><span class="vs-icon">🔁</span> Every call, you re-explain everything. There's no memory, no documentation, no system left behind.</li>
+          <li><span class="vs-icon">🌫️</span> You have no idea what's actually happening. No dashboard. No visibility. Just the occasional email.</li>
+          <li><span class="vs-icon">🎯</span> "Advisors" give generic advice. They don't understand your specific business constraints and history.</li>
+          <li><span class="vs-icon">📉</span> Business coaches give accountability — not execution. Nothing actually gets built.</li>
+        </ul>
+      </div>
+      <div class="vs-card good">
+        <h3>✅ What Operative Delivers</h3>
+        <ul class="vs-list">
+          <li><span class="vs-icon">💰</span> Retainer-based engagement at $2,000/month. One-sixth the cost of a boutique consulting project.</li>
+          <li><span class="vs-icon">🧠</span> The system remembers everything. Every session builds on the last. No re-explaining. Ever.</li>
+          <li><span class="vs-icon">📊</span> A live dashboard at a real URL — updated after every session. Check your progress any time.</li>
+          <li><span class="vs-icon">🎯</span> Full context on your business from session one. Strategy adapted to your specific situation.</li>
+          <li><span class="vs-icon">⚡</span> Weekly snapshot reports so you know exactly what happened, what's next, and what's blocked.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- HOW IT WORKS -->
+<section id="how-it-works">
+  <div class="section-label">The Process</div>
+  <h2>How We Work Together</h2>
+  <p class="section-sub">No onboarding maze. No 90-day discovery phase before anything gets done. You're in the system and making progress within your first session.</p>
+  <div class="process-steps" style="background:#fff; border: 1px solid var(--border); border-radius:16px; overflow:hidden; margin-bottom: 64px;">
+    <div class="process-step">
+      <div class="ps-num">01</div>
+      <h3>Free Discovery Call</h3>
+      <p>30 minutes. No pitch. We identify the one thing most blocking your growth and whether this is the right fit.</p>
+    </div>
+    <div class="process-step">
+      <div class="ps-num">02</div>
+      <h3>Onboarding Session</h3>
+      <p>One session to document your goals, constraints, and opening priorities. Your dashboard is live within 48 hours.</p>
+    </div>
+    <div class="process-step">
+      <div class="ps-num">03</div>
+      <h3>Weekly Sessions + Reports</h3>
+      <p>We work through your priorities together. Every Friday, you get a one-page snapshot of what got done and what's next.</p>
+    </div>
+    <div class="process-step">
+      <div class="ps-num">04</div>
+      <h3>Documented Systems</h3>
+      <p>Every decision is logged. Every process is documented. At the end of 90 days, you have a real operational playbook.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<div style="background: var(--bg2); padding: 20px 0;">
+  <section>
+    <div class="section-label">What You Get</div>
+    <h2>Everything a Small Business<br/>Actually Needs to Grow</h2>
+    <p class="section-sub">Not slide decks. Not generic frameworks. A live, working system tailored to your business.</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Live Business Dashboard</h3>
+        <p>A real URL — your private control room. See every task, phase, decision, and open question. Updated automatically after every session. No more wondering what's happening.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📋</div>
+        <h3>Weekly Snapshot Reports</h3>
+        <p>Every Friday, a polished one-page briefing lands in your inbox. What got done, what's next, what's blocked, and what needs your input. Designed to scan in under 2 minutes.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🧠</div>
+        <h3>Persistent Business Memory</h3>
+        <p>The system holds the full context of your business — your history, decisions, constraints, and goals. Every session picks up exactly where we left off. No re-explaining.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🏗️</div>
+        <h3>Full Business Coverage</h3>
+        <p>Strategy, operations, marketing, creative, and data — in one engagement. Move from "define my ideal customer" to "build my referral system" to "map my onboarding process" without starting over.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📝</div>
+        <h3>Decision Log</h3>
+        <p>Every meaningful decision is documented with context and reasoning. You can audit any choice made during the engagement. Nothing is a black box. You stay in control.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Call Transcript Processing</h3>
+        <p>Drop in any call recording or transcript. The system extracts action items, updates your dashboard, and logs the context. No lost follow-ups. No forgotten decisions.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- COMPARISON TABLE -->
+<section>
+  <div class="section-label">How We Compare</div>
+  <h2>Operative vs. Everything Else</h2>
+  <p class="section-sub">We're not the cheapest option — we're the one that actually delivers documented systems and visible progress.</p>
+  <div class="compare-wrap">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th class="feature-col">What You Get</th>
+          <th>McKinsey / Big 4</th>
+          <th>Boutique Consultant</th>
+          <th>Business Coach</th>
+          <th class="us">Operative</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="feature-col">Accessible to small businesses</td>
+          <td class="cross-cell">✗</td>
+          <td class="partial-cell">Rarely</td>
+          <td class="check-cell">✓</td>
+          <td class="check-cell">✓</td>
+        </tr>
+        <tr class="highlight">
+          <td class="feature-col">Live progress dashboard</td>
+          <td class="cross-cell">✗</td>
+          <td class="cross-cell">✗</td>
+          <td class="cross-cell">✗</td>
+          <td class="check-cell">✓</td>
+        </tr>
+        <tr>
+          <td class="feature-col">Weekly written reports</td>
+          <td class="partial-cell">Monthly decks</td>
+          <td class="partial-cell">Sometimes</td>
+          <td class="cross-cell">✗</td>
+          <td class="check-cell">✓ Every Friday</td>
+        </tr>
+        <tr class="highlight">
+          <td class="feature-col">Persistent context / memory</td>
+          <td class="partial-cell">Team docs</td>
+          <td class="cross-cell">✗</td>
+          <td class="cross-cell">✗</td>
+          <td class="check-cell">✓ Full history</td>
+        </tr>
+        <tr>
+          <td class="feature-col">Systems + docs left behind</td>
+          <td class="check-cell">✓</td>
+          <td class="partial-cell">Slide decks</td>
+          <td class="cross-cell">✗</td>
+          <td class="check-cell">✓ Full playbook</td>
+        </tr>
+        <tr class="highlight">
+          <td class="feature-col">Full business function coverage</td>
+          <td class="check-cell">✓</td>
+          <td class="partial-cell">1–2 functions</td>
+          <td class="partial-cell">General only</td>
+          <td class="check-cell">✓ Strategy to ops</td>
+        </tr>
+        <tr>
+          <td class="feature-col">Monthly cost</td>
+          <td class="price-cell bad">$50k–$500k project</td>
+          <td class="price-cell bad">$10k–$25k project</td>
+          <td class="price-cell">$500–$2,000</td>
+          <td class="price-cell good">$2,000/month</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- TESTIMONIALS (placeholder — update with real quotes) -->
+<div style="background: var(--bg2); padding: 20px 0;">
+  <section>
+    <div class="section-label">Early Clients</div>
+    <h2>What Business Owners Are Saying</h2>
+    <div class="testimonial-grid">
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"I've worked with two consultants before. Neither of them left me with anything I could actually use. Operative gave me a documented system, a dashboard I check daily, and weekly reports I actually read. It's a completely different experience."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">JK</div>
+          <div>
+            <div class="testi-name">Jason K.</div>
+            <div class="testi-role">Owner, independent fitness studio</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"The live dashboard alone was worth it. My last consultant sent a 40-slide deck after 60 days. With Operative, I knew what was happening every single week. It gave me visibility I'd never had before."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">ML</div>
+          <div>
+            <div class="testi-name">Morgan L.</div>
+            <div class="testi-role">Founder, boutique marketing agency</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"I was skeptical — I'd tried coaches and nothing stuck. The difference here is that we actually build things. After 90 days, I had a real onboarding process, a referral system, and a pricing structure. Actual outputs."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">ST</div>
+          <div>
+            <div class="testi-name">Sara T.</div>
+            <div class="testi-role">Freelance consultant, 1-person business</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:0.78rem; color:var(--text-muted); margin-top:24px; text-align:center;">*Early access testimonials. Names used with permission.</p>
+  </section>
+</div>
+
+<!-- PRICING -->
+<div class="pricing-section" id="pricing">
+  <section>
+    <div class="section-label">Pricing</div>
+    <h2>Simple, Transparent Pricing</h2>
+    <p class="section-sub">No surprise invoices. No scope creep. A clear engagement, a clear deliverable, a clear cost.</p>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-name">90-Day Engagement</div>
+        <div class="price-amount">$6,000<span></span></div>
+        <div class="price-desc">One-time payment for a focused 90-day sprint to fix a specific business challenge. Best for launch, systems setup, or strategic pivots.</div>
+        <ul class="price-list">
+          <li><span class="check-icon">✓</span> Discovery session + full onboarding</li>
+          <li><span class="check-icon">✓</span> Weekly sessions (≈12 total)</li>
+          <li><span class="check-icon">✓</span> Live dashboard, active for 90 days</li>
+          <li><span class="check-icon">✓</span> 12 weekly snapshot reports</li>
+          <li><span class="check-icon">✓</span> Decision log + documented playbook</li>
+          <li><span class="check-icon">✓</span> Full transcript processing</li>
+        </ul>
+        <a href="#book-call" class="btn-secondary" style="display:block; text-align:center;">Start with a Free Call</a>
+      </div>
+      <div class="price-card featured">
+        <div class="price-badge">Most Popular</div>
+        <div class="price-name">Monthly Retainer</div>
+        <div class="price-amount">$2,000<span>/mo</span></div>
+        <div class="price-desc">Ongoing AI-powered advisory. Build momentum month over month, with full continuity and a live dashboard that keeps growing with you.</div>
+        <ul class="price-list">
+          <li><span class="check-icon">✓</span> Everything in 90-Day Engagement</li>
+          <li><span class="check-icon">✓</span> Ongoing persistent memory — no resets</li>
+          <li><span class="check-icon">✓</span> Monthly progress reviews</li>
+          <li><span class="check-icon">✓</span> Async support between sessions</li>
+          <li><span class="check-icon">✓</span> Full business function coverage</li>
+          <li><span class="check-icon">✓</span> Cancel anytime with 30-day notice</li>
+        </ul>
+        <a href="#book-call" class="btn-primary" style="display:block; text-align:center;">Book a Free Discovery Call</a>
+      </div>
+      <div class="price-card">
+        <div class="price-name">Paid Discovery</div>
+        <div class="price-amount">$500<span></span></div>
+        <div class="price-desc">Not sure if this is right for you? A single deep-dive session to identify your biggest growth blocker and map a clear action plan. Fully refundable toward any engagement.</div>
+        <ul class="price-list">
+          <li><span class="check-icon">✓</span> 90-minute discovery session</li>
+          <li><span class="check-icon">✓</span> Written summary + priority actions</li>
+          <li><span class="check-icon">✓</span> No commitment required</li>
+          <li><span class="check-icon">✓</span> $500 credited if you continue</li>
+        </ul>
+        <a href="#book-call" class="btn-secondary" style="display:block; text-align:center;">Start Here</a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="section-label">Questions</div>
+  <h2>Frequently Asked Questions</h2>
+  <div class="faq-list">
+    <div class="faq-item">
+      <div class="faq-q">What kinds of businesses do you work with? <span class="arrow">+</span></div>
+      <div class="faq-a">Service businesses and operators with 1–15 employees generating $100k–$2M annually. This includes independent consultants, small agencies (marketing, design, legal, accounting), local service businesses trying to systemize, early-stage startups, and freelancers who are scaling past themselves. If you're growing but feel like the wheels are spinning, this is designed for you.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">How is this different from a business coach? <span class="arrow">+</span></div>
+      <div class="faq-a">Business coaching is primarily accountability — check-ins, motivation, habit building. Operative builds systems. At the end of an engagement, you have a documented playbook, a functioning dashboard, and processes that actually exist on paper (and in practice). We execute alongside you, not just talk about it.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What does a typical month look like? <span class="arrow">+</span></div>
+      <div class="faq-a">Usually 2–3 working sessions per month (60–90 minutes each), a Friday snapshot report every week, and async support in between for questions, transcript drops, and document reviews. Sessions can be focused on any business function — strategy one week, marketing the next — depending on your priorities.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What does the live dashboard actually show? <span class="arrow">+</span></div>
+      <div class="faq-a">Your dashboard is a real webpage at a private URL. It shows your current phase of the engagement, tasks by status (done / in progress / upcoming), key decisions made (with reasoning), open questions, velocity tracking, and a progress timeline. It's updated automatically after every session — you don't have to ask what's happening.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Can I cancel if it's not working? <span class="arrow">+</span></div>
+      <div class="faq-a">Yes. Monthly retainers have a 30-day cancellation notice. 90-day engagements are fixed but come with a clear deliverables guarantee — if we're not hitting our goals by the halfway point, we'll discuss an extension or adjustment. We'd rather solve the problem than end the relationship.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">How do I know if I'm ready for this? <span class="arrow">+</span></div>
+      <div class="faq-a">You're ready if you have a business generating revenue (even modest), you feel like things are chaotic or stagnant, and you're willing to invest time in sessions and follow through on priorities. You don't need to have it together — that's what the engagement is for. The free discovery call will tell you quickly whether this is the right fit.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<div class="cta-section" id="book-call">
+  <div class="section-label" style="color:#555;">Take the First Step</div>
+  <h2>Book a Free 30-Minute Discovery Call</h2>
+  <p>No pitch. No pressure. Just a conversation about what's blocking your growth — and an honest answer about whether Operative can help.</p>
+  <a href="#" class="btn-primary">Book Your Free Call →</a>
+  <p class="cta-guarantee">🔒 Free call · No commitment · We'll tell you honestly if this isn't the right fit</p>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="logo-f">Operative<span>.</span></div>
+  <p>AI-Powered Business Advisory for Small Teams</p>
+  <div style="display:flex; gap:24px;">
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <a href="mailto:hello@operative.ai">Contact</a>
+  </div>
+</footer>
+
+<script>
+  document.querySelectorAll('.faq-q').forEach(q => {
+    q.addEventListener('click', () => {
+      const item = q.closest('.faq-item');
+      const wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+      if (!wasOpen) item.classList.add('open');
+    });
+  });
+</script>
+</body>
+</html>
