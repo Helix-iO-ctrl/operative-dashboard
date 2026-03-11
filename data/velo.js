@@ -221,7 +221,7 @@
               version: 1,
               date: "Mar 6, 2026",
               url: "https://gzpuectetjatqbpcdgqt.supabase.co/functions/v1/serve-asset?path=velo/deliverables/landing-small-business.html",
-              note: "Initial version with two-tier pricing, testimonial placeholders, and booking CTA.",
+              note: "Initial version with two-tier pricing, testimonial placeholders, and booking CTA. Actual source file restored.",
               status: "approved",
             },
           ],
@@ -236,7 +236,8 @@
             {
               version: 1,
               date: "Mar 6, 2026",
-              note: "Initial version. Track B is deprioritized — page built but not actively marketed. HTML file needs re-upload.",
+              url: "https://gzpuectetjatqbpcdgqt.supabase.co/functions/v1/serve-asset?path=velo/deliverables/landing-consultants.html",
+              note: "Initial version. Track B is deprioritized — page built but not actively marketed.",
               status: "approved",
             },
           ],
@@ -251,7 +252,8 @@
             {
               version: 1,
               date: "Mar 6, 2026",
-              note: "Complete brief: Bootstrap ($30/mo), Scrappy ($450/mo), Growth ($2k+/mo) tiers. HTML file needs re-upload.",
+              url: "https://gzpuectetjatqbpcdgqt.supabase.co/functions/v1/serve-asset?path=velo/deliverables/marketing-campaign-brief.html",
+              note: "Complete brief: Bootstrap ($30/mo), Scrappy ($450/mo), Growth ($2k+/mo) tiers.",
               status: "approved",
             },
           ],
