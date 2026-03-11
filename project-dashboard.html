@@ -37,7 +37,7 @@
   </script>
 
   <!-- Dynamic project data loader — loads data/{slug}.js synchronously (for existing projects) -->
-  <script>document.write('<scr'+'ipt src="data/'+window.PROJECT_SLUG+'.js"><\/scr'+'ipt>');</script>
+  <script>document.write('<scr'+'ipt src="data/'+window.PROJECT_SLUG+'.js?_cb='+Date.now()+'"><\/scr'+'ipt>');</script>
 
   <!-- ============================================================
     🔧 APP CODE — no need to edit below this line
