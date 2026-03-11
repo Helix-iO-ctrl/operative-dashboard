@@ -15,6 +15,7 @@
     body { font-family: 'Inter', system-ui, sans-serif; background: #F8FAFC; color: #1E293B; }
     table { border-collapse: collapse; width: 100%; }
     button { font-family: inherit; }
+    @keyframes slideDown { from { opacity:0; transform:translateX(-50%) translateY(-20px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
   </style>
 </head>
 <body>
@@ -146,7 +147,16 @@
       }
 
       function openAsset(assetPath) {
-        setAssetModal(assetPath);
+        // Try to find the matching asset from d.assets to get id + status
+        const allAssets = (d && d.assets) || [];
+        const matchedAsset = allAssets.find(a =>
+          a.versions && a.versions.some(v => v.url === assetPath)
+        );
+        if (matchedAsset) {
+          setAssetModal({ url: assetPath, title: matchedAsset.title, assetId: matchedAsset.id, assetStatus: matchedAsset.status });
+        } else {
+          setAssetModal({ url: assetPath });
+        }
         onAssetViewed(assetPath);
       }
 
@@ -196,7 +206,10 @@
         <>
         {/* ── Asset preview modal ── */}
         {assetModal && (
-          <PreviewModal url={assetModal} title="Asset Preview" onClose={() => setAssetModal(null)} />
+          <PreviewModal url={assetModal.url || assetModal} title={assetModal.title || "Asset Preview"}
+            assetId={assetModal.assetId} assetStatus={assetModal.assetStatus}
+            comments={comments} onCommentAdded={onCommentAdded}
+            onClose={() => setAssetModal(null)} />
         )}
         <table>
           <thead>
@@ -500,7 +513,11 @@
                 rendered.add(t.id);
                 const s = STATUS[t.status]; const p = PRIORITY[t.priority];
                 const taskComments  = comments[`task-${t.id}`] || [];
-                const assetKey = t.assetPath ? `task-asset:${t.id}` : null;
+                // Look up the actual asset by matching assetPath to an asset's versions
+                const linkedAsset = t.assetPath ? ((d && d.assets) || []).find(a =>
+                  a.versions && a.versions.some(v => v.url === t.assetPath)
+                ) : null;
+                const assetKey = linkedAsset ? `asset-${linkedAsset.id}` : null;
                 const assetComments = assetKey ? (comments[assetKey] || []) : [];
                 const isPanelOpen   = openPanel === t.id;
                 const isAssetPanelOpen = openPanel === `asset-${t.id}`;
@@ -1192,10 +1209,18 @@
       );
     }
 
-    function PreviewModal({ url, title, onClose }) {
+    function PreviewModal({ url, title, onClose, assetId, assetStatus, comments = [], onCommentAdded }) {
       const [htmlContent, setHtmlContent] = useState(null);
       const [loading, setLoading] = useState(true);
       const [error, setError] = useState(null);
+      const [showComments, setShowComments] = useState(false);
+      const [cName, setCName] = useState('');
+      const [cBody, setCBody] = useState('');
+      const [cSubmitting, setCSubmitting] = useState(false);
+      const [cError, setCError] = useState('');
+
+      const canComment = assetStatus === 'in-review' || assetStatus === 'revision-needed' || assetStatus === 'draft';
+      const assetComments = (comments[`asset-${assetId}`] || []);
 
       useEffect(() => {
         if (!url) return;
@@ -1210,6 +1235,39 @@
           .catch(e => { setError(e.message); setLoading(false); });
       }, [url]);
 
+      async function submitAssetComment() {
+        if (!cName.trim() || !cBody.trim()) return;
+        setCSubmitting(true); setCError('');
+        try {
+          const res = await fetch(`${window.SUPABASE_URL}/rest/v1/comments`, {
+            method: 'POST',
+            headers: {
+              'apikey': window.SUPABASE_ANON_KEY,
+              'Authorization': `Bearer ${window.SUPABASE_ANON_KEY}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=representation',
+            },
+            body: JSON.stringify({
+              project_slug: window.PROJECT_SLUG,
+              item_type: 'asset',
+              item_id: assetId,
+              item_text: title,
+              commenter_name: cName.trim(),
+              body: cBody.trim(),
+            }),
+          });
+          if (!res.ok) throw new Error(`Error ${res.status}`);
+          const [newComment] = await res.json();
+          if (onCommentAdded) onCommentAdded(newComment);
+          setCBody('');
+        } catch (e) {
+          setCError('Failed to submit — try again.');
+          console.error('Asset comment error:', e);
+        } finally {
+          setCSubmitting(false);
+        }
+      }
+
       if (!url) return null;
       return (
         <div onClick={onClose} style={{
@@ -1217,16 +1275,36 @@
           zIndex:9999, display:"flex", alignItems:"center", justifyContent:"center",
           padding:32 }}>
           <div onClick={e => e.stopPropagation()} style={{
-            background:"white", borderRadius:14, width:"88vw", height:"82vh",
-            maxWidth:1060, display:"flex", flexDirection:"column", overflow:"hidden",
-            boxShadow:"0 32px 80px rgba(0,0,0,0.3)" }}>
+            background:"white", borderRadius:14, width: showComments ? "94vw" : "88vw", height:"82vh",
+            maxWidth: showComments ? 1360 : 1060, display:"flex", flexDirection:"column", overflow:"hidden",
+            boxShadow:"0 32px 80px rgba(0,0,0,0.3)", transition:"all .3s ease" }}>
+            {/* Header bar */}
             <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between",
               padding:"10px 18px", borderBottom:"1px solid #E2E8F0", flexShrink:0 }}>
               <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                 <div style={{ width:7, height:7, borderRadius:"50%", background:BRAND }} />
                 <span style={{ fontSize:13, fontWeight:600, color:"#1E293B" }}>{title || "Preview"}</span>
+                {assetStatus && (() => {
+                  const as = ASSET_STATUS[assetStatus] || ASSET_STATUS.draft;
+                  return <Badge color={as.color} bg={as.bg}>{as.label}</Badge>;
+                })()}
               </div>
               <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                {/* Comment toggle button */}
+                {assetId && (
+                  <button onClick={() => setShowComments(!showComments)} style={{
+                    fontSize:11, fontWeight:600, padding:"4px 12px", borderRadius:5,
+                    cursor:"pointer", fontFamily:"inherit", display:"inline-flex",
+                    alignItems:"center", gap:5, transition:"all .15s",
+                    background: showComments ? BRAND : "white",
+                    color: showComments ? "white" : "#64748B",
+                    border: showComments ? `1px solid ${BRAND}` : "1px solid #E2E8F0" }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    {assetComments.length > 0 ? `${assetComments.length} Comment${assetComments.length !== 1 ? 's' : ''}` : 'Comment'}
+                  </button>
+                )}
                 <a href={url} target="_blank" rel="noreferrer" style={{
                   fontSize:11, color:BRAND, textDecoration:"none", fontWeight:500,
                   padding:"4px 10px", border:`1px solid ${BRAND}`, borderRadius:5,
@@ -1240,22 +1318,100 @@
                   fontFamily:"inherit", lineHeight:1 }}>✕</button>
               </div>
             </div>
-            {loading ? (
-              <div style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", color:"#94A3B8", fontSize:13 }}>
-                Loading preview…
+
+            {/* Body: preview + optional comment panel */}
+            <div style={{ flex:1, display:"flex", overflow:"hidden" }}>
+              {/* Preview iframe */}
+              <div style={{ flex:1, display:"flex", flexDirection:"column", overflow:"hidden" }}>
+                {loading ? (
+                  <div style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", color:"#94A3B8", fontSize:13 }}>
+                    Loading preview…
+                  </div>
+                ) : error ? (
+                  <div style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", color:"#DC2626", fontSize:13 }}>
+                    ⚠ {error}
+                  </div>
+                ) : (
+                  <iframe
+                    srcDoc={htmlContent}
+                    title={title || "Preview"}
+                    sandbox="allow-scripts"
+                    style={{ flex:1, border:"none", width:"100%", display:"block" }}
+                  />
+                )}
               </div>
-            ) : error ? (
-              <div style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", color:"#DC2626", fontSize:13 }}>
-                ⚠ {error}
-              </div>
-            ) : (
-              <iframe
-                srcDoc={htmlContent}
-                title={title || "Preview"}
-                sandbox="allow-scripts"
-                style={{ flex:1, border:"none", width:"100%", display:"block" }}
-              />
-            )}
+
+              {/* Comment sidebar */}
+              {showComments && (
+                <div style={{ width:320, borderLeft:"1px solid #E2E8F0", display:"flex",
+                  flexDirection:"column", background:"#FAFBFC", flexShrink:0 }}>
+                  {/* Comment header */}
+                  <div style={{ padding:"12px 16px", borderBottom:"1px solid #E2E8F0" }}>
+                    <div style={{ fontSize:12, fontWeight:700, color:"#0F172A" }}>Feedback & Comments</div>
+                    <div style={{ fontSize:11, color:"#94A3B8", marginTop:2 }}>
+                      {canComment ? "Leave feedback for the next review session" : "Comments on this asset"}
+                    </div>
+                  </div>
+
+                  {/* Comments list */}
+                  <div style={{ flex:1, overflowY:"auto", padding:"12px 16px" }}>
+                    {assetComments.length === 0 ? (
+                      <div style={{ textAlign:"center", padding:"24px 0", color:"#94A3B8", fontSize:12 }}>
+                        <div style={{ fontSize:24, marginBottom:8 }}>💬</div>
+                        No comments yet.{canComment ? " Be the first to share feedback." : ""}
+                      </div>
+                    ) : (
+                      assetComments.map((c, ci) => (
+                        <div key={c.id || ci} style={{
+                          background:"white", border:"1px solid #E2E8F0", borderRadius:8,
+                          padding:"10px 12px", marginBottom:8 }}>
+                          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:4 }}>
+                            <span style={{ fontSize:11, fontWeight:700, color:"#1E293B" }}>{c.commenter_name}</span>
+                            <span style={{ fontSize:10, color:"#94A3B8" }}>
+                              {new Date(c.created_at).toLocaleDateString('en-US', { month:'short', day:'numeric' })}
+                            </span>
+                          </div>
+                          <div style={{ fontSize:12, color:"#475569", lineHeight:1.5 }}>{c.body}</div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  {/* Comment input */}
+                  {canComment && (
+                    <div style={{ borderTop:"1px solid #E2E8F0", padding:"12px 16px", background:"white" }}>
+                      <input
+                        value={cName} onChange={e => setCName(e.target.value)}
+                        placeholder="Your name"
+                        style={{ width:"100%", padding:"7px 10px", fontSize:12, border:"1px solid #E2E8F0",
+                          borderRadius:6, marginBottom:6, outline:"none", fontFamily:"inherit",
+                          background:"#F8FAFC" }}
+                      />
+                      <textarea
+                        value={cBody} onChange={e => setCBody(e.target.value)}
+                        placeholder="Share your feedback on this asset…"
+                        rows={3}
+                        style={{ width:"100%", padding:"7px 10px", fontSize:12, border:"1px solid #E2E8F0",
+                          borderRadius:6, marginBottom:6, outline:"none", fontFamily:"inherit",
+                          resize:"vertical", lineHeight:1.5, background:"#F8FAFC" }}
+                      />
+                      {cError && <div style={{ fontSize:11, color:"#DC2626", marginBottom:4 }}>{cError}</div>}
+                      <button
+                        onClick={submitAssetComment}
+                        disabled={!cName.trim() || !cBody.trim() || cSubmitting}
+                        style={{
+                          width:"100%", padding:"8px", fontSize:12, fontWeight:600,
+                          background: (!cName.trim() || !cBody.trim() || cSubmitting) ? "#E2E8F0" : BRAND,
+                          color: (!cName.trim() || !cBody.trim() || cSubmitting) ? "#94A3B8" : "white",
+                          border:"none", borderRadius:6, cursor: (!cName.trim() || !cBody.trim() || cSubmitting) ? "default" : "pointer",
+                          fontFamily:"inherit", transition:"all .15s" }}>
+                        {cSubmitting ? "Sending…" : "Submit Feedback"}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       );
@@ -1300,6 +1456,7 @@
       const [showDone, setShowDone]                 = useState(false); // collapse done tasks on overview
       const [taskFilter, setTaskFilter]              = useState(null); // null = all, "done" | "in-progress" | "blocked" | "todo"
       const [showProgressModal, setShowProgressModal]      = useState(false); // DNA helix progress modal
+      const [newCommentsToast, setNewCommentsToast]         = useState(null); // { count, items } — shown on login
 
       // Lifted from TaskTable so section headers can also read it
       const [viewedAssets, setViewedAssets] = useState(() => {
@@ -1341,6 +1498,30 @@
               grouped[key].push(c);
             });
             setComments(grouped);
+
+            // ── New comments toast: show on login if there are recent comments ──
+            try {
+              const lastSeen = localStorage.getItem(`velo_last_comment_seen_${window.PROJECT_SLUG}`);
+              const newComments = lastSeen
+                ? data.filter(c => new Date(c.created_at) > new Date(lastSeen))
+                : [];
+              if (newComments.length > 0) {
+                // Group new comments by type for summary
+                const assetComments = newComments.filter(c => c.item_type === 'asset');
+                const taskComments = newComments.filter(c => c.item_type === 'task');
+                const otherComments = newComments.filter(c => c.item_type !== 'asset' && c.item_type !== 'task');
+                const items = [];
+                if (assetComments.length > 0) items.push(`${assetComments.length} on assets`);
+                if (taskComments.length > 0) items.push(`${taskComments.length} on tasks`);
+                if (otherComments.length > 0) items.push(`${otherComments.length} other`);
+                setNewCommentsToast({ count: newComments.length, items, comments: newComments });
+              }
+              // Update last seen to now
+              if (data.length > 0) {
+                const latest = data[data.length - 1].created_at;
+                localStorage.setItem(`velo_last_comment_seen_${window.PROJECT_SLUG}`, latest);
+              }
+            } catch(e) { /* localStorage not available, skip toast */ }
           } catch (e) {
             console.error('Comments fetch failed:', e);
           }
@@ -1400,6 +1581,21 @@
 
       return (
         <div style={{ minHeight:"100vh", background:"#F8FAFC", fontFamily:"'Inter',system-ui,sans-serif" }}>
+
+          {/* ── New comments toast ── */}
+          {newCommentsToast && (
+            <div style={{ position:"fixed", top:12, left:"50%", transform:"translateX(-50%)", zIndex:9999,
+              background:"#1E293B", color:"white", padding:"10px 20px", borderRadius:10,
+              display:"flex", alignItems:"center", gap:12, boxShadow:"0 8px 24px rgba(0,0,0,.18)",
+              fontSize:13, fontWeight:500, maxWidth:480, animation:"slideDown .35s ease" }}>
+              <span style={{ fontSize:18 }}>💬</span>
+              <span>{newCommentsToast.count} new comment{newCommentsToast.count !== 1 ? "s" : ""}: {newCommentsToast.items.join(", ")}</span>
+              <button onClick={() => setNewCommentsToast(null)} style={{
+                background:"rgba(255,255,255,.15)", border:"none", color:"white", borderRadius:6,
+                padding:"3px 10px", cursor:"pointer", fontSize:12, fontWeight:600, marginLeft:4,
+                fontFamily:"inherit" }}>Dismiss</button>
+            </div>
+          )}
 
           {/* ── Shared preview modal ── */}
           <PreviewModal url={previewUrl} title={previewTitle} onClose={() => { setPreviewUrl(null); setPreviewTitle(""); }} />
@@ -1819,8 +2015,19 @@
                                         {isExpanded ? "▾" : "▸"} {asset.versions.length}v
                                       </button>
                                     )}
+                                    {/* Comment count badge for in-review assets */}
+                                    {(asset.status === 'in-review' || asset.status === 'revision-needed') && (() => {
+                                      const ac = (comments[`asset-${asset.id}`] || []);
+                                      return ac.length > 0 ? (
+                                        <span style={{ background:"#DBEAFE", color:"#1E40AF", fontSize:9,
+                                          fontWeight:700, borderRadius:3, padding:"1px 5px",
+                                          display:"inline-flex", alignItems:"center", gap:3 }}>
+                                          💬 {ac.length}
+                                        </span>
+                                      ) : null;
+                                    })()}
                                     {latestUrl && (
-                                      <button onClick={() => { setAssetPreview({ url: latestUrl, title: asset.title }); onAssetViewed(latestUrl); }} style={{
+                                      <button onClick={() => { setAssetPreview({ url: latestUrl, title: asset.title, assetId: asset.id, assetStatus: asset.status }); onAssetViewed(latestUrl); }} style={{
                                         background:BRAND, border:"none", borderRadius:5,
                                         padding:"4px 12px", fontSize:10, color:"white", cursor:"pointer",
                                         fontWeight:600, fontFamily:"inherit" }}>
@@ -1850,7 +2057,7 @@
                                           <Badge color={vs.color} bg={vs.bg}>{vs.label}</Badge>
                                           {isCurrent && <span style={{ fontSize:9, color:BRAND, fontWeight:600 }}>LATEST</span>}
                                           {v.url && (
-                                            <button onClick={() => { setAssetPreview({ url: v.url, title: `${asset.title} v${v.version}` }); onAssetViewed(v.url); }} style={{
+                                            <button onClick={() => { setAssetPreview({ url: v.url, title: `${asset.title} v${v.version}`, assetId: asset.id, assetStatus: v.status || asset.status }); onAssetViewed(v.url); }} style={{
                                               background:"none", border:`1px solid ${isCurrent ? BRAND : "#E2E8F0"}`,
                                               borderRadius:4, padding:"2px 8px", fontSize:10, marginLeft:"auto",
                                               color: isCurrent ? BRAND : "#94A3B8", cursor:"pointer",
@@ -1880,6 +2087,10 @@
                 <PreviewModal
                   url={assetPreview.url}
                   title={assetPreview.title}
+                  assetId={assetPreview.assetId}
+                  assetStatus={assetPreview.assetStatus}
+                  comments={comments}
+                  onCommentAdded={onCommentAdded}
                   onClose={() => setAssetPreview(null)}
                 />
               )}
