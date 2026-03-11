@@ -744,64 +744,99 @@
     // ══════════════════════════════════════════════
     function generateDiscoveryQuestions(fd) {
       const biz = (fd.business_description || '').toLowerCase();
-      const challenge = (fd.biggest_challenge || '').toLowerCase();
+      const challenge = fd.biggest_challenge || '';
+      const challengeLower = challenge.toLowerCase();
       const empCount = fd.employee_count || '1';
-      const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const name = fd.full_name ? fd.full_name.split(' ')[0] : 'the client';
+      const bizName = fd.business_name || 'the business';
 
-      // Core questions every prospect gets
-      const questions = [
-        { id: 'dq1', q: `What does a typical week look like for you running ${fd.business_name}?`,
-          urgency: 'critical', note: 'Understand the owner\'s day-to-day — where they spend time, what drains energy, what they wish they could delegate.' },
-        { id: 'dq2', q: 'What are the 2–3 tasks that eat up most of your time but don\'t directly make you money?',
-          urgency: 'critical', note: 'Identify the biggest time sinks and automation opportunities. These become quick wins.' },
-        { id: 'dq3', q: 'If you could wave a magic wand and fix one thing in your business tomorrow, what would it be?',
-          urgency: 'critical', note: 'Gets to the emotional core of what they want fixed. Often reveals the real problem behind the stated challenge.' },
-        { id: 'dq4', q: 'How are you currently tracking leads, customers, and follow-ups?',
-          urgency: 'high', note: 'Most small businesses have no CRM or use spreadsheets/memory. This reveals ops maturity and quick-win potential.' },
-        { id: 'dq5', q: 'Walk me through what happens from when a new customer contacts you to when they pay you.',
-          urgency: 'high', note: 'Maps the full sales/delivery funnel. Look for manual steps, delays, and drop-off points that AI can fix.' },
-        { id: 'dq6', q: 'What tools and software are you currently using to run the business?',
-          urgency: 'high', note: 'Inventory their tech stack. Identify integration opportunities and gaps where AI tools could slot in.' },
-      ];
+      // ── 1. Challenge-specific questions (most important — directly from what they told us) ──
+      const questions = [];
 
-      // Challenge-specific questions
-      if (challenge.includes('time') || challenge.includes('busy') || challenge.includes('overwhelm')) {
-        questions.push({ id: 'dq-time', q: 'If you had 10 extra hours per week, what would you spend them on?',
-          urgency: 'high', note: 'They identified time as their core challenge. Understand what they\'d do with freed-up capacity — grow, rest, or both.' });
-      }
-      if (challenge.includes('lead') || challenge.includes('customer') || challenge.includes('sales') || challenge.includes('marketing')) {
-        questions.push({ id: 'dq-leads', q: 'Where do most of your customers currently come from, and what\'s your cost to acquire a new one?',
-          urgency: 'high', note: 'They need more customers. Understand current acquisition channels and whether they know their CAC.' });
-      }
-      if (challenge.includes('hire') || challenge.includes('staff') || challenge.includes('team') || challenge.includes('employee')) {
-        questions.push({ id: 'dq-team', q: 'What tasks would you hire for first if you could, and what\'s stopping you?',
-          urgency: 'high', note: 'Staffing challenge — AI might replace the need to hire for certain functions. Explore what roles they need.' });
-      }
-      if (challenge.includes('system') || challenge.includes('process') || challenge.includes('organize') || challenge.includes('chaos')) {
-        questions.push({ id: 'dq-systems', q: 'If a key person on your team was out for a week, what would break?',
-          urgency: 'high', note: 'Systems/process challenge — find the single points of failure and undocumented processes.' });
-      }
-      if (challenge.includes('grow') || challenge.includes('scale') || challenge.includes('revenue') || challenge.includes('money')) {
-        questions.push({ id: 'dq-growth', q: 'What\'s your revenue goal for the next 12 months, and what do you think is the #1 bottleneck to hitting it?',
-          urgency: 'high', note: 'Growth-focused — understand where they want to go and what they think is in the way.' });
+      // Always lead with their actual stated challenge
+      if (challenge.trim()) {
+        questions.push({
+          id: 'dq-challenge',
+          q: `${name} said their biggest challenge is: "${challenge}" — What specifically about this is costing you the most time or money right now?`,
+          urgency: 'critical',
+          note: 'This is their stated challenge verbatim. Dig deeper to understand the root cause and quantify the pain.'
+        });
+        questions.push({
+          id: 'dq-tried',
+          q: `You mentioned "${challenge.length > 60 ? challenge.substring(0, 60) + '...' : challenge}" — Have you tried solving this before? What happened?`,
+          urgency: 'critical',
+          note: 'Understand what solutions they\'ve already attempted. Reveals budget appetite, past failures, and what NOT to propose.'
+        });
       }
 
-      // Size-specific questions
+      // ── 2. Smart keyword-matched questions based on challenge themes ──
+      if (challengeLower.includes('time') || challengeLower.includes('busy') || challengeLower.includes('overwhelm') || challengeLower.includes('hours') || challengeLower.includes('wearing all the hats')) {
+        questions.push({ id: 'dq-time', q: `If you could get back 10 hours per week from ${bizName}, where would you reinvest that time?`,
+          urgency: 'critical', note: 'Time is the pain. Understand whether freed-up capacity goes to growth, family, or sanity.' });
+        questions.push({ id: 'dq-time2', q: 'Walk me through yesterday — what did you spend time on that you wish someone (or something) else handled?',
+          urgency: 'high', note: 'Gets specific recent examples instead of generalizations. These become the first automation targets.' });
+      }
+      if (challengeLower.includes('lead') || challengeLower.includes('customer') || challengeLower.includes('sales') || challengeLower.includes('marketing') || challengeLower.includes('client') || challengeLower.includes('pipeline')) {
+        questions.push({ id: 'dq-leads', q: 'Where are your best customers coming from right now, and how many leads are you losing because follow-up falls through the cracks?',
+          urgency: 'critical', note: 'They need more customers or better conversion. Quantify the leak in their funnel.' });
+        questions.push({ id: 'dq-leads2', q: 'When a new lead comes in, what happens in the first 24 hours? Is that consistent every time?',
+          urgency: 'high', note: 'Speed-to-lead is the #1 conversion factor for small businesses. Find the gap.' });
+      }
+      if (challengeLower.includes('hire') || challengeLower.includes('staff') || challengeLower.includes('team') || challengeLower.includes('employee') || challengeLower.includes('help')) {
+        questions.push({ id: 'dq-team', q: 'What tasks would you hire for first if you could, and roughly how many hours per week do those tasks take?',
+          urgency: 'high', note: 'AI might eliminate the need to hire for certain functions. Quantify the hours to show ROI.' });
+      }
+      if (challengeLower.includes('system') || challengeLower.includes('process') || challengeLower.includes('organize') || challengeLower.includes('chaos') || challengeLower.includes('manual') || challengeLower.includes('spreadsheet')) {
+        questions.push({ id: 'dq-systems', q: 'If you were out of the business for a week, what would break first?',
+          urgency: 'high', note: 'Find the single points of failure and undocumented tribal knowledge.' });
+        questions.push({ id: 'dq-systems2', q: 'What\'s currently being tracked in spreadsheets, texts, or someone\'s head that should be in a real system?',
+          urgency: 'high', note: 'Identifies the messiest data and process gaps. These are high-impact quick wins.' });
+      }
+      if (challengeLower.includes('grow') || challengeLower.includes('scale') || challengeLower.includes('revenue') || challengeLower.includes('money') || challengeLower.includes('profit') || challengeLower.includes('income')) {
+        questions.push({ id: 'dq-growth', q: `What's ${bizName}'s revenue target for the next 12 months, and what do you think is the #1 thing standing in the way?`,
+          urgency: 'critical', note: 'Growth-focused. Tie the engagement to a concrete revenue number they care about.' });
+      }
+      if (challengeLower.includes('schedul') || challengeLower.includes('book') || challengeLower.includes('appointment') || challengeLower.includes('calendar')) {
+        questions.push({ id: 'dq-sched', q: 'How are appointments and bookings handled today — and how many no-shows or scheduling headaches happen per week?',
+          urgency: 'high', note: 'Scheduling pain. Quantify the missed appointments and time spent on back-and-forth.' });
+      }
+      if (challengeLower.includes('automat') || challengeLower.includes('ai') || challengeLower.includes('tech') || challengeLower.includes('software') || challengeLower.includes('tool')) {
+        questions.push({ id: 'dq-tech', q: 'What tools are you currently using, and which ones feel like they\'re not earning their keep?',
+          urgency: 'high', note: 'They\'re tech-aware. Audit the stack and find integration opportunities vs. shelfware.' });
+      }
+      if (challengeLower.includes('report') || challengeLower.includes('paperwork') || challengeLower.includes('document') || challengeLower.includes('note') || challengeLower.includes('admin')) {
+        questions.push({ id: 'dq-admin', q: 'How many hours per week go to documentation, reports, or admin work — and what would happen if that was cut in half?',
+          urgency: 'high', note: 'Admin burden. Quantify the hours and show what becomes possible when they\'re freed up.' });
+      }
+      if (challengeLower.includes('referral') || challengeLower.includes('refer')) {
+        questions.push({ id: 'dq-referral', q: 'How are referrals currently tracked and followed up on — is anything slipping through?',
+          urgency: 'high', note: 'Referral tracking pain. Missed referrals = lost revenue. Quick win potential.' });
+      }
+
+      // ── 3. Business context questions (always useful) ──
+      questions.push(
+        { id: 'dq-week', q: `What does a typical week look like for you running ${bizName}?`,
+          urgency: 'high', note: 'Maps the owner\'s day-to-day. Where they spend time reveals what to automate or delegate.' },
+        { id: 'dq-funnel', q: 'Walk me through what happens from when a new customer contacts you to when they pay you.',
+          urgency: 'high', note: 'Maps the full sales-to-delivery funnel. Look for manual steps, delays, and drop-off points.' }
+      );
+
+      // ── 4. Size-specific questions ──
       if (empCount === '1' || empCount === 'just-me') {
         questions.push({ id: 'dq-solo', q: 'As a solo operator, what\'s the one thing you\'d automate first if it were easy?',
-          urgency: 'medium', note: 'Solo businesses have unique constraints. Every hour saved is directly felt.' });
+          urgency: 'medium', note: 'Solo businesses feel every hour saved directly. Find the highest-leverage automation.' });
       }
       if (empCount === '6-10' || empCount === '11-15' || empCount === '15+') {
         questions.push({ id: 'dq-team-ops', q: 'How does your team communicate day-to-day, and where do things fall through the cracks?',
-          urgency: 'medium', note: 'Larger teams have coordination overhead. AI can help with handoffs, reminders, and dashboards.' });
+          urgency: 'medium', note: 'Larger teams have coordination overhead. Look for handoff failures and communication gaps.' });
       }
 
-      // Closing questions (always included)
+      // ── 5. Closing questions (always included) ──
       questions.push(
-        { id: 'dq-budget', q: 'Have you invested in any tools or consultants before to solve this? What happened?',
-          urgency: 'medium', note: 'Understand their history with solutions — what worked, what didn\'t, and their appetite for investment.' },
-        { id: 'dq-timeline', q: 'If we worked together, what would success look like for you in 90 days?',
-          urgency: 'critical', note: 'Defines the success criteria for the engagement. Use their answer to scope the proposal and set expectations.' }
+        { id: 'dq-tools', q: 'What tools and software are you currently using to run the business?',
+          urgency: 'medium', note: 'Inventory the tech stack. Identify what stays, what goes, and where AI tools slot in.' },
+        { id: 'dq-timeline', q: `If we worked together on ${bizName}, what would success look like for you in 90 days?`,
+          urgency: 'critical', note: 'Defines the engagement success criteria. Use their answer to scope the proposal and set expectations.' }
       );
 
       return questions;
