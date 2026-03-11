@@ -21,6 +21,9 @@
 
   .concept-card { border-radius: 16px; overflow: hidden; border: 1px solid #EDE8E2; background: #fff; transition: box-shadow 0.2s; }
   .concept-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+  .concept-card.selected { border: 2px solid #E07A2F; box-shadow: 0 4px 20px rgba(224,122,47,0.15); }
+  .concept-card.dimmed { opacity: 0.45; }
+  .selected-badge { position: absolute; top: 14px; right: 16px; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #fff; background: #E07A2F; padding: 3px 10px; border-radius: 4px; }
 
   .concept-preview { height: 220px; display: flex; align-items: center; justify-content: center; position: relative; }
   .concept-preview.dark { background: #1C1C2A; }
@@ -79,7 +82,7 @@
   <div class="header-label">Creative Asset — Brand Identity</div>
   <h1>Logo & Wordmark Concepts</h1>
   <div class="header-sub">Four logo directions exploring speed/velocity, AI intelligence, consulting trust, and modern minimalism. Built on the Velo brand palette.</div>
-  <div class="status-badge">In Review — Awaiting Selection</div>
+  <div class="status-badge" style="background:#DCFCE7;color:#166534;">Concept A Selected — Revision in Progress</div>
 </div>
 
 <!-- ── WORDMARK ── -->
@@ -106,17 +109,18 @@
   <div class="section-title">Logo Concepts — 4 Directions</div>
   <div class="concepts">
 
-    <!-- Concept A: Speed Mark -->
-    <div class="concept-card">
+    <!-- Concept A: Speed Mark — SELECTED -->
+    <div class="concept-card selected">
       <div class="concept-preview dark">
         <div class="concept-number">Concept A</div>
+        <div class="selected-badge">Selected</div>
         <svg class="logo-svg" viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
           <!-- Speed lines + V -->
           <line x1="20" y1="30" x2="70" y2="30" stroke="#E07A2F" stroke-width="2.5" stroke-linecap="round" opacity="0.4"/>
           <line x1="10" y1="40" x2="65" y2="40" stroke="#E07A2F" stroke-width="2.5" stroke-linecap="round" opacity="0.6"/>
           <line x1="25" y1="50" x2="72" y2="50" stroke="#E07A2F" stroke-width="2.5" stroke-linecap="round" opacity="0.3"/>
           <path d="M75 22 L95 58 L115 22" fill="none" stroke="#E07A2F" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-          <text x="120" y="50" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="28" font-weight="700" fill="#fff" letter-spacing="-0.5">elo</text>
+          <text x="113" y="50" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="28" font-weight="700" fill="#fff" letter-spacing="-0.8">elo</text>
         </svg>
       </div>
       <div class="concept-body">
@@ -128,7 +132,7 @@
     </div>
 
     <!-- Concept B: Intelligence Node -->
-    <div class="concept-card">
+    <div class="concept-card dimmed">
       <div class="concept-preview amber">
         <div class="concept-number">Concept B</div>
         <svg class="logo-svg" viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
@@ -155,7 +159,7 @@
     </div>
 
     <!-- Concept C: Trust Shield -->
-    <div class="concept-card">
+    <div class="concept-card dimmed">
       <div class="concept-preview light">
         <div class="concept-number">Concept C</div>
         <svg class="logo-svg" viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
@@ -174,7 +178,7 @@
     </div>
 
     <!-- Concept D: Minimal V -->
-    <div class="concept-card">
+    <div class="concept-card dimmed">
       <div class="concept-preview gradient">
         <div class="concept-number">Concept D</div>
         <svg class="logo-svg" viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
@@ -233,13 +237,13 @@
     <p><strong>Why four directions:</strong> Each concept emphasizes a different facet of the Velo brand — speed of delivery, intelligence of the system, trustworthiness as an advisor, or clean modern professionalism. Testing all four helps identify which emotional register resonates most with Hayden and with the target market.</p>
     <p><strong>Color integration:</strong> All concepts use the established Velo Brand Color Palette — Velo Amber (#E07A2F) as the primary mark color, Deep Night (#1C1C2A) for dark backgrounds, and Warm White (#FBF7F2) for light contexts. The amber "V" accent creates a consistent thread across all four directions.</p>
     <p><strong>Wordmark treatment:</strong> The wordmark uses a clean sans-serif with tight letter-spacing and a subtle amber accent on the "o" — this works independently of whichever logo mark is selected, giving flexibility for lockup configurations (mark + wordmark, wordmark only, mark only).</p>
-    <p><strong>Next step:</strong> Hayden selects a direction (or hybrid), then we refine into final lockups for LinkedIn, dashboard header, business card, and favicon.</p>
+    <p><strong>Decision:</strong> Concept A (Speed Mark) selected by client. V/elo kerning tightened per feedback. Next: refine into final lockups for LinkedIn, dashboard header, business card, and favicon.</p>
   </div>
 </div>
 
 <div class="footer">
   <span>Velo — Brand Identity</span>
-  <span>v1 · March 9, 2026 · In Review</span>
+  <span>v2 · March 11, 2026 · Concept A Selected — Kerning Revised</span>
 </div>
 
 </body>
