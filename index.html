@@ -9,7 +9,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?fmily=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Inter', system-ui, sans-serif; background: #F8FAFC; color: #1E293B; }
@@ -28,8 +28,8 @@
     window.SUPABASE_URL      = 'https://gzpuectetjatqbpcdgqt.supabase.co';
     window.SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6cHVlY3RldGphdHFicGNkZ3F0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MTc3MTMsImV4cCI6MjA4ODI5MzcxM30.KkIr6SSqQtO3aGDtCCxUIBOgbEgjtVeqExlW_Yv-QZ0';
 
-    // Multi-tenant routing: read project slug from URL (?p=slug), default to 'operative'
-    window.PROJECT_SLUG = new URLSearchParams(window.location.search).get('p') || 'operative';
+    // Multi-tenant routing: read project slug from URL (?p=slug), default to 'velo'
+    window.PROJECT_SLUG = new URLSearchParams(window.location.search).get('p') || 'velo';
 
     // Will be overwritten by data/{slug}.js if it exists
     window.PROJECT_DATA = null;
