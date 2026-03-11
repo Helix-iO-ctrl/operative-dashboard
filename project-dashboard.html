@@ -2326,6 +2326,10 @@
       const [merging, setMerging] = React.useState(false);
       const [mergeResult, setMergeResult] = React.useState(null);
 
+      // Archive state
+      const [showArchived, setShowArchived] = React.useState(false);
+      const [archiving, setArchiving] = React.useState(null); // project id being archived
+
       React.useEffect(() => {
         supabase.auth.getSession().then(({ data: { session: s } }) => {
           prevSession.current = s; // if already logged in, record it (no animation)
@@ -2354,7 +2358,7 @@
         async function loadProjects() {
           try {
             const res = await fetch(
-              `${window.SUPABASE_URL}/rest/v1/project_members?user_id=eq.${session.user.id}&select=project_slug,role,projects(slug,name,client_name,status)`,
+              `${window.SUPABASE_URL}/rest/v1/project_members?user_id=eq.${session.user.id}&select=project_slug,role,projects(id,slug,name,client_name,status)`,
               { headers: {
                 'apikey': window.SUPABASE_ANON_KEY,
                 'Authorization': `Bearer ${session.access_token}`,
@@ -2699,7 +2703,7 @@
             loadAllProjects();
             // Reload the project picker
             const res2 = await fetch(
-              window.SUPABASE_URL + '/rest/v1/project_members?user_id=eq.' + session.user.id + '&select=project_slug,role,projects(slug,name,client_name,status)',
+              window.SUPABASE_URL + '/rest/v1/project_members?user_id=eq.' + session.user.id + '&select=project_slug,role,projects(id,slug,name,client_name,status)',
               { headers: { 'apikey': window.SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + session.access_token, 'Accept': 'application/json' } }
             );
             const data2 = await res2.json();
@@ -2707,6 +2711,30 @@
           }
         } catch(e) { setMergeResult({ success: false, error: e.message }); }
         setMerging(false);
+      }
+
+      async function archiveProject(projectId, newStatus) {
+        setArchiving(projectId);
+        try {
+          const res = await fetch(
+            window.SUPABASE_URL + '/rest/v1/projects?id=eq.' + projectId,
+            { method: 'PATCH',
+              headers: { 'apikey': window.SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + session.access_token,
+                'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+              body: JSON.stringify({ status: newStatus })
+            }
+          );
+          if (res.ok) {
+            // Reload project list
+            const res2 = await fetch(
+              window.SUPABASE_URL + '/rest/v1/project_members?user_id=eq.' + session.user.id + '&select=project_slug,role,projects(id,slug,name,client_name,status)',
+              { headers: { 'apikey': window.SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + session.access_token, 'Accept': 'application/json' } }
+            );
+            const data2 = await res2.json();
+            setUserProjects(data2 || []);
+          }
+        } catch(e) { console.error('Archive failed:', e); }
+        setArchiving(null);
       }
 
       if (isAdmin && !hasUrlSlug && userProjects && userProjects.length > 1) {
@@ -2732,41 +2760,83 @@
           ),
 
           // Project list
-          h("div", { style: { display:"flex", flexDirection:"column", gap:12 } },
-            userProjects.filter(function(m) { return m.projects && m.projects.status !== 'merged'; }).map(function(m) {
-              const proj = m.projects;
+          (function() {
+            var activeProjects = userProjects.filter(function(m) { return m.projects && m.projects.status !== 'merged' && m.projects.status !== 'archived'; });
+            var archivedProjects = userProjects.filter(function(m) { return m.projects && m.projects.status === 'archived'; });
+            var statusColors = { active: "#10B981", discovery: "#8B5CF6", paused: "#F59E0B", completed: "#3B82F6", archived: "#64748B" };
+
+            function renderProjectCard(m, isArchived) {
+              var proj = m.projects;
               if (!proj) return null;
-              const statusColors = { active: "#10B981", paused: "#F59E0B", completed: "#3B82F6", archived: "#64748B" };
-              return h("a", {
+              return h("div", {
                 key: m.project_slug,
-                href: "?p=" + m.project_slug,
                 style: {
                   display:"flex", alignItems:"center", justifyContent:"space-between",
-                  padding:"16px 20px", background:"rgba(255,255,255,0.04)",
+                  padding:"16px 20px", background: isArchived ? "rgba(255,255,255,0.02)" : "rgba(255,255,255,0.04)",
                   border:"1px solid rgba(255,255,255,0.08)", borderRadius:12,
-                  textDecoration:"none", cursor:"pointer",
+                  opacity: isArchived ? 0.6 : 1,
                   transition:"all 0.15s"
-                },
-                onMouseOver: function(e) { e.currentTarget.style.background = "rgba(224,122,47,0.08)"; e.currentTarget.style.borderColor = "rgba(224,122,47,0.3)"; },
-                onMouseOut: function(e) { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }
+                }
               },
-                h("div", null,
-                  h("div", { style: { color:"#FBF7F2", fontSize:15, fontWeight:600, marginBottom:4 } }, proj.name),
-                  h("div", { style: { color:"#64748B", fontSize:12 } },
-                    proj.client_name || m.project_slug, " \u00B7 ", m.role)
+                h("a", {
+                  href: "?p=" + m.project_slug,
+                  style: { flex:1, textDecoration:"none", display:"flex", alignItems:"center", justifyContent:"space-between" },
+                  onMouseOver: function(e) { e.currentTarget.parentElement.style.background = "rgba(224,122,47,0.08)"; e.currentTarget.parentElement.style.borderColor = "rgba(224,122,47,0.3)"; },
+                  onMouseOut: function(e) { e.currentTarget.parentElement.style.background = isArchived ? "rgba(255,255,255,0.02)" : "rgba(255,255,255,0.04)"; e.currentTarget.parentElement.style.borderColor = "rgba(255,255,255,0.08)"; }
+                },
+                  h("div", null,
+                    h("div", { style: { color:"#FBF7F2", fontSize:15, fontWeight:600, marginBottom:4 } }, proj.name),
+                    h("div", { style: { color:"#64748B", fontSize:12 } },
+                      proj.client_name || m.project_slug, " \u00B7 ", m.role)
+                  ),
+                  h("div", { style: { display:"flex", alignItems:"center", gap:8 } },
+                    h("span", {
+                      style: { display:"inline-block", width:8, height:8, borderRadius:"50%",
+                        background: statusColors[proj.status] || "#64748B" }
+                    }),
+                    h("span", { style: { color:"#94A3B8", fontSize:12, textTransform:"capitalize" } },
+                      proj.status || "active"),
+                    h("span", { style: { color:"#64748B", fontSize:16, marginLeft:8 } }, "\u2192")
+                  )
                 ),
-                h("div", { style: { display:"flex", alignItems:"center", gap:8 } },
-                  h("span", {
-                    style: { display:"inline-block", width:8, height:8, borderRadius:"50%",
-                      background: statusColors[proj.status] || "#64748B" }
-                  }),
-                  h("span", { style: { color:"#94A3B8", fontSize:12, textTransform:"capitalize" } },
-                    proj.status || "active"),
-                  h("span", { style: { color:"#64748B", fontSize:16, marginLeft:8 } }, "\u2192")
-                )
+                // Archive/Restore button
+                h("button", {
+                  onClick: function(e) { e.preventDefault(); e.stopPropagation();
+                    if (confirm(isArchived ? 'Restore "' + proj.name + '" to active?' : 'Archive "' + proj.name + '"? You can restore it later.')) {
+                      archiveProject(proj.id || m.project_slug, isArchived ? 'active' : 'archived');
+                    }
+                  },
+                  disabled: archiving === (proj.id || m.project_slug),
+                  title: isArchived ? "Restore project" : "Archive project",
+                  style: { background:"none", border:"none", color:"#64748B", cursor:"pointer",
+                    fontSize:14, padding:"4px 8px", marginLeft:8, borderRadius:4,
+                    transition:"color 0.15s" },
+                  onMouseOver: function(e) { e.currentTarget.style.color = isArchived ? "#10B981" : "#EF4444"; },
+                  onMouseOut: function(e) { e.currentTarget.style.color = "#64748B"; }
+                }, archiving === (proj.id || m.project_slug) ? "\u23F3" : (isArchived ? "\u21A9" : "\uD83D\uDDC4\uFE0F"))
               );
-            })
-          ),
+            }
+
+            return h("div", { style: { display:"flex", flexDirection:"column", gap:12 } },
+              activeProjects.map(function(m) { return renderProjectCard(m, false); }),
+
+              // Archived section
+              archivedProjects.length > 0 && h("div", { style: { marginTop:8 } },
+                h("button", {
+                  onClick: function() { setShowArchived(!showArchived); },
+                  style: { width:"100%", padding:"8px 16px", background:"none",
+                    border:"1px dashed rgba(255,255,255,0.1)", borderRadius:8, color:"#64748B",
+                    fontSize:12, cursor:"pointer", fontFamily:"inherit" }
+                }, showArchived
+                  ? "\u25B4 Hide " + archivedProjects.length + " archived project" + (archivedProjects.length > 1 ? "s" : "")
+                  : "\u25BE " + archivedProjects.length + " archived project" + (archivedProjects.length > 1 ? "s" : "")
+                ),
+                showArchived && h("div", { style: { display:"flex", flexDirection:"column", gap:8, marginTop:8 } },
+                  archivedProjects.map(function(m) { return renderProjectCard(m, true); })
+                )
+              )
+            );
+          })(),
 
           // ── Admin Tools: Merge Projects ──
           h("div", { style: { marginTop:24, borderTop:"1px solid rgba(255,255,255,0.08)", paddingTop:20 } },
