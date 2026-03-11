@@ -615,6 +615,20 @@
                                 </div>
                               )}
                               {t.blocker && <div style={{ fontSize:11, color:"#DC2626", marginTop:3 }}>⚠ {t.blocker}</div>}
+                            {/* AI-generated deliverable indicator */}
+                            {t.deliverable && (
+                              <div style={{ marginTop:6, display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
+                                <span style={{ display:"inline-flex", alignItems:"center", gap:5, fontSize:12, fontWeight:600,
+                                  color:"#166534", background:"#DCFCE7", padding:"3px 10px", borderRadius:6 }}>
+                                  <span style={{fontSize:14}}>{"\u2726"}</span> {t.deliverable}
+                                  <span style={{ fontSize:10, fontWeight:500, color:"#15803D",
+                                    background:"#BBF7D0", padding:"1px 6px", borderRadius:3, marginLeft:2 }}>
+                                    {(t.deliverableType||"").toUpperCase()}
+                                  </span>
+                                </span>
+                                <span style={{ fontSize:11, color:BRAND, fontWeight:600 }}>Ready for review</span>
+                              </div>
+                            )}
                             {/* Inline comment display for regular (non-asset) tasks */}
                             {!t.assetPath && taskComments.length > 0 && (
                               <div style={{ marginTop:6 }}>
