@@ -2318,6 +2318,14 @@
       const [projectsLoading, setProjectsLoading] = React.useState(true);
       const [accessDenied, setAccessDenied] = React.useState(false);
 
+      // Merge state (must be before any conditional returns)
+      const [showMerge, setShowMerge] = React.useState(false);
+      const [allProjects, setAllProjects] = React.useState([]);
+      const [mergeSource, setMergeSource] = React.useState('');
+      const [mergeTarget, setMergeTarget] = React.useState('');
+      const [merging, setMerging] = React.useState(false);
+      const [mergeResult, setMergeResult] = React.useState(null);
+
       React.useEffect(() => {
         supabase.auth.getSession().then(({ data: { session: s } }) => {
           prevSession.current = s; // if already logged in, record it (no animation)
@@ -2658,14 +2666,6 @@
       // Admin with no specific project slug — show project picker
       const isAdmin = Array.isArray(userProjects) && userProjects.some(function(m) { return m.role === 'admin'; });
       const hasUrlSlug = new URLSearchParams(window.location.search).has('p');
-
-      // Merge state
-      const [showMerge, setShowMerge] = React.useState(false);
-      const [allProjects, setAllProjects] = React.useState([]);
-      const [mergeSource, setMergeSource] = React.useState('');
-      const [mergeTarget, setMergeTarget] = React.useState('');
-      const [merging, setMerging] = React.useState(false);
-      const [mergeResult, setMergeResult] = React.useState(null);
 
       // Load all projects for merge UI
       async function loadAllProjects() {
