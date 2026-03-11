@@ -268,7 +268,14 @@
             {
               version: 1,
               date: "Mar 6, 2026",
-              note: "Comprehensive report covering 7 competitor platforms, market gaps, and Velo's differentiation. HTML file needs re-upload.",
+              note: "Original report: 8 capabilities, 3-tier model, market sizing.",
+              status: "approved",
+            },
+            {
+              version: 2,
+              date: "Mar 11, 2026",
+              url: "https://gzpuectetjatqbpcdgqt.supabase.co/functions/v1/serve-asset?path=velo/deliverables/capabilities-market-report.html",
+              note: "Updated: reflects 4 active clients, two-tier offer, automated onboarding pipeline, geographic focus. New capabilities added (automated prospect onboarding, dashboard as sales tool).",
               status: "approved",
             },
           ],
