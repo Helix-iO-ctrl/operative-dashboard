@@ -204,7 +204,8 @@
             {
               version: 1,
               date: "Mar 9, 2026",
-              note: "Initial concepts: Speed Mark, Intelligence Node, Trust Shield, Minimal V. Awaiting Hayden's pick. HTML file not yet created.",
+              note: "Initial concepts: Speed Mark, Intelligence Node, Trust Shield, Minimal V. Awaiting Hayden's pick.",
+              url: "https://helix-io-ctrl.github.io/operative-dashboard/docs/creative/velo-logo-concepts.html",
               status: "in-review",
             },
           ],
