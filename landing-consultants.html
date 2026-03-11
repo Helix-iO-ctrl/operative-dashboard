@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Operative — Launch Your AI Consulting Practice</title>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --bg2: #12121a;
+      --bg3: #1a1a26;
+      --border: #2a2a40;
+      --accent: #7c6af7;
+      --accent2: #a78bfa;
+      --accent-glow: rgba(124, 106, 247, 0.18);
+      --text: #f0f0f8;
+      --text-muted: #8888aa;
+      --text-dim: #5555778;
+      --green: #34d399;
+      --orange: #fb923c;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 48px;
+      background: rgba(10,10,15,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .logo { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; color: var(--text); text-decoration: none; }
+    .logo span { color: var(--accent2); }
+    .nav-cta {
+      background: var(--accent); color: #fff; border: none; padding: 10px 22px;
+      border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer;
+      text-decoration: none; transition: background 0.2s, transform 0.15s;
+    }
+    .nav-cta:hover { background: var(--accent2); transform: translateY(-1px); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: -20%; left: 50%; transform: translateX(-50%);
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(124,106,247,0.14) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--accent-glow); border: 1px solid rgba(124,106,247,0.35);
+      color: var(--accent2); font-size: 0.8rem; font-weight: 600;
+      padding: 6px 14px; border-radius: 999px; margin-bottom: 32px;
+      letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    .hero-badge .dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+
+    h1 {
+      font-size: clamp(2.4rem, 5.5vw, 4.2rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      max-width: 820px;
+      margin-bottom: 24px;
+    }
+    h1 .highlight { color: var(--accent2); }
+
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: var(--text-muted);
+      max-width: 560px;
+      margin-bottom: 48px;
+      line-height: 1.7;
+    }
+
+    .hero-cta-group { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+    .btn-primary {
+      background: var(--accent); color: #fff;
+      padding: 15px 32px; border-radius: 10px;
+      font-size: 1rem; font-weight: 700; cursor: pointer;
+      text-decoration: none; border: none;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 0 24px rgba(124,106,247,0.35);
+    }
+    .btn-primary:hover { background: var(--accent2); transform: translateY(-2px); box-shadow: 0 0 36px rgba(124,106,247,0.5); }
+    .btn-secondary {
+      background: transparent; color: var(--text-muted);
+      padding: 15px 32px; border-radius: 10px;
+      font-size: 1rem; font-weight: 600; cursor: pointer;
+      text-decoration: none; border: 1px solid var(--border);
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--text); }
+
+    .hero-stats {
+      display: flex; gap: 48px; flex-wrap: wrap; justify-content: center;
+      margin-top: 72px; padding-top: 48px; border-top: 1px solid var(--border);
+    }
+    .stat { text-align: center; }
+    .stat-num { font-size: 2rem; font-weight: 800; color: var(--accent2); letter-spacing: -0.02em; }
+    .stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+
+    /* ── SECTION BASE ── */
+    section { padding: 100px 24px; max-width: 1100px; margin: 0 auto; }
+    .section-label {
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--accent2); margin-bottom: 16px;
+    }
+    h2 {
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 800; letter-spacing: -0.03em;
+      line-height: 1.2; margin-bottom: 20px;
+    }
+    .section-sub {
+      font-size: 1.1rem; color: var(--text-muted);
+      max-width: 560px; margin-bottom: 64px; line-height: 1.7;
+    }
+
+    /* ── PROBLEM ── */
+    .problem-bg { background: var(--bg2); }
+    .problem-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .problem-card {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 14px; padding: 28px;
+    }
+    .problem-card .icon { font-size: 1.5rem; margin-bottom: 14px; }
+    .problem-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 10px; }
+    .problem-card p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; }
+
+    /* ── HOW IT WORKS ── */
+    .steps { display: flex; flex-direction: column; gap: 0; }
+    .step {
+      display: grid; grid-template-columns: 60px 1fr;
+      gap: 24px; padding: 36px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .step:last-child { border-bottom: none; }
+    .step-num {
+      width: 48px; height: 48px;
+      background: var(--accent-glow); border: 1px solid rgba(124,106,247,0.35);
+      border-radius: 12px; display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; font-weight: 800; color: var(--accent2);
+      flex-shrink: 0;
+    }
+    .step-content h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 8px; }
+    .step-content p { font-size: 0.95rem; color: var(--text-muted); line-height: 1.7; }
+
+    /* ── FEATURES ── */
+    .features-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .feature-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 16px; padding: 32px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .feature-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+    .feature-icon {
+      width: 44px; height: 44px;
+      background: var(--accent-glow); border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.25rem; margin-bottom: 18px;
+    }
+    .feature-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 10px; }
+    .feature-card p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.65; }
+
+    /* ── INCOME ── */
+    .income-bg { background: var(--bg2); }
+    .income-table {
+      width: 100%; border-collapse: collapse;
+      background: var(--bg3); border-radius: 16px; overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .income-table th {
+      background: var(--bg); padding: 16px 24px;
+      text-align: left; font-size: 0.8rem; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+    .income-table td {
+      padding: 18px 24px; font-size: 0.95rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .income-table tr:last-child td { border-bottom: none; }
+    .income-table .highlight-row td { color: var(--green); font-weight: 700; }
+    .income-table .clients { color: var(--accent2); font-weight: 600; }
+
+    /* ── WHAT YOU GET ── */
+    .checklist { list-style: none; display: flex; flex-direction: column; gap: 16px; }
+    .checklist li {
+      display: flex; align-items: flex-start; gap: 14px;
+      font-size: 1rem; line-height: 1.6;
+    }
+    .check {
+      width: 22px; height: 22px; flex-shrink: 0;
+      background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.4);
+      border-radius: 6px; display: flex; align-items: center; justify-content: center;
+      color: var(--green); font-size: 0.75rem; margin-top: 2px;
+    }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
+    @media(max-width:720px){ .two-col { grid-template-columns: 1fr; gap: 40px; } }
+    .price-box {
+      background: var(--bg2); border: 1px solid var(--accent);
+      border-radius: 20px; padding: 36px;
+      box-shadow: 0 0 40px rgba(124,106,247,0.12);
+    }
+    .price-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+    .price { font-size: 3rem; font-weight: 800; color: var(--accent2); letter-spacing: -0.03em; }
+    .price span { font-size: 1.2rem; font-weight: 500; color: var(--text-muted); }
+    .price-desc { font-size: 0.9rem; color: var(--text-muted); margin-top: 12px; margin-bottom: 28px; line-height: 1.6; }
+
+    /* ── TESTIMONIAL / QUOTE ── */
+    .quote-block {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 14px; padding: 32px; margin: 48px 0;
+    }
+    .quote-text { font-size: 1.15rem; line-height: 1.75; color: var(--text); font-style: italic; margin-bottom: 20px; }
+    .quote-attr { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
+
+    /* ── FAQ ── */
+    .faq-list { display: flex; flex-direction: column; gap: 2px; }
+    .faq-item {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden;
+    }
+    .faq-q {
+      padding: 20px 24px; font-weight: 600; font-size: 1rem;
+      cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+    }
+    .faq-q:hover { color: var(--accent2); }
+    .faq-q .arrow { font-size: 1.2rem; color: var(--text-muted); transition: transform 0.2s; }
+    .faq-a { padding: 0 24px 20px; color: var(--text-muted); font-size: 0.95rem; line-height: 1.7; display: none; }
+    .faq-item.open .faq-a { display: block; }
+    .faq-item.open .arrow { transform: rotate(45deg); }
+
+    /* ── CTA FOOTER ── */
+    .cta-section {
+      text-align: center; padding: 120px 24px;
+      background: linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+      position: relative; overflow: hidden;
+    }
+    .cta-section::before {
+      content: '';
+      position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 600px; height: 400px;
+      background: radial-gradient(circle, rgba(124,106,247,0.16) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .cta-section h2 { max-width: 700px; margin: 0 auto 20px; }
+    .cta-section p { color: var(--text-muted); font-size: 1.1rem; max-width: 500px; margin: 0 auto 40px; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 48px;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 16px;
+    }
+    footer .logo-f { font-size: 1rem; font-weight: 700; color: var(--text-muted); }
+    footer .logo-f span { color: var(--accent2); }
+    footer p { font-size: 0.82rem; color: var(--text-muted); }
+    footer a { color: var(--text-muted); text-decoration: none; font-size: 0.82rem; }
+    footer a:hover { color: var(--accent2); }
+
+    /* ── MARKET BAR ── */
+    .market-bar {
+      background: var(--bg3); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+      padding: 20px 24px;
+      display: flex; justify-content: center; gap: 48px; flex-wrap: wrap;
+    }
+    .market-item { text-align: center; }
+    .market-item .num { font-size: 1.4rem; font-weight: 800; color: var(--orange); }
+    .market-item .lbl { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+
+    @media(max-width:768px){
+      nav { padding: 16px 20px; }
+      section { padding: 72px 20px; }
+      .hero-stats { gap: 28px; }
+      .step { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo">Operative<span>.</span></a>
+  <a href="#get-access" class="nav-cta">Get Early Access →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero" style="max-width:100%; padding-top:140px;">
+  <div class="hero-badge">
+    <span class="dot"></span>
+    Built for the AI Era — 2026
+  </div>
+  <h1>
+    The Complete System to<br/>
+    <span class="highlight">Launch Your AI Consulting</span><br/>
+    Practice — Fast.
+  </h1>
+  <p class="hero-sub">
+    You don't need years of experience or a big-name firm behind you.
+    You need a proven framework, a repeatable process, and AI that does the heavy lifting.
+    Operative gives you all three.
+  </p>
+  <div class="hero-cta-group">
+    <a href="#get-access" class="btn-primary">Get Early Access — It's Free to Start</a>
+    <a href="#how-it-works" class="btn-secondary">See How It Works ↓</a>
+  </div>
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-num">$110k+</div>
+      <div class="stat-label">Avg. AI consultant salary (US)</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">30–40%</div>
+      <div class="stat-label">Fee premium for specialized consultants</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">2×</div>
+      <div class="stat-label">Demand for AI consulting by 2026</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">6M+</div>
+      <div class="stat-label">US small businesses that need this</div>
+    </div>
+  </div>
+</section>
+
+<!-- MARKET BAR -->
+<div class="market-bar">
+  <div class="market-item">
+    <div class="num">90%</div>
+    <div class="lbl">of SMBs now use at least one AI tool</div>
+  </div>
+  <div class="market-item">
+    <div class="num">$5k–$15k</div>
+    <div class="lbl">per engagement, project-based</div>
+  </div>
+  <div class="market-item">
+    <div class="num">8–15 clients</div>
+    <div class="lbl">per consultant using this system</div>
+  </div>
+  <div class="market-item">
+    <div class="num">$15k–$45k</div>
+    <div class="lbl">monthly revenue at capacity</div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<div class="problem-bg" style="padding: 20px 0;">
+  <section>
+    <div class="section-label">The Problem</div>
+    <h2>You Want In. The Door Feels Closed.</h2>
+    <p class="section-sub">
+      Everyone says AI consulting is the future. Almost no one tells you how to actually do it professionally — without years of experience or a big firm behind you.
+    </p>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="icon">🧩</div>
+        <h3>No Framework to Follow</h3>
+        <p>You can use ChatGPT — but there's a massive gap between "I use AI" and "I run structured, documented consulting engagements for paying clients."</p>
+      </div>
+      <div class="problem-card">
+        <div class="icon">📂</div>
+        <h3>No System Behind You</h3>
+        <p>Senior consultants have infrastructure: templates, docs, dashboards, processes. You're starting from scratch every time. That's why clients don't take juniors seriously.</p>
+      </div>
+      <div class="problem-card">
+        <div class="icon">💸</div>
+        <h3>Trading Time for Money</h3>
+        <p>Without leverage, you cap out fast. You either take fewer clients or burn out. The consultants earning $10k–$40k/month have a system that scales. You need one too.</p>
+      </div>
+      <div class="problem-card">
+        <div class="icon">🔄</div>
+        <h3>Re-explaining Everything</h3>
+        <p>Every new client session starts from zero. No memory, no continuity, no documentation trail. It looks amateur and it feels exhausting.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- HOW IT WORKS -->
+<section id="how-it-works">
+  <div class="section-label">The Solution</div>
+  <h2>The Operating System for<br/>Your Consulting Practice</h2>
+  <p class="section-sub">
+    Operative is a complete AI-powered engagement framework. Not a course, not a template pack — a working system that runs your client engagements end-to-end.
+  </p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-content">
+        <h3>Onboard a Client in One Session</h3>
+        <p>The onboarding protocol walks you through a complete client discovery in under an hour. By the end, you have their goals, constraints, assumptions, and first tasks documented — and a live dashboard ready to share. Most new consultants spend weeks figuring this out. You do it in session one.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-content">
+        <h3>Run Engagements Like a Senior Consultant</h3>
+        <p>Every session is persistent. The system remembers every decision, task, and context from the last call — no re-explaining, no dropped threads. You cover strategy, operations, marketing, creative, and data. All functions. One system.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-content">
+        <h3>Give Clients a Live Dashboard</h3>
+        <p>Every client gets a real URL showing their progress, task status, decisions, and open questions — updated automatically. This is the thing that makes boutique consultants charging $20k/month look outdated. You have it from day one.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <div class="step-content">
+        <h3>Send Weekly Snapshot Reports</h3>
+        <p>Every Friday, a polished one-page HTML report goes out to your client — automatically. It shows what got done, what's next, any blockers and proposed solutions. Your clients feel informed. You look like a pro. Takes you 5 minutes.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">05</div>
+      <div class="step-content">
+        <h3>Scale to 8–15 Clients</h3>
+        <p>Each client is its own isolated system. You can run 8, 10, or 15 clients in parallel — each fully documented, each with live dashboards. The overhead per client is a fraction of what it would be if you were doing this manually.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<div style="background: var(--bg2); padding: 20px 0;">
+  <section>
+    <div class="section-label">What's Inside</div>
+    <h2>Everything You Need to<br/>Run Professional Engagements</h2>
+    <p class="section-sub">No assembly required. The system is ready to run from day one.</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🧠</div>
+        <h3>Persistent AI Memory</h3>
+        <p>Claude reads your full client context at the start of every session. Every decision, task, and assumption is remembered — automatically. No re-explaining. No dropped threads.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Live Client Dashboard</h3>
+        <p>A real URL your clients can visit anytime. Shows task status, phase progress, key decisions, and open questions. Auto-updated after every session. Visually impressive. Zero manual work.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📋</div>
+        <h3>Weekly Snapshot Reports</h3>
+        <p>Polished, branded HTML reports generated every Friday. What got done, velocity, blockers, decisions needed, and what's next. Ready in under 5 minutes. Scans in under 2 for your clients.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎙️</div>
+        <h3>Transcript Processing</h3>
+        <p>Drop in any call transcript. The system extracts decisions, updates tasks, documents context, and refreshes the dashboard. What used to take 2 hours of post-call notes now takes 5 minutes.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🗺️</div>
+        <h3>Full Discipline Coverage</h3>
+        <p>Specialized skills for strategy, operations, marketing, creative, and data. You can move from "define the ideal customer" to "write the homepage copy" to "map the onboarding process" — in one system.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Instant Engagement Setup</h3>
+        <p>Client discovery, documentation, task creation, and dashboard launch — all in one session. What used to require an entire onboarding week now takes under an hour.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- INCOME POTENTIAL -->
+<div class="income-bg" style="padding: 20px 0;">
+  <section>
+    <div class="section-label">Income Potential</div>
+    <h2>What This Can Actually Earn You</h2>
+    <p class="section-sub">
+      These are realistic numbers — based on going rates for AI-powered advisory work and the capacity the Operative system creates.
+    </p>
+    <table class="income-table">
+      <thead>
+        <tr>
+          <th>Clients</th>
+          <th>Monthly Retainer</th>
+          <th>Monthly Revenue</th>
+          <th>Hours/Month</th>
+          <th>Effective Hourly</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="clients">3 clients</td>
+          <td>$2,000</td>
+          <td>$6,000</td>
+          <td>~24 hrs</td>
+          <td>$250/hr</td>
+        </tr>
+        <tr>
+          <td class="clients">6 clients</td>
+          <td>$2,000</td>
+          <td>$12,000</td>
+          <td>~48 hrs</td>
+          <td>$250/hr</td>
+        </tr>
+        <tr>
+          <td class="clients">10 clients</td>
+          <td>$2,000–$3,000</td>
+          <td>$20,000–$30,000</td>
+          <td>~60 hrs</td>
+          <td>$330–$500/hr</td>
+        </tr>
+        <tr class="highlight-row">
+          <td class="clients">15 clients</td>
+          <td>$2,500–$3,500</td>
+          <td>$37,500–$52,500</td>
+          <td>~80 hrs</td>
+          <td>$468–$656/hr</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="font-size:0.82rem; color: var(--text-muted); margin-top:16px;">*Based on 4–6 hrs per client per month using the Operative system. Traditional consulting requires 2–3× the hours for the same output.</p>
+  </section>
+</div>
+
+<!-- WHAT YOU GET + PRICING -->
+<section id="get-access">
+  <div class="section-label">The Offer</div>
+  <h2>What You Get — and<br/>What It Costs</h2>
+  <div class="two-col">
+    <div>
+      <p style="color:var(--text-muted); font-size:1rem; margin-bottom:28px; line-height:1.7;">
+        Operative is a licensed consulting framework — a complete operating system for your practice. Not a SaaS subscription. Not a course. A working system you deploy and run.
+      </p>
+      <ul class="checklist">
+        <li><span class="check">✓</span> Complete AI Business OS framework — ready to deploy</li>
+        <li><span class="check">✓</span> Discipline skills for strategy, ops, marketing, creative & data</li>
+        <li><span class="check">✓</span> Live client dashboard (auto-published to a real URL)</li>
+        <li><span class="check">✓</span> Weekly snapshot report generator</li>
+        <li><span class="check">✓</span> Transcript processing workflow</li>
+        <li><span class="check">✓</span> Onboarding protocol — client live in one session</li>
+        <li><span class="check">✓</span> Decision log & assumption tracker</li>
+        <li><span class="check">✓</span> Session continuity & velocity tracking</li>
+        <li><span class="check">✓</span> Multi-client system — isolate each engagement</li>
+        <li><span class="check">✓</span> Quarterly framework updates as the market evolves</li>
+        <li><span class="check">✓</span> Onboarding walkthrough with Hayden</li>
+      </ul>
+    </div>
+    <div>
+      <div class="price-box">
+        <div class="price-label">Practitioner License</div>
+        <div class="price">$197<span>/mo</span></div>
+        <div class="price-desc">
+          Or $1,497/year (save $867 — best value).<br/>
+          One license, unlimited clients. Keep everything you earn.
+        </div>
+        <a href="#" class="btn-primary" style="display:block; text-align:center; margin-bottom:14px;">Get Early Access →</a>
+        <a href="#" class="btn-secondary" style="display:block; text-align:center;">See a Live Demo First</a>
+        <p style="font-size:0.78rem; color:var(--text-muted); text-align:center; margin-top:18px;">
+          Early access pricing. Limited to first 50 practitioners.<br/>
+          No lock-in. Cancel anytime.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<div style="background: var(--bg2); padding: 20px 0;">
+  <section>
+    <div class="section-label">Questions</div>
+    <h2>Common Questions</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q">Do I need a technical background to use this? <span class="arrow">+</span></div>
+        <div class="faq-a">No. Operative is designed for people who understand business problems and can communicate clearly — not engineers. If you can run a structured conversation and document what you learn, you can use this system effectively from day one.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What AI tools do I need? <span class="arrow">+</span></div>
+        <div class="faq-a">The system is built on top of Claude (Anthropic's AI) and runs inside the Cowork desktop app. You'll need a Claude subscription — the $20/month Pro plan is sufficient to start. No other tools required.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What if I don't have any clients yet? <span class="arrow">+</span></div>
+        <div class="faq-a">That's normal. The system includes a lightweight outreach and positioning framework to help you land your first 2–3 clients. Most practitioners close their first client within 30 days by offering a paid discovery session ($500) — which pays for the license in one call.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">How is this different from a consulting course? <span class="arrow">+</span></div>
+        <div class="faq-a">A course teaches you concepts. Operative gives you a running system. You don't study it — you deploy it. Your first client session uses the actual framework, not theory. Think of it as the difference between reading about how to run a restaurant and having the kitchen, menu, and POS system set up and ready to go.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">How do I set a price for my services? <span class="arrow">+</span></div>
+        <div class="faq-a">The framework includes pricing guidance. Recommended starting point: $2,000/month retainer or $6,000 for a 90-day engagement. At those rates, 3 clients fully covers the license and generates strong part-time income. You can start lower and raise rates as you build case studies.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Is there a community or support? <span class="arrow">+</span></div>
+        <div class="faq-a">Early access members get direct access to Hayden for onboarding and Q&A. A practitioner community is being built for sharing client wins, frameworks, and pricing strategies. Early members will shape how that community runs.</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FINAL CTA -->
+<div class="cta-section">
+  <div class="section-label">Ready to Start</div>
+  <h2>The Window Is Open.<br/>Most People Will Wait.</h2>
+  <p>AI consulting demand is doubling by 2026. The consultants who build their practice now — with the right system — will own this market before it gets crowded. Early access spots are limited.</p>
+  <a href="#" class="btn-primary" style="font-size:1.1rem; padding:17px 40px;">Get Early Access Now →</a>
+  <p style="font-size:0.85rem; color:var(--text-muted); margin-top:20px;">First 50 practitioners only · $197/month · Cancel anytime</p>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="logo-f">Operative<span>.</span></div>
+  <p>AI-Powered Consulting for the Next Generation of Business Advisors</p>
+  <div style="display:flex; gap:24px;">
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <a href="mailto:hello@operative.ai">Contact</a>
+  </div>
+</footer>
+
+<script>
+  // FAQ accordion
+  document.querySelectorAll('.faq-q').forEach(q => {
+    q.addEventListener('click', () => {
+      const item = q.closest('.faq-item');
+      const wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+      if (!wasOpen) item.classList.add('open');
+    });
+  });
+</script>
+</body>
+</html>
