@@ -7,7 +7,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/spabase-js@2/dist/umd/supabase.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -29,14 +29,14 @@
     window.SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6cHVlY3RldGphdHFicGNkZ3F0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MTc3MTMsImV4cCI6MjA4ODI5MzcxM30.KkIr6SSqQtO3aGDtCCxUIBOgbEgjtVeqExlW_Yv-QZ0';
 
     // Multi-tenant routing: read project slug from URL (?p=slug), default to 'operative'
-    window.PROJECT_SLUG = new URLSearchParams(window.location.search).get('p') || 'operative';
+    window.PROJECT_SLUG = new URLSearchParams(window.location.search).get('p') || '';
 
     // Will be overwritten by data/{slug}.js if it exists
     window.PROJECT_DATA = null;
   </script>
 
   <!-- Dynamic project data loader — loads data/{slug}.js synchronously (for existing projects) -->
-  <script>document.write('<scr'+'ipt src="data/'+window.PROJECT_SLUG+'.js"><\/scr'+'ipt>');</script>
+  <script>if(window.PROJECT_SLUG){document.write('<scr'+'ipt src="data/'+window.PROJECT_SLUG+'.js"><\/scr'+'ipt>');</script>
 
   <!-- ============================================================
     🔧 APP CODE — no need to edit below this line
