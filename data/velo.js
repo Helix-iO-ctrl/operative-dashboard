@@ -1,12 +1,12 @@
     window.PROJECT_DATA = {
       name: "Velo — AI Consulting OS",
       client: "Hayden Barnes (Owner/CEO)",
-      lastUpdated: "Mar 10, 2026",
+      lastUpdated: "Mar 11, 2026",
       phases: ["Active Engagements", "Case Study Publish", "Paid Growth", "Scale & License"],
       currentPhase: 0,
 
       // ── SUMMARY (keep in sync with tasks below) ──
-      summary: { total: 55, done: 16, inProgress: 2, blocked: 0, todo: 37 },
+      summary: { total: 55, done: 19, inProgress: 3, blocked: 0, todo: 33 },
 
       // ── DISCIPLINES & TASKS ──
       // status: "todo" | "in-progress" | "blocked" | "done"
@@ -44,7 +44,7 @@
             { id: 15, text: "Publish first LinkedIn post: 'Why I built Velo' or contractor project teaser",      status: "todo",    priority: "high" },
             { id: 16, text: "Send 5 LinkedIn connection requests/day to local business owners (SL + Utah County)",        status: "todo",    priority: "high" },
             { id: 48, text: "Join 2-3 local business Facebook groups (Utah County Business Network, etc.)",      status: "todo",    priority: "high" },
-            { id: 49, text: "Kick off contractor CRM project — discovery call, scope requirements, set timeline", status: "in-progress", priority: "high" },
+            { id: 49, text: "Kick off contractor CRM project — rescheduled, waiting on client to pick new time. Follow up if no response by EOW.", status: "in-progress", priority: "high" },
             { id: 17, text: "Set up email capture on landing pages — ConvertKit or Beehiiv free tier",               status: "todo",    priority: "medium" },
             { id: 18, text: "Write 3-email welcome sequence (welcome → problem framing → solution intro)",           status: "todo",    priority: "medium" },
             { id: 19, text: "Create public weekly snapshot example with dummy data (shareable in DMs)",              status: "todo",    priority: "medium" },
@@ -64,12 +64,12 @@
           color: "#059669", lightColor: "#ECFDF5", borderColor: "#A7F3D0",
           owner: "Hayden",
           tasks: [
-            { id: 29, text: "Research domain alternatives — check velo.io, getvelo.com, usevelo.com, veloai.com, etc.",          status: "todo", priority: "high" },
+            { id: 29, text: "Research domain alternatives — velo.io is $5K (ruled out). Available: getvelo.io, usevelo.io, runvelo.io, hirevelo.io (all ~$30-60/yr). Recommend getvelo.io or usevelo.io. Awaiting Hayden + marketing pick.",          status: "done", priority: "high" },
             { id: 30, text: "Client kickoff protocol standardized (SOP, discovery agenda, folder template)",status: "done",    priority: "high" },
-            { id: 31, text: "Draft founding client agreement — free build for case study + testimonial + warm intros", status: "todo",    priority: "high" },
+            { id: 31, text: "Draft founding client agreement — free build for case study + testimonial + warm intros. Agreement drafted with 10 sections: scope, duration, cost ($0 founding / TBD ongoing), transition clause, IP, case study rights, confidentiality, termination. Ready for Hayden review.", status: "done",    priority: "high" },
             { id: 32, text: "Set up Calendly / Cal.com booking link and embed in both landing pages",                status: "todo",    priority: "high" },
             { id: 33, text: "Create client proposal one-pager PDF (leave-behind after discovery call)",              status: "todo",    priority: "medium" },
-            { id: 34, text: "Schedule Zak & Ciara discovery call — completed onboarding, kicking off this week",    status: "in-progress",    priority: "high" },
+            { id: 34, text: "Zak & Ciara — onboarding complete, meeting ad-hoc this week. Lightweight discovery agenda prepped.",    status: "in-progress",    priority: "high" },
             { id: 35, text: "Kick off Greta SLP project — discovery call + dashboard + feedback mechanism",          status: "todo",    priority: "high" },
             { id: 36, text: "GitHub Pages set up for Velo internal dashboard (helix-io-ctrl/velo-dashboard)",   status: "done",    priority: "medium" },
             { id: 51, text: "Client folder template created and auto-sync script running",  status: "done",    priority: "medium" },
@@ -83,7 +83,7 @@
           tasks: [
             { id: 37, text: "Brand name finalized: Velo — single brand for both Track A (small biz advisory) and Track B (consultants)", status: "done", priority: "high" },
             { id: 38, text: "Design LinkedIn banner for Velo brand — 'AI-Powered Business Advisor' positioning",     status: "todo",    priority: "high" },
-            { id: 39, text: "Design Velo logo / wordmark",                                                            status: "in-progress", priority: "high" },
+            { id: 39, text: "Design Velo logo / wordmark — Concept A (Speed Mark) selected. V/elo kerning tightened per client feedback. v2 pushed. Next: final lockups for LinkedIn, favicon, business card.",                                                            status: "in-progress", priority: "high" },
             { id: 40, text: "Write brand voice guide: tone, language rules, what we say / what we don't",            status: "todo",    priority: "low" },
             { id: 41, text: "Velo brand color palette selected",   status: "done",    priority: "low",
               assetPath: "docs/creative/velo-color-palette.html" },
@@ -105,6 +105,16 @@
 
       // ── DECISIONS ──
       decisions: [
+        { date: "Mar 11, 2026", title: "Comment pull workflow established — pull → report → execute → update dashboard",
+          detail: "Standard process: (1) Pull all comments from Supabase, (2) Generate team action report (docx), (3) Team executes what they can, (4) Update dashboard with results + flag items needing client input. First run completed Mar 11." },
+        { date: "Mar 11, 2026", title: "Logo Concept A (Speed Mark) selected — kerning revised",
+          detail: "Client selected Concept A. Feedback: V/elo spacing too wide. Team tightened kerning and pushed v2. Non-selected concepts dimmed. Next: final lockups for LinkedIn, favicon, business card." },
+        { date: "Mar 11, 2026", title: "Domain research complete — 5 alternatives found, awaiting selection",
+          detail: "velo.io ruled out at $5K. Available: getvelo.io, usevelo.io, runvelo.io, hirevelo.io (~$30-60/yr each), usevelo.com (~$10-15/yr). Team recommends getvelo.io or usevelo.io. Awaiting Hayden + marketing input." },
+        { date: "Mar 11, 2026", title: "Founding client agreement drafted — ready for Hayden review",
+          detail: "10-section agreement covering: scope (discovery + build + revisions + knowledge transfer), duration (2-4 weeks), cost ($0 founding / TBD ongoing), transition clause, IP ownership, case study rights, confidentiality, termination. No obligation to continue beyond founding build." },
+        { date: "Mar 11, 2026", title: "Client commenting system live on dashboard",
+          detail: "Clients can now leave comments on in-review assets directly from the dashboard. Comment sidebar in preview modal, comment count badges on assets, and toast notifications for new comments on login. Comments stored in Supabase." },
         { date: "Mar 10, 2026", title: "All founding clients get free builds — agreement needed for scope expansion",
           detail: "Build all 4 founding client projects for free. If systems become complex or clients want ongoing help, Hayden has the paid conversation then. Founding client agreement to be drafted: free build in exchange for case study, testimonial, and warm introductions." },
         { date: "Mar 10, 2026", title: "Zak & Ciara completed onboarding — discovery call this week",
@@ -162,7 +172,7 @@
         { id: "q2", q: "What scope and timeline for Zak & Ciara's gym automation project?",
           urgency: "high", note: "Completed onboarding flow. Discovery call this week. Scope to be defined during discovery." },
         { id: "q3", q: "What domain should Velo use? Research alternatives beyond velo.io.",
-          urgency: "high", note: "Hayden wants options researched — availability and pricing for velo.io, getvelo.com, usevelo.com, veloai.com, etc. Marketing team input before purchase." },
+          urgency: "high", note: "RESEARCH COMPLETE: velo.io ruled out ($5K). Available options: getvelo.io, usevelo.io, runvelo.io, hirevelo.io (all ~$30-60/yr), usevelo.com (~$10-15/yr). Recommend getvelo.io or usevelo.io. Awaiting Hayden + marketing pick." },
         { id: "q4", q: "What feedback loop should the Greta SLP Assistant tool have?",
           urgency: "medium", note: "Greta project kickoff targeted for this weekend. Feedback loop scoping will happen during kickoff." },
         { id: "q6", q: "When should Jordan be pulled into an active engagement?",
@@ -198,8 +208,8 @@
           id: "logo-concepts",
           title: "Logo & Wordmark Concepts",
           discipline: "creative",
-          description: "4 logo directions exploring speed/velocity, AI intelligence, consulting trust, and modern minimalism.",
-          status: "in-review",
+          description: "4 logo directions exploring speed/velocity, AI intelligence, consulting trust, and modern minimalism. Concept A (Speed Mark) selected.",
+          status: "revision-needed",
           versions: [
             {
               version: 1,
@@ -207,6 +217,13 @@
               note: "Initial concepts: Speed Mark, Intelligence Node, Trust Shield, Minimal V. Awaiting Hayden's pick.",
               url: "https://helix-io-ctrl.github.io/operative-dashboard/docs/creative/velo-logo-concepts.html",
               status: "in-review",
+            },
+            {
+              version: 2,
+              date: "Mar 11, 2026",
+              note: "Concept A selected. V/elo kerning tightened per client feedback. Non-selected concepts dimmed. Next: final lockups.",
+              url: "https://helix-io-ctrl.github.io/operative-dashboard/docs/creative/velo-logo-concepts.html",
+              status: "revision-needed",
             },
           ],
         },
@@ -328,5 +345,19 @@
           ],
         },
       ],
+      // ── DOMAIN RESEARCH RESULTS (from Mar 11 comment pull) ──
+      domainResearch: {
+        ruledOut: [{ domain: "velo.io", reason: "Premium pricing — $5,000+", checked: "Mar 11, 2026" }],
+        available: [
+          { domain: "getvelo.io", estPrice: "~$30-60/yr", recommendation: "Top pick — action-oriented, clean" },
+          { domain: "usevelo.io", estPrice: "~$30-60/yr", recommendation: "Strong alternative — implies utility" },
+          { domain: "runvelo.io", estPrice: "~$30-60/yr", recommendation: "Good — implies operational speed" },
+          { domain: "hirevelo.io", estPrice: "~$30-60/yr", recommendation: "Good for advisory positioning" },
+          { domain: "usevelo.com", estPrice: "~$10-15/yr", recommendation: "Available .com fallback" },
+        ],
+        status: "awaiting-client-pick",
+        note: "Marketing team input requested before final selection.",
+      },
+
       feedbackResponses: {},
     };
