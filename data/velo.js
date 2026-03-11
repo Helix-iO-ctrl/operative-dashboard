@@ -344,6 +344,54 @@
             },
           ],
         },
+        {
+          id: "domain-research",
+          title: "Domain Research Results",
+          discipline: "strategy",
+          description: "Research on available domain alternatives after velo.io was ruled out at $5K. 5 affordable options identified and ranked.",
+          status: "in-review",
+          versions: [
+            {
+              version: 1,
+              date: "Mar 11, 2026",
+              url: "https://helix-io-ctrl.github.io/operative-dashboard/docs/strategy/velo-domain-research.html",
+              note: "5 alternatives found: getvelo.io (recommended), usevelo.io, runvelo.io, hirevelo.io, usevelo.com. Awaiting Hayden's pick.",
+              status: "in-review",
+            },
+          ],
+        },
+        {
+          id: "comment-review-mar11",
+          title: "Comment Pull Report — Mar 11",
+          discipline: "operations",
+          description: "First comment pull report. 30 comments categorized into 8 action items, 5 follow-ups, and 3 resolved. Includes priority action summary.",
+          status: "approved",
+          versions: [
+            {
+              version: 1,
+              date: "Mar 11, 2026",
+              url: "https://helix-io-ctrl.github.io/operative-dashboard/docs/operations/velo-comment-review.html",
+              note: "30 comments pulled, categorized, and prioritized. Team executed on top 3 items (logo, domain, agreement).",
+              status: "approved",
+            },
+          ],
+        },
+        {
+          id: "founding-agreement",
+          title: "Founding Client Agreement",
+          discipline: "strategy",
+          description: "10-section legal agreement for founding client engagements. Covers scope, $0 cost, IP ownership, case study rights, transition to paid.",
+          status: "in-review",
+          versions: [
+            {
+              version: 1,
+              date: "Mar 11, 2026",
+              url: "https://helix-io-ctrl.github.io/operative-dashboard/docs/strategy/velo-founding-agreement.html",
+              note: "Draft ready for Hayden's review. Covers discovery through knowledge transfer, no-obligation transition clause.",
+              status: "in-review",
+            },
+          ],
+        },
       ],
       // ── DOMAIN RESEARCH RESULTS (from Mar 11 comment pull) ──
       domainResearch: {
