@@ -220,7 +220,8 @@
             {
               version: 1,
               date: "Mar 6, 2026",
-              note: "Initial version with two-tier pricing, testimonial placeholders, and booking CTA. HTML file needs re-upload.",
+              url: "https://gzpuectetjatqbpcdgqt.supabase.co/functions/v1/serve-asset?path=velo/deliverables/landing-small-business.html",
+              note: "Initial version with two-tier pricing, testimonial placeholders, and booking CTA.",
               status: "approved",
             },
           ],
