@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Velo Comment Pull Report — Mar 12, 2026</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #FBF7F2;
+      color: #1C1C2A;
+      padding: 40px 24px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .report-header {
+      border-bottom: 2px solid #E07A2F;
+      padding-bottom: 20px;
+      margin-bottom: 32px;
+    }
+    .report-header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1C1C2A;
+      letter-spacing: -0.3px;
+    }
+    .report-header .meta {
+      font-size: 12px;
+      color: #6B6878;
+      margin-top: 6px;
+      display: flex;
+      gap: 24px;
+    }
+    .meta-stat {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .meta-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #E07A2F;
+    }
+    .section {
+      margin-bottom: 32px;
+    }
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #6B6878;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #E8E3DC;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(28,28,42,0.06);
+    }
+    thead th {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #6B6878;
+      background: #F5F0E8;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid #E8E3DC;
+    }
+    tbody tr {
+      border-bottom: 1px solid #F0EBE2;
+      transition: background 0.15s;
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #FDF9F4; }
+    tbody td {
+      padding: 12px 14px;
+      vertical-align: top;
+      line-height: 1.5;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+    }
+    .badge-action { background: #FEE2E2; color: #991B1B; }
+    .badge-followup { background: #FEF3C7; color: #92400E; }
+    .badge-info { background: #DBEAFE; color: #1E40AF; }
+    .badge-resolved { background: #D1FAE5; color: #065F46; }
+    .priority-block {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(28,28,42,0.06);
+      overflow: hidden;
+    }
+    .priority-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 18px;
+      border-bottom: 1px solid #F0EBE2;
+    }
+    .priority-item:last-child { border-bottom: none; }
+    .priority-num {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #E07A2F;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .priority-content h4 {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1C1C2A;
+      margin-bottom: 3px;
+    }
+    .priority-content p {
+      font-size: 12px;
+      color: #6B6878;
+      line-height: 1.5;
+    }
+    .alert-box {
+      background: #FFF7ED;
+      border: 1px solid #FED7AA;
+      border-left: 4px solid #E07A2F;
+      border-radius: 6px;
+      padding: 14px 16px;
+      margin-bottom: 24px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .alert-box strong { color: #C45C25; }
+    .next-steps-block {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(28,28,42,0.06);
+      padding: 18px 20px;
+    }
+    .next-steps-block ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .next-steps-block li {
+      font-size: 13px;
+      line-height: 1.5;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .check-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      background: #D1FAE5;
+      color: #065F46;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .flag-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      background: #FEF3C7;
+      color: #92400E;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .pull-summary {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(28,28,42,0.06);
+      padding: 16px 20px;
+      margin-bottom: 32px;
+      display: flex;
+      gap: 32px;
+    }
+    .stat-block { text-align: center; }
+    .stat-block .num { font-size: 28px; font-weight: 700; color: #E07A2F; }
+    .stat-block .lbl { font-size: 11px; color: #6B6878; text-transform: uppercase; letter-spacing: 0.06em; }
+    .comment-quote {
+      font-style: italic;
+      color: #4B4A5A;
+      font-size: 12.5px;
+      background: #F9F5EF;
+      border-left: 3px solid #E07A2F;
+      padding: 8px 12px;
+      border-radius: 0 4px 4px 0;
+      margin-top: 6px;
+    }
+    .domain-highlight {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      background: #F9F5EF;
+      border: 1px solid #E8D8C0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      color: #C45C25;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="report-header">
+    <h1>Velo Comment Pull Report — Mar 12, 2026</h1>
+    <div class="meta">
+      <span class="meta-stat"><span class="meta-dot"></span> Pulled: March 12, 2026 at 6:10 AM UTC</span>
+      <span class="meta-stat"><span class="meta-dot" style="background:#6B6878"></span> Previous pull: March 11, 2026</span>
+      <span class="meta-stat"><span class="meta-dot" style="background:#059669"></span> New comments: 1</span>
+    </div>
+  </div>
+
+  <!-- Pull Stats -->
+  <div class="pull-summary">
+    <div class="stat-block">
+      <div class="num">1</div>
+      <div class="lbl">New Comment</div>
+    </div>
+    <div class="stat-block">
+      <div class="num">1</div>
+      <div class="lbl">Action Required</div>
+    </div>
+    <div class="stat-block">
+      <div class="num">0</div>
+      <div class="lbl">Follow Ups</div>
+    </div>
+    <div class="stat-block">
+      <div class="num">0</div>
+      <div class="lbl">Resolved</div>
+    </div>
+  </div>
+
+  <!-- Alert -->
+  <div class="alert-box">
+    <strong>⚠ Domain Decision Changed.</strong> Previous decision logged <span class="domain-highlight">getvelo.io</span> as the selected domain. Hayden has now confirmed he purchased <span class="domain-highlight">runvelo.ai</span> and <span class="domain-highlight">runvelo.io</span> instead. All domain references in the dashboard, tasks, and decisions log must be updated. DNS configuration and landing page deployment should now target these domains.
+  </div>
+
+  <!-- Section: Operations / Business Decisions -->
+  <div class="section">
+    <div class="section-label">Business Decisions &amp; Domain Strategy</div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:18%">Source</th>
+          <th style="width:36%">Client Comment</th>
+          <th style="width:13%">Status</th>
+          <th style="width:33%">Team Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <strong>Domain Research</strong><br>
+            <span style="font-size:11px;color:#6B6878">asset · domain-research</span><br>
+            <span style="font-size:11px;color:#6B6878">Mar 12, 2026</span>
+          </td>
+          <td>
+            <div class="comment-quote">"Ok I just purchased 2 domains: runvelo.ai runvelo.io"</div>
+          </td>
+          <td><span class="badge badge-action">ACTION REQUIRED</span></td>
+          <td>
+            Update all domain references from <span class="domain-highlight">getvelo.io</span> to <span class="domain-highlight">runvelo.io</span> / <span class="domain-highlight">runvelo.ai</span>. Update Task #56, Task #29, decisions log. Confirm with Hayden: primary domain for landing pages — <code>runvelo.io</code> or <code>runvelo.ai</code>? Configure DNS and deploy landing pages once confirmed.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Priority Action Summary -->
+  <div class="section">
+    <div class="section-label">Priority Action Summary</div>
+    <div class="priority-block">
+      <div class="priority-item">
+        <div class="priority-num">1</div>
+        <div class="priority-content">
+          <h4>Update domain references — getvelo.io → runvelo.io / runvelo.ai</h4>
+          <p>Dashboard, decisions log, task #29, task #56 all reference getvelo.io. Hayden purchased runvelo.ai and runvelo.io. Update all references immediately. <strong>Clarify with Hayden which is the primary domain</strong> (landing pages, email, brand) and which is the redirect.</p>
+        </div>
+      </div>
+      <div class="priority-item">
+        <div class="priority-num">2</div>
+        <div class="priority-content">
+          <h4>Configure DNS and deploy landing pages to confirmed domain</h4>
+          <p>Once primary domain is confirmed, point landing pages (landing-small-business.html, landing-consultants.html) to the new domain. Update all brand collateral that references the old domain recommendation.</p>
+        </div>
+      </div>
+      <div class="priority-item">
+        <div class="priority-num">3</div>
+        <div class="priority-content">
+          <h4>Note: runvelo.ai signals strong AI-first brand positioning</h4>
+          <p>The <code>.ai</code> TLD reinforces Velo's AI consulting identity — worth calling out in marketing copy. The team should revisit the marketing brief domain references and update accordingly.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Client Next Steps -->
+  <div class="section">
+    <div class="section-label">Client Next Steps (Flagged for Hayden)</div>
+    <div class="next-steps-block">
+      <ul>
+        <li>
+          <div class="flag-icon">!</div>
+          <span><strong>Primary domain confirmation needed:</strong> Which domain is primary — <span class="domain-highlight">runvelo.io</span> or <span class="domain-highlight">runvelo.ai</span>? The team will set up the primary for landing pages and configure the other as a redirect.</span>
+        </li>
+        <li>
+          <div class="check-icon">✓</div>
+          <span><strong>Domain purchase confirmed:</strong> runvelo.ai and runvelo.io are now owned. Domain task is complete on the purchase side — just needs DNS configuration and deployment.</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Automated Actions Taken -->
+  <div class="section">
+    <div class="section-label">Automated Actions Taken This Pull</div>
+    <div class="next-steps-block">
+      <ul>
+        <li>
+          <div class="check-icon">✓</div>
+          <span>velo.js updated: Task #29 status changed to reflect <span class="domain-highlight">runvelo.io</span> purchase confirmed</span>
+        </li>
+        <li>
+          <div class="check-icon">✓</div>
+          <span>velo.js updated: Task #56 text updated from "Purchase getvelo.io" to "Configure DNS for runvelo.io / runvelo.ai and deploy landing pages"</span>
+        </li>
+        <li>
+          <div class="check-icon">✓</div>
+          <span>velo.js updated: New decision logged — "Domain purchase confirmed: runvelo.ai + runvelo.io purchased"</span>
+        </li>
+        <li>
+          <div class="check-icon">✓</div>
+          <span>This report added as asset to operations discipline in velo.js</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="margin-top:40px;padding-top:16px;border-top:1px solid #E8E3DC;font-size:11px;color:#6B6878;display:flex;justify-content:space-between;">
+    <span>Velo — AI Consulting OS</span>
+    <span>Automated comment pull · March 12, 2026</span>
+  </div>
+
+</body>
+</html>
