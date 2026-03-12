@@ -1,12 +1,12 @@
     window.PROJECT_DATA = {
       name: "Velo — AI Consulting OS",
       client: "Hayden Barnes (Owner/CEO)",
-      lastUpdated: "Mar 11, 2026",
+      lastUpdated: "Mar 12, 2026",
       phases: ["Active Engagements", "Case Study Publish", "Paid Growth", "Scale & License"],
       currentPhase: 0,
 
       // ── SUMMARY (keep in sync with tasks below) ──
-      summary: { total: 58, done: 21, inProgress: 4, blocked: 0, todo: 33 },
+      summary: { total: 58, done: 21, inProgress: 5, blocked: 0, todo: 32 },
 
       // ── DISCIPLINES & TASKS ──
       // status: "todo" | "in-progress" | "blocked" | "done"
@@ -64,7 +64,7 @@
           color: "#059669", lightColor: "#ECFDF5", borderColor: "#A7F3D0",
           owner: "Hayden",
           tasks: [
-            { id: 29, text: "Domain selected: getvelo.io — research complete, Hayden confirmed. Next: purchase domain and update all brand references.",          status: "done", priority: "high" },
+            { id: 29, text: "Domain confirmed purchased: runvelo.io + runvelo.ai — Hayden purchased both Mar 12. Confirm primary domain, configure DNS, deploy landing pages.", status: "done", priority: "high" },
             { id: 30, text: "Client kickoff protocol standardized (SOP, discovery agenda, folder template)",status: "done",    priority: "high" },
             { id: 31, text: "Founding client agreement approved — 10-section agreement ready to use as template for all founding clients. Covers scope, $0 cost, IP, case study rights, transition clause.", status: "done",    priority: "high" },
             { id: 32, text: "Set up Calendly / Cal.com booking link and embed in both landing pages",                status: "todo",    priority: "high" },
@@ -86,7 +86,7 @@
             { id: 39, text: "Design Velo logo / wordmark — Concept A (Speed Mark) approved. v2 kerning approved. Next: final lockups + rollout to admin portal, client dashboards, and all client-facing assets.",                                                            status: "in-progress", priority: "high" },
             { id: 54, text: "Roll out approved logo to admin portal and client dashboard transition screen", status: "todo", priority: "high" },
             { id: 55, text: "Audit all client-facing products/assets for logo placement — apply going forward only", status: "todo", priority: "high" },
-            { id: 56, text: "Purchase getvelo.io domain and configure DNS", status: "todo", priority: "high" },
+            { id: 56, text: "Configure DNS for runvelo.io (primary) and runvelo.ai and deploy landing pages — domains purchased Mar 12", status: "in-progress", priority: "high" },
             { id: 40, text: "Write brand voice guide: tone, language rules, what we say / what we don't",            status: "todo",    priority: "low" },
             { id: 41, text: "Velo brand color palette selected",   status: "done",    priority: "low",
               assetPath: "docs/creative/velo-color-palette.html" },
@@ -108,6 +108,8 @@
 
       // ── DECISIONS ──
       decisions: [
+        { date: "Mar 12, 2026", title: "Domain purchase confirmed: runvelo.ai + runvelo.io purchased",
+          detail: "Hayden confirmed purchase of both runvelo.ai and runvelo.io on Mar 12. Previous recommendation was getvelo.io — updated to reflect actual purchase. Primary domain (for landing pages) TBD — team to confirm with Hayden before DNS configuration. The .ai TLD reinforces AI-first positioning." },
         { date: "Mar 11, 2026", title: "Domain selected: getvelo.io — purchase authorized",
           detail: "Hayden selected getvelo.io from the 5 researched alternatives. Next steps: purchase domain, update landing pages, LinkedIn, and all brand references. Domain research question (q3) closed." },
         { date: "Mar 11, 2026", title: "Logo v2 approved — rollout to client-facing products",
@@ -379,6 +381,22 @@
               date: "Mar 11, 2026",
               url: "https://helix-io-ctrl.github.io/operative-dashboard/docs/operations/velo-comment-review.html",
               note: "30 comments pulled, categorized, and prioritized. Team executed on top 3 items (logo, domain, agreement).",
+              status: "approved",
+            },
+          ],
+        },
+        {
+          id: "comment-review-mar12",
+          title: "Comment Pull Report — Mar 12",
+          discipline: "operations",
+          description: "Mar 12 comment pull. 1 new comment: domain purchase confirmed (runvelo.ai + runvelo.io). Dashboard and tasks updated to reflect new domains.",
+          status: "approved",
+          versions: [
+            {
+              version: 1,
+              date: "Mar 12, 2026",
+              url: "https://helix-io-ctrl.github.io/operative-dashboard/docs/operations/velo-comment-review-2026-03-12.html",
+              note: "1 new comment. Domain references updated from getvelo.io to runvelo.io/runvelo.ai. Primary domain confirmation pending.",
               status: "approved",
             },
           ],
